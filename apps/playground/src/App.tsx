@@ -1,19 +1,13 @@
 import type { ColumnDef } from '@heynow/react-spread-sheet-table'
-
-type Employee = {
-  id: string
-  name: string
-  age: number
-  joinDate: string
-  active: boolean
-  department: string
-}
+import type { Employee } from './sample-data'
+import { sampleData } from './sample-data'
 
 const columns: ReadonlyArray<ColumnDef<Employee>> = [
-  { key: 'name', header: 'Name', type: 'text' },
-  { key: 'age', header: 'Age', type: 'number', min: 0, max: 150 },
+  { key: 'name', header: 'Name', type: 'text', maxLength: 50 },
+  { key: 'age', header: 'Age', type: 'number', min: 0, max: 150, width: 80 },
   { key: 'joinDate', header: 'Join Date', type: 'date' },
-  { key: 'active', header: 'Active', type: 'boolean' },
+  { key: 'startTime', header: 'Start Time', type: 'time', step: 900 },
+  { key: 'active', header: 'Active', type: 'boolean', width: 80 },
   {
     key: 'department',
     header: 'Department',
@@ -31,33 +25,6 @@ const columns: ReadonlyArray<ColumnDef<Employee>> = [
         Detail
       </button>
     ),
-  },
-]
-
-const sampleData: ReadonlyArray<Employee> = [
-  {
-    id: '1',
-    name: 'Tanaka Taro',
-    age: 28,
-    joinDate: '2022-04-01',
-    active: true,
-    department: 'Engineering',
-  },
-  {
-    id: '2',
-    name: 'Suzuki Hanako',
-    age: 32,
-    joinDate: '2020-01-15',
-    active: true,
-    department: 'Sales',
-  },
-  {
-    id: '3',
-    name: 'Yamada Jiro',
-    age: 45,
-    joinDate: '2015-06-01',
-    active: false,
-    department: 'HR',
   },
 ]
 
