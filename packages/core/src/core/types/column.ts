@@ -17,47 +17,41 @@ type ColumnDefBase<T, K extends keyof T> = {
 // Data column variants (Discriminated Union)
 // ---------------------------------------------------------------------------
 
-export type TextColumnDef<T, K extends keyof T = keyof T> =
-  ColumnDefBase<T, K> & {
-    readonly type: 'text'
-    readonly maxLength?: number
-    readonly pattern?: RegExp
-  }
+export type TextColumnDef<T, K extends keyof T = keyof T> = ColumnDefBase<T, K> & {
+  readonly type: 'text'
+  readonly maxLength?: number
+  readonly pattern?: RegExp
+}
 
-export type NumberColumnDef<T, K extends keyof T = keyof T> =
-  ColumnDefBase<T, K> & {
-    readonly type: 'number'
-    readonly min?: number
-    readonly max?: number
-    readonly step?: number
-    readonly precision?: number
-  }
+export type NumberColumnDef<T, K extends keyof T = keyof T> = ColumnDefBase<T, K> & {
+  readonly type: 'number'
+  readonly min?: number
+  readonly max?: number
+  readonly step?: number
+  readonly precision?: number
+}
 
-export type DateColumnDef<T, K extends keyof T = keyof T> =
-  ColumnDefBase<T, K> & {
-    readonly type: 'date'
-    readonly minDate?: string
-    readonly maxDate?: string
-  }
+export type DateColumnDef<T, K extends keyof T = keyof T> = ColumnDefBase<T, K> & {
+  readonly type: 'date'
+  readonly minDate?: string
+  readonly maxDate?: string
+}
 
-export type TimeColumnDef<T, K extends keyof T = keyof T> =
-  ColumnDefBase<T, K> & {
-    readonly type: 'time'
-    readonly minTime?: string
-    readonly maxTime?: string
-    readonly step?: number
-  }
+export type TimeColumnDef<T, K extends keyof T = keyof T> = ColumnDefBase<T, K> & {
+  readonly type: 'time'
+  readonly minTime?: string
+  readonly maxTime?: string
+  readonly step?: number
+}
 
-export type BooleanColumnDef<T, K extends keyof T = keyof T> =
-  ColumnDefBase<T, K> & {
-    readonly type: 'boolean'
-  }
+export type BooleanColumnDef<T, K extends keyof T = keyof T> = ColumnDefBase<T, K> & {
+  readonly type: 'boolean'
+}
 
-export type ListColumnDef<T, K extends keyof T = keyof T> =
-  ColumnDefBase<T, K> & {
-    readonly type: 'list'
-    readonly options: readonly string[]
-  }
+export type ListColumnDef<T, K extends keyof T = keyof T> = ColumnDefBase<T, K> & {
+  readonly type: 'list'
+  readonly options: readonly string[]
+}
 
 // ---------------------------------------------------------------------------
 // Data column union
@@ -98,9 +92,7 @@ export function isDataColumn<T>(col: ColumnDef<T>): col is DataColumnDef<T> {
   return col.type !== 'action'
 }
 
-export function isActionColumn<T>(
-  col: ColumnDef<T>,
-): col is ActionColumnDef<T> {
+export function isActionColumn<T>(col: ColumnDef<T>): col is ActionColumnDef<T> {
   return col.type === 'action'
 }
 

@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
-import { isDataColumn, isActionColumn } from './column'
-import type { ColumnDef, DataColumnDef, ActionColumnDef } from './column'
+import { describe, expect, it } from 'vitest'
+import type { ActionColumnDef, ColumnDef, DataColumnDef } from './column'
+import { isActionColumn, isDataColumn } from './column'
 
 type Employee = {
   id: string

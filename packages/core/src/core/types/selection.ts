@@ -36,10 +36,7 @@ export function isInSelection(
 ): boolean {
   if (selection.range === null) {
     if (selection.activeCell === null) return false
-    return (
-      selection.activeCell.rowIndex === rowIndex &&
-      selection.activeCell.colIndex === colIndex
-    )
+    return selection.activeCell.rowIndex === rowIndex && selection.activeCell.colIndex === colIndex
   }
 
   const minRow = Math.min(selection.range.start.rowIndex, selection.range.end.rowIndex)
@@ -47,12 +44,7 @@ export function isInSelection(
   const minCol = Math.min(selection.range.start.colIndex, selection.range.end.colIndex)
   const maxCol = Math.max(selection.range.start.colIndex, selection.range.end.colIndex)
 
-  return (
-    rowIndex >= minRow &&
-    rowIndex <= maxRow &&
-    colIndex >= minCol &&
-    colIndex <= maxCol
-  )
+  return rowIndex >= minRow && rowIndex <= maxRow && colIndex >= minCol && colIndex <= maxCol
 }
 
 export function isActiveCell(
@@ -61,8 +53,5 @@ export function isActiveCell(
   colIndex: number,
 ): boolean {
   if (selection.activeCell === null) return false
-  return (
-    selection.activeCell.rowIndex === rowIndex &&
-    selection.activeCell.colIndex === colIndex
-  )
+  return selection.activeCell.rowIndex === rowIndex && selection.activeCell.colIndex === colIndex
 }

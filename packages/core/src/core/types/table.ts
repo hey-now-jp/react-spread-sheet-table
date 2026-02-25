@@ -1,8 +1,8 @@
 import type { ColumnDef } from './column'
-import type { CellValidationError, ValidationResult } from './validation'
-import type { SelectionState, CellPosition, SelectionRange } from './selection'
-import type { SortDirection, SortState } from './sort'
 import type { FilterCondition, FilterState } from './filter'
+import type { SelectionRange, SelectionState } from './selection'
+import type { SortDirection, SortState } from './sort'
+import type { CellValidationError, ValidationResult } from './validation'
 
 // ---------------------------------------------------------------------------
 // Change tracking

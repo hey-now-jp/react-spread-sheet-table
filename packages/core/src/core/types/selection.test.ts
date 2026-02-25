@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
-import { isInSelection, isActiveCell } from './selection'
+import { describe, expect, it } from 'vitest'
 import type { SelectionState } from './selection'
+import { isActiveCell, isInSelection } from './selection'
 
 describe('isInSelection', () => {
   it('returns false when no selection', () => {
