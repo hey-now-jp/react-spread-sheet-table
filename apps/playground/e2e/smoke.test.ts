@@ -12,7 +12,7 @@ test('basic table renders with data', async ({ page }) => {
 
   // Check that cells with sample data are visible
   await expect(page.getByText('Tanaka Taro')).toBeVisible()
-  await expect(page.getByText('Engineering')).toBeVisible()
+  await expect(page.getByText('Engineering').first()).toBeVisible()
 })
 
 test('cell editing via double-click', async ({ page }) => {

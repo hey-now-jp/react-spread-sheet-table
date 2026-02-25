@@ -47,6 +47,26 @@
   text-overflow: ellipsis;
 }
 
+.sortIndicator {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1;
+  font-size: 8px;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+.sortArrow {
+  opacity: 0.2;
+  line-height: 0.8;
+}
+
+.sortArrowActive {
+  opacity: 1;
+  color: var(--sst-selected-border);
+  line-height: 0.8;
+}
+
 .filterButton {
   display: flex;
   align-items: center;

@@ -15,8 +15,12 @@
   --sst-row-alt-bg: #fafafa;
 
   /* Selection */
-  --sst-selected-bg: rgba(33, 150, 243, 0.08);
+  --sst-selected-bg: rgba(33, 150, 243, 0.15);
   --sst-selected-border: #2196f3;
+  --sst-selection-range-border: rgba(33, 150, 243, 0.6);
+
+  /* Clipboard */
+  --sst-clipboard-border: #4caf50;
 
   /* Validation */
   --sst-error-bg: #fff0f0;

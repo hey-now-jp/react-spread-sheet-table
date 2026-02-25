@@ -1,4 +1,4 @@
-import { memo, useCallback, useState } from 'react'
+import { memo, useCallback, useState, useSyncExternalStore } from 'react'
 import type { TableStore } from '../core/store/create-store'
 import type { ColumnDef, DataColumnDef } from '../core/types/column'
 import { isActionColumn, isDataColumn } from '../core/types/column'
@@ -17,6 +17,7 @@ type HeaderCellProps<T> = {
 }
 
 function HeaderCellInner<T>({ column, store, sortable, filterable }: HeaderCellProps<T>) {
+  useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
   const [filterOpen, setFilterOpen] = useState(false)
 
   const isAction = isActionColumn(column)
@@ -86,7 +87,7 @@ function HeaderCellInner<T>({ column, store, sortable, filterable }: HeaderCellP
             }}
             aria-label="Filter"
           >
-            {'\u25BC'}
+            {'\u2630'}
           </button>
           {filterOpen && (
             <FilterPopover

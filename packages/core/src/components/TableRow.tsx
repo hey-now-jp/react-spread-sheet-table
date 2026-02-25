@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useSyncExternalStore } from 'react'
 import type { TableStore } from '../core/store/create-store'
 import type { ColumnDef } from '../core/types/column'
 import { isActionColumn, isDataColumn } from '../core/types/column'
@@ -23,6 +23,7 @@ function TableRowInner<T>({
   readOnly,
   onCellChange,
 }: TableRowProps<T>) {
+  useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
   const row = store.getRows()[dataRowIndex]
 
   return (

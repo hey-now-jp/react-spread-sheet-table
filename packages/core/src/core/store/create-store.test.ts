@@ -285,4 +285,43 @@ describe('createStore', () => {
       expect(indices).toEqual([2, 0])
     })
   })
+
+  describe('clipboard range', () => {
+    it('initializes with null clipboard range', () => {
+      const store = createTestStore()
+      expect(store.getClipboardRange()).toBeNull()
+    })
+
+    it('sets clipboard range', () => {
+      const store = createTestStore()
+      const range = { start: { rowIndex: 0, colIndex: 0 }, end: { rowIndex: 1, colIndex: 1 } }
+      store.setClipboardRange(range)
+      expect(store.getClipboardRange()).toEqual(range)
+    })
+
+    it('clears clipboard range', () => {
+      const store = createTestStore()
+      store.setClipboardRange({
+        start: { rowIndex: 0, colIndex: 0 },
+        end: { rowIndex: 1, colIndex: 1 },
+      })
+      store.clearClipboardRange()
+      expect(store.getClipboardRange()).toBeNull()
+    })
+
+    it('notifies on clipboard range change', () => {
+      const store = createTestStore()
+      const listener = vi.fn()
+      store.subscribe(listener)
+
+      store.setClipboardRange({
+        start: { rowIndex: 0, colIndex: 0 },
+        end: { rowIndex: 0, colIndex: 0 },
+      })
+      expect(listener).toHaveBeenCalledTimes(1)
+
+      store.clearClipboardRange()
+      expect(listener).toHaveBeenCalledTimes(2)
+    })
+  })
 })

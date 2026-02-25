@@ -1,8 +1,12 @@
-import { memo, useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState, useSyncExternalStore } from 'react'
 import type { TableStore } from '../core/store/create-store'
 import type { DataColumnDef } from '../core/types/column'
-import type { CellPosition } from '../core/types/selection'
-import { isActiveCell, isInSelection } from '../core/types/selection'
+import {
+  getRangeEdges,
+  getSelectionEdges,
+  isActiveCell,
+  isInSelection,
+} from '../core/types/selection'
 import type { CellValidationError } from '../core/types/validation'
 import styles from '../styles/cell.module.css'
 import { BooleanEditor } from './editors/BooleanEditor'
@@ -22,6 +26,7 @@ type CellProps<T> = {
 }
 
 function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChange }: CellProps<T>) {
+  useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
   const [showTooltip, setShowTooltip] = useState(false)
 
   const value = store.getCellValue(rowIndex, column.key as keyof T)
@@ -34,6 +39,7 @@ function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChang
 
   const isSelected = isInSelection(selection, rowIndex, colIndex)
   const isActive = isActiveCell(selection, rowIndex, colIndex)
+  const edges = getSelectionEdges(selection, rowIndex, colIndex)
 
   const validationErrors = store.getValidationErrors()
   const cellError = useMemo(
@@ -44,20 +50,12 @@ function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChang
     [validationErrors, rowIndex, column.key],
   )
 
+  const clipboardRange = store.getClipboardRange()
+  const cbEdges = getRangeEdges(clipboardRange, rowIndex, colIndex)
+  const hasClipboardEdge = cbEdges.top || cbEdges.bottom || cbEdges.left || cbEdges.right
+
   const isReadOnly = readOnly || column.readOnly === true
   const width = column.width ?? 150
-
-  const handleClick = useCallback(
-    (e: React.MouseEvent) => {
-      const position: CellPosition = { rowIndex, colIndex }
-      if (e.shiftKey) {
-        store.extendSelection(position)
-      } else {
-        store.setActiveCell(position)
-      }
-    },
-    [store, rowIndex, colIndex],
-  )
 
   const handleDoubleClick = useCallback(() => {
     if (isReadOnly) return
@@ -90,10 +88,18 @@ function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChang
     [onCellChange, rowIndex, column.key],
   )
 
+  const marchGradientH = `repeating-linear-gradient(90deg, var(--sst-clipboard-border) 0 4px, transparent 4px 8px)`
+  const marchGradientV = `repeating-linear-gradient(180deg, var(--sst-clipboard-border) 0 4px, transparent 4px 8px)`
+
   const cellClassName = [
     styles.cell,
     isSelected && !isActive ? styles.selected : '',
     isActive ? styles.activeCell : '',
+    edges.top ? styles.selectionTop : '',
+    edges.bottom ? styles.selectionBottom : '',
+    edges.left ? styles.selectionLeft : '',
+    edges.right ? styles.selectionRight : '',
+    hasClipboardEdge ? styles.clipboardCell : '',
     cellError?.result.level === 'error' ? styles.errorCell : '',
     cellError?.result.level === 'warn' ? styles.warnCell : '',
     column.type === 'boolean' ? styles.booleanCell : '',
@@ -101,11 +107,23 @@ function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChang
     .filter(Boolean)
     .join(' ')
 
+  const cellStyle: React.CSSProperties = {
+    width,
+    minWidth: width,
+    ...(hasClipboardEdge
+      ? ({
+          '--cb-top': cbEdges.top ? marchGradientH : 'none',
+          '--cb-bottom': cbEdges.bottom ? marchGradientH : 'none',
+          '--cb-left': cbEdges.left ? marchGradientV : 'none',
+          '--cb-right': cbEdges.right ? marchGradientV : 'none',
+        } as React.CSSProperties)
+      : undefined),
+  }
+
   return (
     <div
       className={cellClassName}
-      style={{ width, minWidth: width }}
-      onClick={handleClick}
+      style={cellStyle}
       onDoubleClick={handleDoubleClick}
       onMouseEnter={() => cellError && setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}

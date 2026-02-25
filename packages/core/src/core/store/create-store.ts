@@ -81,6 +81,11 @@ export type TableStore<T> = {
   getColumns(): ReadonlyArray<ColumnDef<T>>
   getRowKey(): keyof T
 
+  // Clipboard
+  getClipboardRange(): SelectionRange | null
+  setClipboardRange(range: SelectionRange): void
+  clearClipboardRange(): void
+
   // Validation
   getValidationErrors(): ReadonlyArray<CellValidationError>
   setValidationErrors(errors: ReadonlyArray<CellValidationError>): void
@@ -102,6 +107,7 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
   let sortSlice: SortSlice<T> = createSortSlice<T>()
   let filterSlice: FilterSlice<T> = createFilterSlice<T>()
   let editSlice: EditSlice = createEditSlice()
+  let clipboardRange: SelectionRange | null = null
   let validationErrors: ReadonlyArray<CellValidationError> = []
 
   let version = 0
@@ -273,6 +279,17 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
     },
     getColumns: () => options.columns,
     getRowKey: () => options.rowKey,
+
+    // Clipboard
+    getClipboardRange: () => clipboardRange,
+    setClipboardRange: (range) => {
+      clipboardRange = range
+      notify()
+    },
+    clearClipboardRange: () => {
+      clipboardRange = null
+      notify()
+    },
 
     // Validation (no notify - derived data set during render)
     getValidationErrors: () => validationErrors,

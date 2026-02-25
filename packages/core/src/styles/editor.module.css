@@ -8,6 +8,7 @@
   font-size: var(--sst-font-size);
   background: #fff;
   box-sizing: border-box;
+  user-select: text;
 }
 
 .numberEditor {
@@ -25,6 +26,7 @@
   background: #fff;
   box-sizing: border-box;
   cursor: pointer;
+  user-select: text;
 }
 
 .checkbox {

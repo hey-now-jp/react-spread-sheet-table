@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useRef, useSyncExternalStore } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
 import { deserializeTsv, serializeToTsv } from '../core/clipboard/clipboard-utils'
 import {
   getNormalizedRange,
@@ -8,7 +8,7 @@ import {
 import type { TableStore } from '../core/store/create-store'
 import type { DataColumnDef } from '../core/types/column'
 import { isActionColumn, isDataColumn } from '../core/types/column'
-import type { CellPosition } from '../core/types/selection'
+import type { CellPosition, SelectionRange } from '../core/types/selection'
 import type { TableInstance } from '../core/types/table'
 import { useVirtualScroll } from '../hooks/use-virtual-scroll'
 import scrollStyles from '../styles/scroll.module.css'
@@ -41,6 +41,19 @@ function SpreadSheetTableInner<T>({
 
   // Subscribe to store
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
+
+  // Refocus wrapper when editing ends so keyboard navigation keeps working
+  const editingCell = store.getEditingCell()
+  const wasEditing = useRef(false)
+  useEffect(() => {
+    if (wasEditing.current && editingCell === null) {
+      const active = document.activeElement
+      if (active === document.body || wrapperRef.current?.contains(active)) {
+        wrapperRef.current?.focus()
+      }
+    }
+    wasEditing.current = editingCell !== null
+  }, [editingCell])
 
   const columns = store.getColumns()
   const sortedFilteredIndices = store.getSortedFilteredIndices()
@@ -128,7 +141,11 @@ function SpreadSheetTableInner<T>({
           break
         }
         case 'Escape': {
-          store.clearSelection()
+          if (store.getClipboardRange()) {
+            store.clearClipboardRange()
+          } else {
+            store.clearSelection()
+          }
           break
         }
         case 'Delete':
@@ -156,28 +173,58 @@ function SpreadSheetTableInner<T>({
 
   // Mouse drag selection
   const isDragging = useRef(false)
+  const didDrag = useRef(false)
+  const dragOrigin = useRef<CellPosition | null>(null)
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.button !== 0) return
-    isDragging.current = true
+  const findCellPosition = useCallback((e: React.MouseEvent): CellPosition | null => {
+    const target = e.target as HTMLElement
+    const cell = target.closest('[data-row][data-col]') as HTMLElement | null
+    if (!cell) return null
+    const rowIndex = Number(cell.dataset.row)
+    const colIndex = Number(cell.dataset.col)
+    if (Number.isNaN(rowIndex) || Number.isNaN(colIndex)) return null
+    return { rowIndex, colIndex }
   }, [])
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.button !== 0) return
+      const pos = findCellPosition(e)
+      if (!pos) return
+      isDragging.current = true
+      didDrag.current = false
+      dragOrigin.current = pos
+      if (!e.shiftKey) {
+        store.setActiveCell(pos)
+      } else {
+        store.extendSelection(pos)
+      }
+    },
+    [store, findCellPosition],
+  )
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
       if (!isDragging.current) return
-      const target = e.target as HTMLElement
-      const cell = target.closest('[data-row][data-col]') as HTMLElement | null
-      if (!cell) return
-      const rowIndex = Number(cell.dataset.row)
-      const colIndex = Number(cell.dataset.col)
-      if (Number.isNaN(rowIndex) || Number.isNaN(colIndex)) return
-      store.extendSelection({ rowIndex, colIndex })
+      const pos = findCellPosition(e)
+      if (!pos) return
+      if (
+        dragOrigin.current &&
+        (pos.rowIndex !== dragOrigin.current.rowIndex ||
+          pos.colIndex !== dragOrigin.current.colIndex)
+      ) {
+        didDrag.current = true
+      }
+      if (didDrag.current) {
+        store.extendSelection(pos)
+      }
     },
-    [store],
+    [store, findCellPosition],
   )
 
   const handleMouseUp = useCallback(() => {
     isDragging.current = false
+    dragOrigin.current = null
   }, [])
 
   return (
@@ -228,28 +275,27 @@ function handleCopy<T>(store: TableStore<T>): void {
   const rows = store.getRows()
   const data: unknown[][] = []
 
-  if (selection.range) {
-    const { minRow, maxRow, minCol, maxCol } = getNormalizedRange(selection.range)
-    for (let r = minRow; r <= maxRow; r++) {
-      const rowData: unknown[] = []
-      for (let c = minCol; c <= maxCol; c++) {
-        const col = columns[c]
-        if (col && isDataColumn(col)) {
-          rowData.push(rows[r][(col as DataColumnDef<T>).key as keyof T])
-        }
+  const clipRange: SelectionRange = selection.range ?? {
+    start: selection.activeCell,
+    end: selection.activeCell,
+  }
+
+  const { minRow, maxRow, minCol, maxCol } = getNormalizedRange(clipRange)
+  for (let r = minRow; r <= maxRow; r++) {
+    const rowData: unknown[] = []
+    for (let c = minCol; c <= maxCol; c++) {
+      const col = columns[c]
+      if (col && isDataColumn(col)) {
+        rowData.push(rows[r][(col as DataColumnDef<T>).key as keyof T])
       }
-      data.push(rowData)
     }
-  } else {
-    const col = columns[selection.activeCell.colIndex]
-    if (col && isDataColumn(col)) {
-      const value = rows[selection.activeCell.rowIndex][(col as DataColumnDef<T>).key as keyof T]
-      data.push([value])
-    }
+    data.push(rowData)
   }
 
   const tsv = serializeToTsv(data)
   navigator.clipboard.writeText(tsv)
+
+  store.setClipboardRange(clipRange)
 }
 
 function handlePaste<T>(
@@ -263,13 +309,18 @@ function handlePaste<T>(
   const selection = store.getSelection()
   if (selection.activeCell === null) return
 
+  const activeCell = selection.activeCell
+
   navigator.clipboard.readText().then((text) => {
     const parsed = deserializeTsv(text)
     if (parsed.length === 0) return
 
-    const startRow = selection.activeCell!.rowIndex
-    const startCol = selection.activeCell!.colIndex
+    const startRow = activeCell.rowIndex
+    const startCol = activeCell.colIndex
     const rows = store.getRows()
+
+    let maxPastedRow = startRow
+    let maxPastedCol = startCol
 
     for (let r = 0; r < parsed.length; r++) {
       const dataRowIndex = startRow + r
@@ -291,9 +342,21 @@ function handlePaste<T>(
           const key = (col as DataColumnDef<T>).key as keyof T
           onCellChange(dataRowIndex, key, pastedValue as T[keyof T])
         }
+
+        maxPastedRow = Math.max(maxPastedRow, dataRowIndex)
+        maxPastedCol = Math.max(maxPastedCol, targetCol)
         colOffset++
       }
     }
+
+    // Select the pasted range for visual feedback
+    store.setActiveCell({ rowIndex: startRow, colIndex: startCol })
+    if (maxPastedRow !== startRow || maxPastedCol !== startCol) {
+      store.extendSelection({ rowIndex: maxPastedRow, colIndex: maxPastedCol })
+    }
+
+    // Clear clipboard marching ants
+    store.clearClipboardRange()
   })
 }
 

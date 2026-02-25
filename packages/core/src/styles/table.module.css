@@ -12,4 +12,5 @@
   overflow: hidden;
   border: 1px solid var(--sst-border-color);
   border-radius: 4px;
+  user-select: none;
 }

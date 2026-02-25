@@ -34,6 +34,22 @@
   background: var(--sst-selected-bg);
 }
 
+.selectionTop {
+  border-top: 1px solid var(--sst-selection-range-border);
+}
+
+.selectionBottom {
+  border-bottom: 1px solid var(--sst-selection-range-border);
+}
+
+.selectionLeft {
+  border-left: 1px solid var(--sst-selection-range-border);
+}
+
+.selectionRight {
+  border-right: 1px solid var(--sst-selection-range-border);
+}
+
 .activeCell {
   outline: 2px solid var(--sst-selected-border);
   outline-offset: -2px;
@@ -58,6 +74,57 @@
 
 .booleanCell {
   justify-content: center;
+}
+
+/* Clipboard marching ants */
+.clipboardCell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background-image: var(--cb-top), var(--cb-bottom);
+  background-size:
+    8px 2px,
+    8px 2px;
+  background-repeat: repeat-x, repeat-x;
+  background-position:
+    0 0,
+    0 100%;
+  animation: marchH 0.4s linear infinite;
+}
+
+.clipboardCell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background-image: var(--cb-left), var(--cb-right);
+  background-size:
+    2px 8px,
+    2px 8px;
+  background-repeat: repeat-y, repeat-y;
+  background-position:
+    0 0,
+    100% 0;
+  animation: marchV 0.4s linear infinite;
+}
+
+@keyframes marchH {
+  to {
+    background-position:
+      8px 0,
+      -8px 100%;
+  }
+}
+
+@keyframes marchV {
+  to {
+    background-position:
+      0 -8px,
+      100% 8px;
+  }
 }
 
 .tooltip {
