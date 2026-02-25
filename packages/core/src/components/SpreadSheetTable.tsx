@@ -298,6 +298,14 @@ function SpreadSheetTableInner<T>({
     dragOrigin.current = null
   }, [])
 
+  const handleBlur = useCallback(
+    (e: React.FocusEvent) => {
+      if (wrapperRef.current?.contains(e.relatedTarget as Node)) return
+      store.clearSelection()
+    },
+    [store],
+  )
+
   return (
     <div
       ref={wrapperRef}
@@ -306,6 +314,7 @@ function SpreadSheetTableInner<T>({
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      onBlur={handleBlur}
       tabIndex={0}
     >
       <Toast store={store} />
