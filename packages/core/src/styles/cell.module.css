@@ -54,7 +54,7 @@
   border-right: 1px solid var(--sst-selection-range-border);
 }
 
-.activeCell {
+.cell.activeCell {
   outline: 2px solid var(--sst-selected-border);
   outline-offset: -2px;
   z-index: 1;
