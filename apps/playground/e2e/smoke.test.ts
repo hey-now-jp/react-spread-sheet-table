@@ -69,15 +69,61 @@ test('boolean cell toggles on click', async ({ page }) => {
   expect(newChecked).not.toBe(initialChecked)
 })
 
-test('keyboard navigation with arrow keys', async ({ page }) => {
+test('arrow keys move active cell after clicking', async ({ page }) => {
   await page.goto('/')
 
-  // Click on a cell to set active cell
-  await page.getByText('Tanaka Taro').click()
+  // Click on the first name cell (Tanaka Taro)
+  const firstCell = page.locator('[data-col="0"]', { hasText: 'Tanaka Taro' })
+  await firstCell.click()
 
-  // The cell should have active styling (outline)
-  const activeCell = page.locator('[data-row="0"][data-col="0"]')
-  await expect(activeCell).toBeVisible()
+  // Verify the clicked cell has active outline
+  await expect(firstCell).toHaveCSS('outline-style', 'solid')
+
+  // Record scroll position before arrow key
+  const scrollBefore = await page
+    .locator('[class*="scrollContainer"]')
+    .evaluate((el) => el.scrollTop)
+
+  // Press ArrowDown to move to the next row
+  await page.keyboard.press('ArrowDown')
+
+  // The next row's name cell (Suzuki Hanako) should now be active
+  const secondCell = page.locator('[data-col="0"]', { hasText: 'Suzuki Hanako' })
+  await expect(secondCell).toHaveCSS('outline-style', 'solid')
+
+  // The first cell should no longer be active
+  await expect(firstCell).not.toHaveCSS('outline-style', 'solid')
+
+  // Scroll position should not have changed (arrow key navigates, not scrolls)
+  const scrollAfter = await page
+    .locator('[class*="scrollContainer"]')
+    .evaluate((el) => el.scrollTop)
+  expect(scrollAfter).toBe(scrollBefore)
+})
+
+test('arrow keys move active cell after sort', async ({ page }) => {
+  await page.goto('/')
+
+  // Sort by age ascending
+  await page.getByText('年齢').first().click()
+  await expect(page.locator('[data-sort="asc"]')).toBeVisible()
+
+  // Click the first visible name cell (youngest person)
+  const firstNameCell = page.locator('[data-col="0"]').first()
+  const firstName = await firstNameCell.textContent()
+  await firstNameCell.click()
+  await expect(firstNameCell).toHaveCSS('outline-style', 'solid')
+
+  // Press ArrowDown
+  await page.keyboard.press('ArrowDown')
+
+  // The second row's name cell should be active (next by sorted age)
+  const secondNameCell = page.locator('[data-col="0"]').nth(1)
+  const secondName = await secondNameCell.textContent()
+  await expect(secondNameCell).toHaveCSS('outline-style', 'solid')
+
+  // Names should be different (cursor actually moved)
+  expect(secondName).not.toBe(firstName)
 })
 
 test('validation demo shows errors', async ({ page }) => {

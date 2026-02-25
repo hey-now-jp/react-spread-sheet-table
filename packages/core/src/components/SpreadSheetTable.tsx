@@ -233,6 +233,12 @@ function SpreadSheetTableInner<T>({
       } else {
         store.extendSelection(pos)
       }
+      // Keep focus on wrapper so keyboard navigation works,
+      // but not when clicking interactive elements (checkbox, button, etc.)
+      const target = e.target as HTMLElement
+      if (!target.closest('input, button, select, textarea, a')) {
+        wrapperRef.current?.focus()
+      }
     },
     [store, findCellPosition],
   )

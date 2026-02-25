@@ -133,7 +133,6 @@ function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChang
       onDoubleClick={handleDoubleClick}
       onMouseEnter={() => cellError && setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
-      tabIndex={-1}
       data-row={rowIndex}
       data-col={colIndex}
     >
