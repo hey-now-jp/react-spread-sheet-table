@@ -92,6 +92,7 @@ function HeaderCellInner<T>({ column, store, sortable, filterable }: HeaderCellP
           {filterOpen && (
             <FilterPopover
               column={column as DataColumnDef<T>}
+              store={store}
               currentCondition={currentFilter}
               onApply={handleFilterApply}
               onClear={handleFilterClear}

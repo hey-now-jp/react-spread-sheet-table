@@ -2,7 +2,7 @@
   position: absolute;
   top: calc(var(--sst-cell-height) + 2px);
   left: 0;
-  min-width: 200px;
+  min-width: 220px;
   background: #fff;
   border: 1px solid var(--sst-border-color);
   border-radius: 4px;
@@ -19,6 +19,53 @@
   font-family: var(--sst-font-family);
   font-size: var(--sst-font-size);
   box-sizing: border-box;
+}
+
+.filterInput:focus {
+  outline: none;
+  border-color: var(--sst-selected-border);
+  box-shadow: 0 0 0 1px var(--sst-selected-border);
+}
+
+.suggestionList {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid var(--sst-border-color);
+  border-radius: 4px;
+}
+
+.suggestionItem {
+  display: block;
+  width: 100%;
+  padding: 5px 8px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--sst-font-family);
+  font-size: var(--sst-font-size);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.suggestionHighlight {
+  background: var(--sst-selected-bg, rgba(33, 150, 243, 0.15));
+}
+
+.highlightMark {
+  background: rgba(255, 213, 0, 0.4);
+  border-radius: 1px;
+}
+
+.noResults {
+  padding: 8px;
+  text-align: center;
+  color: #999;
+  font-size: 12px;
 }
 
 .filterActions {
@@ -51,18 +98,4 @@
 .filterApply:hover {
   opacity: 0.9;
   background: var(--sst-selected-border);
-}
-
-.filterOptionList {
-  max-height: 150px;
-  overflow-y: auto;
-  margin: 4px 0;
-}
-
-.filterOption {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 0;
-  font-size: 13px;
 }
