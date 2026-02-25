@@ -85,7 +85,11 @@ function HeaderCellInner<T>({ column, store, sortable, filterable }: HeaderCellP
             className={`${styles.filterButton} ${currentFilter ? styles.filterActive : ''}`}
             onClick={(e) => {
               e.stopPropagation()
-              store.setOpenFilterKey(filterOpen ? null : columnKey)
+              const opening = !filterOpen
+              store.setOpenFilterKey(opening ? columnKey : null)
+              if (opening) {
+                store.clearSelection()
+              }
             }}
             aria-label="フィルター"
           >

@@ -26,6 +26,10 @@
   cursor: default;
 }
 
+.cell:focus {
+  outline: none;
+}
+
 .cell:last-child {
   border-right: none;
 }

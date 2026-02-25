@@ -21,6 +21,10 @@
   flex-shrink: 0;
 }
 
+.headerCell:focus {
+  outline: none;
+}
+
 .headerCell:last-child {
   border-right: none;
 }

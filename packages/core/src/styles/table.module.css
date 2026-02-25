@@ -13,3 +13,7 @@
   border-radius: 4px;
   user-select: none;
 }
+
+.wrapper:focus {
+  outline: none;
+}

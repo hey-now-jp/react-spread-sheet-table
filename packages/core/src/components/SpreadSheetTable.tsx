@@ -100,8 +100,6 @@ function SpreadSheetTableInner<T>({
 
       if (selection.activeCell === null) return
 
-      const rowCount = sortedFilteredIndices.length
-
       switch (e.key) {
         case 'ArrowUp':
         case 'ArrowDown':
@@ -113,21 +111,55 @@ function SpreadSheetTableInner<T>({
             | 'down'
             | 'left'
             | 'right'
-          if (e.shiftKey) {
-            const range = selection.range
-            const endPos = range ? range.end : selection.activeCell
-            const newEnd = moveActiveCell(columns, endPos, direction, rowCount)
-            if (newEnd) store.extendSelection(newEnd)
+          if (direction === 'up' || direction === 'down') {
+            const currentPos = e.shiftKey
+              ? selection.range
+                ? selection.range.end
+                : selection.activeCell
+              : selection.activeCell
+            const visualIndex = sortedFilteredIndices.indexOf(currentPos.rowIndex)
+            if (visualIndex === -1) break
+            const newVisualIndex = direction === 'up' ? visualIndex - 1 : visualIndex + 1
+            if (newVisualIndex < 0 || newVisualIndex >= sortedFilteredIndices.length) break
+            const newPos = {
+              rowIndex: sortedFilteredIndices[newVisualIndex],
+              colIndex: currentPos.colIndex,
+            }
+            if (e.shiftKey) {
+              store.extendSelection(newPos)
+            } else {
+              store.setActiveCell(newPos)
+            }
           } else {
-            const newPos = moveActiveCell(columns, selection.activeCell, direction, rowCount)
-            if (newPos) store.setActiveCell(newPos)
+            const rowCount = sortedFilteredIndices.length
+            if (e.shiftKey) {
+              const range = selection.range
+              const endPos = range ? range.end : selection.activeCell
+              const newEnd = moveActiveCell(columns, endPos, direction, rowCount)
+              if (newEnd) store.extendSelection(newEnd)
+            } else {
+              const newPos = moveActiveCell(columns, selection.activeCell, direction, rowCount)
+              if (newPos) store.setActiveCell(newPos)
+            }
           }
           break
         }
         case 'Tab': {
           e.preventDefault()
-          const next = tabToNextCell(columns, selection.activeCell, rowCount, e.shiftKey)
-          if (next) store.setActiveCell(next)
+          const currentVisual = sortedFilteredIndices.indexOf(selection.activeCell.rowIndex)
+          if (currentVisual === -1) break
+          const next = tabToNextCell(
+            columns,
+            { rowIndex: currentVisual, colIndex: selection.activeCell.colIndex },
+            sortedFilteredIndices.length,
+            e.shiftKey,
+          )
+          if (next) {
+            store.setActiveCell({
+              rowIndex: sortedFilteredIndices[next.rowIndex],
+              colIndex: next.colIndex,
+            })
+          }
           break
         }
         case 'Enter': {
@@ -170,7 +202,7 @@ function SpreadSheetTableInner<T>({
         }
       }
     },
-    [store, columns, sortedFilteredIndices.length, readOnly, handleCellChange],
+    [store, columns, sortedFilteredIndices, readOnly, handleCellChange],
   )
 
   // Mouse drag selection
