@@ -126,6 +126,51 @@ test('arrow keys move active cell after sort', async ({ page }) => {
   expect(secondName).not.toBe(firstName)
 })
 
+test('space key does not scroll the page', async ({ page }) => {
+  await page.goto('/')
+
+  // Click on a cell
+  const cell = page.locator('[data-col="0"]', { hasText: 'Tanaka Taro' })
+  await cell.click()
+
+  // Record scroll position
+  const scrollBefore = await page
+    .locator('[class*="scrollContainer"]')
+    .evaluate((el) => el.scrollTop)
+
+  // Press Space (should not cause browser scroll)
+  await page.keyboard.press('Space')
+
+  // Scroll position should not have changed
+  const scrollAfter = await page
+    .locator('[class*="scrollContainer"]')
+    .evaluate((el) => el.scrollTop)
+  expect(scrollAfter).toBe(scrollBefore)
+})
+
+test('arrow keys scroll to keep active cell visible', async ({ page }) => {
+  await page.goto('/')
+  await page.getByText('仮想スクロール (1万行)').click()
+
+  // Click the first row's name cell
+  const firstCell = page.locator('[data-col="1"]').first()
+  await firstCell.click()
+
+  // Scroll should be at top
+  const scrollContainer = page.locator('[class*="scrollContainer"]')
+  const scrollBefore = await scrollContainer.evaluate((el) => el.scrollTop)
+  expect(scrollBefore).toBe(0)
+
+  // Press ArrowDown many times to go below visible area
+  for (let i = 0; i < 25; i++) {
+    await page.keyboard.press('ArrowDown')
+  }
+
+  // Scroll should have moved down to keep cell visible
+  const scrollAfter = await scrollContainer.evaluate((el) => el.scrollTop)
+  expect(scrollAfter).toBeGreaterThan(0)
+})
+
 test('validation demo shows errors', async ({ page }) => {
   await page.goto('/')
   await page.getByText('編集 & バリデーション').click()

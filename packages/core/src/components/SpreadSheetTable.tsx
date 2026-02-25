@@ -27,6 +27,23 @@ type SpreadSheetTableComponentProps<T> = {
 const DEFAULT_HEIGHT = 400
 const ROW_HEIGHT = 32
 
+function scrollRowIntoView(
+  containerRef: React.RefObject<HTMLDivElement | null>,
+  visualIndex: number,
+  rowHeight: number,
+  containerHeight: number,
+): void {
+  const container = containerRef.current
+  if (!container) return
+  const rowTop = visualIndex * rowHeight
+  const rowBottom = rowTop + rowHeight
+  if (rowTop < container.scrollTop) {
+    container.scrollTop = rowTop
+  } else if (rowBottom > container.scrollTop + containerHeight) {
+    container.scrollTop = rowBottom - containerHeight
+  }
+}
+
 function SpreadSheetTableInner<T>({
   table,
   readOnly = false,
@@ -130,6 +147,7 @@ function SpreadSheetTableInner<T>({
             } else {
               store.setActiveCell(newPos)
             }
+            scrollRowIntoView(virtualScroll.containerRef, newVisualIndex, ROW_HEIGHT, height)
           } else {
             const rowCount = sortedFilteredIndices.length
             if (e.shiftKey) {
@@ -159,6 +177,7 @@ function SpreadSheetTableInner<T>({
               rowIndex: sortedFilteredIndices[next.rowIndex],
               colIndex: next.colIndex,
             })
+            scrollRowIntoView(virtualScroll.containerRef, next.rowIndex, ROW_HEIGHT, height)
           }
           break
         }
@@ -191,6 +210,10 @@ function SpreadSheetTableInner<T>({
           break
         }
         default: {
+          // Prevent space from scrolling the page
+          if (e.key === ' ') {
+            e.preventDefault()
+          }
           // Direct input: start editing with typed character
           if (!readOnly && !e.ctrlKey && !e.metaKey && !e.altKey && e.key.length === 1) {
             const activeCol = columns[selection.activeCell.colIndex]
@@ -202,7 +225,15 @@ function SpreadSheetTableInner<T>({
         }
       }
     },
-    [store, columns, sortedFilteredIndices, readOnly, handleCellChange],
+    [
+      store,
+      columns,
+      sortedFilteredIndices,
+      readOnly,
+      handleCellChange,
+      height,
+      virtualScroll.containerRef,
+    ],
   )
 
   // Mouse drag selection
