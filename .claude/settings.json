@@ -5,6 +5,7 @@
       "Bash(gh:*)",
       "Bash(npx tsc:*)",
       "Bash(pnpm:*)",
+      "Bash(npx openspec:*)",
       "Bash(openspec:*)",
       "Bash(openspec list:*)",
       "Bash(openspec archive:*)",
@@ -12,7 +13,8 @@
       "Bash(openspec show:*)",
       "Bash(openspec create:*)",
       "Bash(openspec spec:*)",
-      "Bash(playwright-cli:*)"
+      "Bash(playwright-cli:*)",
+      "Bash(npx biome:*)"
     ],
     "deny": [
       "Bash(sudo:*)",
