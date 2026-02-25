@@ -1,0 +1,14 @@
+.scrollContainer {
+  overflow-y: auto;
+  position: relative;
+}
+
+.spacer {
+  position: relative;
+}
+
+.visibleRows {
+  position: absolute;
+  left: 0;
+  right: 0;
+}

@@ -1,0 +1,15 @@
+.table {
+  font-family: var(--sst-font-family);
+  font-size: var(--sst-font-size);
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+  user-select: none;
+}
+
+.wrapper {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--sst-border-color);
+  border-radius: 4px;
+}

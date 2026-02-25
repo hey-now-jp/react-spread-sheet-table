@@ -1,0 +1,74 @@
+.headerRow {
+  display: flex;
+  background: var(--sst-header-bg);
+  color: var(--sst-header-color);
+  border-bottom: 2px solid var(--sst-border-color);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.headerCell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--sst-cell-height);
+  padding: var(--sst-cell-padding);
+  font-weight: 600;
+  border-right: 1px solid var(--sst-border-color);
+  box-sizing: border-box;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+
+.headerCell:last-child {
+  border-right: none;
+}
+
+.sortable {
+  cursor: pointer;
+}
+
+.sortable:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.headerLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filterButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 2px;
+  font-size: 10px;
+  color: var(--sst-header-color);
+  opacity: 0.5;
+  padding: 0;
+}
+
+.filterButton:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.filterActive {
+  opacity: 1;
+  color: var(--sst-selected-border);
+}

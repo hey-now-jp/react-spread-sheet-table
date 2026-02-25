@@ -1,0 +1,34 @@
+.editorInput {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  padding: var(--sst-cell-padding);
+  font-family: var(--sst-font-family);
+  font-size: var(--sst-font-size);
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.numberEditor {
+  text-align: right;
+}
+
+.selectEditor {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  padding: var(--sst-cell-padding);
+  font-family: var(--sst-font-family);
+  font-size: var(--sst-font-size);
+  background: #fff;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}

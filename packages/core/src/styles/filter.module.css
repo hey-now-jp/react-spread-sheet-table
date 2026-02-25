@@ -1,0 +1,68 @@
+.filterPopover {
+  position: absolute;
+  top: calc(var(--sst-cell-height) + 2px);
+  left: 0;
+  min-width: 200px;
+  background: #fff;
+  border: 1px solid var(--sst-border-color);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  padding: 8px;
+}
+
+.filterInput {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--sst-border-color);
+  border-radius: 4px;
+  font-family: var(--sst-font-family);
+  font-size: var(--sst-font-size);
+  box-sizing: border-box;
+}
+
+.filterActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.filterActionButton {
+  padding: 4px 12px;
+  border: 1px solid var(--sst-border-color);
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  font-family: var(--sst-font-family);
+  font-size: 12px;
+}
+
+.filterActionButton:hover {
+  background: var(--sst-header-bg);
+}
+
+.filterApply {
+  background: var(--sst-selected-border);
+  color: #fff;
+  border-color: var(--sst-selected-border);
+}
+
+.filterApply:hover {
+  opacity: 0.9;
+  background: var(--sst-selected-border);
+}
+
+.filterOptionList {
+  max-height: 150px;
+  overflow-y: auto;
+  margin: 4px 0;
+}
+
+.filterOption {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  font-size: 13px;
+}

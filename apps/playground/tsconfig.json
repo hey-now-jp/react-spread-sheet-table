@@ -5,7 +5,7 @@
     "rootDir": "./src",
     "noEmit": true
   },
-  "include": ["src"],
+  "include": ["src", "../../css-modules.d.ts"],
   "references": [
     { "path": "./tsconfig.node.json" }
   ]

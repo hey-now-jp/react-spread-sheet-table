@@ -1,4 +1,7 @@
 // Types
+
+// Component
+export { SpreadSheetTable } from './components/SpreadSheetTable'
 export type {
   ActionColumnDef,
   BooleanColumnDef,
@@ -25,7 +28,6 @@ export type {
   UseSpreadSheetTableOptions,
   ValidationResult,
 } from './core/types'
-
 // Type guards & utilities
 export {
   isActionColumn,
@@ -33,6 +35,8 @@ export {
   isDataColumn,
   isInSelection,
 } from './core/types'
+// Hook
+export { useSpreadSheetTable } from './hooks/use-spread-sheet-table'
 
 // Styles
 import './styles/theme.css'
