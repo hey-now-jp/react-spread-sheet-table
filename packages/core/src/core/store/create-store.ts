@@ -90,6 +90,10 @@ export type TableStore<T> = {
   getValidationErrors(): ReadonlyArray<CellValidationError>
   setValidationErrors(errors: ReadonlyArray<CellValidationError>): void
 
+  // Filter popover
+  getOpenFilterKey(): string | null
+  setOpenFilterKey(key: string | null): void
+
   // Toast
   getToastMessages(): ReadonlyArray<string>
   getToastVersion(): number
@@ -115,6 +119,7 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
   let editSlice: EditSlice = createEditSlice()
   let clipboardRange: SelectionRange | null = null
   let validationErrors: ReadonlyArray<CellValidationError> = []
+  let openFilterKey: string | null = null
   let toastMessages: ReadonlyArray<string> = []
   let toastVersion = 0
 
@@ -303,6 +308,13 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
     getValidationErrors: () => validationErrors,
     setValidationErrors: (errors) => {
       validationErrors = errors
+    },
+
+    // Filter popover
+    getOpenFilterKey: () => openFilterKey,
+    setOpenFilterKey: (key) => {
+      openFilterKey = key
+      notify()
     },
 
     // Toast

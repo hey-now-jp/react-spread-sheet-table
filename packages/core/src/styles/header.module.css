@@ -25,6 +25,10 @@
   border-right: none;
 }
 
+.headerFiltered {
+  background: rgba(33, 150, 243, 0.08);
+}
+
 .sortable {
   cursor: pointer;
 }
@@ -88,5 +92,12 @@
 
 .filterActive {
   opacity: 1;
-  color: var(--sst-selected-border);
+  color: #fff;
+  background: var(--sst-selected-border);
+  border-radius: 50%;
+}
+
+.filterActive:hover {
+  background: var(--sst-selected-border);
+  opacity: 0.85;
 }

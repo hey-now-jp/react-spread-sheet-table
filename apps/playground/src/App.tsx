@@ -6,9 +6,9 @@ import { VirtualScrollDemo } from './demos/VirtualScrollDemo'
 type DemoPage = 'basic' | 'editing' | 'virtual-scroll'
 
 const pages: ReadonlyArray<{ id: DemoPage; label: string }> = [
-  { id: 'basic', label: 'Basic Table' },
-  { id: 'editing', label: 'Editing & Validation' },
-  { id: 'virtual-scroll', label: 'Virtual Scroll (10k rows)' },
+  { id: 'basic', label: '基本テーブル' },
+  { id: 'editing', label: '編集 & バリデーション' },
+  { id: 'virtual-scroll', label: '仮想スクロール (1万行)' },
 ]
 
 export function App() {
@@ -16,7 +16,7 @@ export function App() {
 
   return (
     <div style={{ padding: 24, fontFamily: 'system-ui, sans-serif' }}>
-      <h1 style={{ marginTop: 0 }}>SpreadSheet Table Playground</h1>
+      <h1 style={{ marginTop: 0 }}>SpreadSheet Table デモ</h1>
       <nav style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
         {pages.map((page) => (
           <button

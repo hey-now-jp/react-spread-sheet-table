@@ -21,6 +21,7 @@ function FilterPopoverInner<T>({
   onClear,
   onClose,
 }: FilterPopoverProps<T>) {
+  const popoverRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const [query, setQuery] = useState(() => {
     if (!currentCondition) return ''
@@ -29,6 +30,17 @@ function FilterPopoverInner<T>({
     return ''
   })
   const [highlightIndex, setHighlightIndex] = useState(-1)
+
+  // Close on outside click
+  useEffect(() => {
+    const handleMouseDown = (e: MouseEvent) => {
+      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+        onClose()
+      }
+    }
+    document.addEventListener('mousedown', handleMouseDown)
+    return () => document.removeEventListener('mousedown', handleMouseDown)
+  }, [onClose])
 
   // Extract unique values from column data
   const uniqueValues = useMemo(() => {
@@ -125,12 +137,12 @@ function FilterPopoverInner<T>({
   )
 
   return (
-    <div className={styles.filterPopover} onClick={(e) => e.stopPropagation()}>
+    <div ref={popoverRef} className={styles.filterPopover} onClick={(e) => e.stopPropagation()}>
       <input
         ref={inputRef}
         className={styles.filterInput}
         type="text"
-        placeholder="Filter..."
+        placeholder="検索..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={handleKeyDown}
@@ -155,18 +167,18 @@ function FilterPopoverInner<T>({
         </ul>
       )}
       {suggestions.length === 0 && query.trim() !== '' && (
-        <div className={styles.noResults}>No matches</div>
+        <div className={styles.noResults}>該当なし</div>
       )}
       <div className={styles.filterActions}>
         <button type="button" className={styles.filterActionButton} onClick={handleClear}>
-          Clear
+          クリア
         </button>
         <button
           type="button"
           className={`${styles.filterActionButton} ${styles.filterApply}`}
           onClick={() => applyContains(query)}
         >
-          Apply
+          適用
         </button>
       </div>
     </div>

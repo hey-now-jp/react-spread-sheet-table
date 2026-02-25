@@ -73,15 +73,15 @@ export function EditingDemo() {
 
   return (
     <div>
-      <h2>Editing & Validation</h2>
+      <h2>編集 & バリデーション</h2>
       <p style={{ color: '#666', marginBottom: 16 }}>
-        Built-in validation (required, min/max, pattern) + custom validation (warn on high score).
-        Hover over error cells to see tooltip.
+        組み込みバリデーション (必須、最小/最大、パターン) + カスタムバリデーション
+        (高スコア警告)。エラーセルにホバーでツールチップ表示。
       </p>
       <div style={{ marginBottom: 12, display: 'flex', gap: 16 }}>
-        <span style={{ color: '#e53935' }}>Errors: {errorCount}</span>
-        <span style={{ color: '#f9a825' }}>Warnings: {warnCount}</span>
-        <span>Valid: {table.isValid() ? 'Yes' : 'No'}</span>
+        <span style={{ color: '#e53935' }}>エラー: {errorCount}</span>
+        <span style={{ color: '#f9a825' }}>警告: {warnCount}</span>
+        <span>有効: {table.isValid() ? 'はい' : 'いいえ'}</span>
       </div>
       <SpreadSheetTable table={table} height={300} />
     </div>

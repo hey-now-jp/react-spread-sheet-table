@@ -4,14 +4,14 @@ import type { Employee } from '../sample-data'
 import { sampleData } from '../sample-data'
 
 const columns: ReadonlyArray<ColumnDef<Employee>> = [
-  { key: 'name', header: 'Name', type: 'text', maxLength: 50 },
-  { key: 'age', header: 'Age', type: 'number', min: 0, max: 150, width: 80 },
-  { key: 'joinDate', header: 'Join Date', type: 'date' },
-  { key: 'startTime', header: 'Start Time', type: 'time', step: 900 },
-  { key: 'active', header: 'Active', type: 'boolean', width: 80 },
+  { key: 'name', header: '名前', type: 'text', maxLength: 50 },
+  { key: 'age', header: '年齢', type: 'number', min: 0, max: 150, width: 80 },
+  { key: 'joinDate', header: '入社日', type: 'date' },
+  { key: 'startTime', header: '始業時間', type: 'time', step: 900 },
+  { key: 'active', header: '在籍', type: 'boolean', width: 80 },
   {
     key: 'department',
-    header: 'Department',
+    header: '部署',
     type: 'list',
     options: ['Engineering', 'Sales', 'HR', 'Finance'],
   },
@@ -22,8 +22,8 @@ const columns: ReadonlyArray<ColumnDef<Employee>> = [
     width: 80,
     pin: 'right',
     render: (row) => (
-      <button type="button" onClick={() => alert(`Detail: ${row.name}`)}>
-        Detail
+      <button type="button" onClick={() => alert(`詳細: ${row.name}`)}>
+        詳細
       </button>
     ),
   },
@@ -42,10 +42,9 @@ export function BasicDemo() {
 
   return (
     <div>
-      <h2>Basic Table</h2>
+      <h2>基本テーブル</h2>
       <p style={{ color: '#666', marginBottom: 16 }}>
-        All column types with sort, filter, selection, cell editing, clipboard, and keyboard
-        navigation.
+        全カラム型対応: ソート、フィルター、選択、セル編集、クリップボード、キーボード操作
       </p>
       <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
         <button
@@ -53,20 +52,20 @@ export function BasicDemo() {
           onClick={() => table.resetToInitial()}
           style={{ padding: '6px 12px' }}
         >
-          Reset
+          リセット
         </button>
         <button
           type="button"
           onClick={() => {
             table.markAsSaved()
-            alert('Saved!')
+            alert('保存しました')
           }}
           style={{ padding: '6px 12px' }}
         >
-          Save
+          保存
         </button>
         <span style={{ padding: '6px 0', color: table.isDirty ? '#e53935' : '#4caf50' }}>
-          {table.isDirty ? 'Unsaved changes' : 'No changes'}
+          {table.isDirty ? '未保存の変更あり' : '変更なし'}
         </span>
       </div>
       <SpreadSheetTable table={table} height={500} />

@@ -1,4 +1,4 @@
-import { memo, useCallback, useState, useSyncExternalStore } from 'react'
+import { memo, useCallback, useSyncExternalStore } from 'react'
 import type { TableStore } from '../core/store/create-store'
 import type { ColumnDef, DataColumnDef } from '../core/types/column'
 import { isActionColumn, isDataColumn } from '../core/types/column'
@@ -18,7 +18,9 @@ type HeaderCellProps<T> = {
 
 function HeaderCellInner<T>({ column, store, sortable, filterable }: HeaderCellProps<T>) {
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
-  const [filterOpen, setFilterOpen] = useState(false)
+
+  const columnKey = isDataColumn(column) ? String((column as DataColumnDef<T>).key) : ''
+  const filterOpen = store.getOpenFilterKey() === columnKey
 
   const isAction = isActionColumn(column)
   const isData = isDataColumn(column)
@@ -58,7 +60,7 @@ function HeaderCellInner<T>({ column, store, sortable, filterable }: HeaderCellP
 
   return (
     <div
-      className={`${styles.headerCell} ${canSort ? styles.sortable : ''}`}
+      className={`${styles.headerCell} ${canSort ? styles.sortable : ''} ${currentFilter ? styles.headerFiltered : ''}`}
       style={{ width, minWidth: width }}
       onClick={handleSort}
       onKeyDown={(e) => {
@@ -83,9 +85,9 @@ function HeaderCellInner<T>({ column, store, sortable, filterable }: HeaderCellP
             className={`${styles.filterButton} ${currentFilter ? styles.filterActive : ''}`}
             onClick={(e) => {
               e.stopPropagation()
-              setFilterOpen(!filterOpen)
+              store.setOpenFilterKey(filterOpen ? null : columnKey)
             }}
-            aria-label="Filter"
+            aria-label="フィルター"
           >
             {'\u2630'}
           </button>
@@ -96,7 +98,7 @@ function HeaderCellInner<T>({ column, store, sortable, filterable }: HeaderCellP
               currentCondition={currentFilter}
               onApply={handleFilterApply}
               onClear={handleFilterClear}
-              onClose={() => setFilterOpen(false)}
+              onClose={() => store.setOpenFilterKey(null)}
             />
           )}
         </div>
