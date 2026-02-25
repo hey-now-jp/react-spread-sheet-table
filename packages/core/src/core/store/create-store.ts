@@ -274,11 +274,10 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
     getColumns: () => options.columns,
     getRowKey: () => options.rowKey,
 
-    // Validation
+    // Validation (no notify - derived data set during render)
     getValidationErrors: () => validationErrors,
     setValidationErrors: (errors) => {
       validationErrors = errors
-      notify()
     },
 
     // Subscriptions
