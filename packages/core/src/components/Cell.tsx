@@ -1,4 +1,5 @@
 import { memo, useCallback, useMemo, useState, useSyncExternalStore } from 'react'
+import { parseAndValidateValue } from '../core/format/format-utils'
 import type { TableStore } from '../core/store/create-store'
 import type { DataColumnDef } from '../core/types/column'
 import {
@@ -65,9 +66,14 @@ function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChang
 
   const handleCommit = useCallback(() => {
     if (!isEditing) return
-    const newValue = parseValue(editingValue, column)
-    onCellChange(rowIndex, column.key as keyof T, newValue as T[keyof T])
-    store.stopEditing()
+    const result = parseAndValidateValue(editingValue, column)
+    if (result.ok) {
+      onCellChange(rowIndex, column.key as keyof T, result.value as T[keyof T])
+      store.stopEditing()
+    } else {
+      store.showToast([`"${column.header}": ${result.message}`])
+      store.stopEditing()
+    }
   }, [isEditing, editingValue, column, onCellChange, rowIndex, store])
 
   const handleCancel = useCallback(() => {
@@ -209,19 +215,6 @@ function renderEditor<T>(
       )
     case 'boolean':
       return null
-  }
-}
-
-function parseValue<T>(stringValue: string, column: DataColumnDef<T>): unknown {
-  switch (column.type) {
-    case 'number': {
-      const num = Number(stringValue)
-      return Number.isNaN(num) ? stringValue : num
-    }
-    case 'boolean':
-      return stringValue === 'true'
-    default:
-      return stringValue
   }
 }
 

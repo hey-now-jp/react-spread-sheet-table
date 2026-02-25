@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
 import { deserializeTsv, serializeToTsv } from '../core/clipboard/clipboard-utils'
+import { parseAndValidateValue } from '../core/format/format-utils'
 import {
   getNormalizedRange,
   moveActiveCell,
@@ -15,6 +16,7 @@ import scrollStyles from '../styles/scroll.module.css'
 import tableStyles from '../styles/table.module.css'
 import { HeaderRow } from './HeaderRow'
 import { TableRow } from './TableRow'
+import { Toast } from './Toast'
 
 type SpreadSheetTableComponentProps<T> = {
   readonly table: TableInstance<T>
@@ -237,6 +239,7 @@ function SpreadSheetTableInner<T>({
       onMouseUp={handleMouseUp}
       tabIndex={0}
     >
+      <Toast store={store} />
       <HeaderRow columns={columns} store={store} sortable={sortable} filterable={filterable} />
       <div
         ref={virtualScroll.containerRef}
@@ -311,53 +314,69 @@ function handlePaste<T>(
 
   const activeCell = selection.activeCell
 
-  navigator.clipboard.readText().then((text) => {
-    const parsed = deserializeTsv(text)
-    if (parsed.length === 0) return
+  navigator.clipboard
+    .readText()
+    .then((text) => {
+      const parsed = deserializeTsv(text)
+      if (parsed.length === 0) return
 
-    const startRow = activeCell.rowIndex
-    const startCol = activeCell.colIndex
-    const rows = store.getRows()
+      const startRow = activeCell.rowIndex
+      const startCol = activeCell.colIndex
+      const rows = store.getRows()
 
-    let maxPastedRow = startRow
-    let maxPastedCol = startCol
+      let maxPastedRow = startRow
+      let maxPastedCol = startCol
+      const formatErrors: string[] = []
 
-    for (let r = 0; r < parsed.length; r++) {
-      const dataRowIndex = startRow + r
-      if (dataRowIndex >= rows.length) break
+      for (let r = 0; r < parsed.length; r++) {
+        const dataRowIndex = startRow + r
+        if (dataRowIndex >= rows.length) break
 
-      let colOffset = 0
-      for (let c = 0; c < parsed[r].length; c++) {
-        let targetCol = startCol + colOffset
-        // Skip action columns
-        while (targetCol < columns.length && isActionColumn(columns[targetCol])) {
+        let colOffset = 0
+        for (let c = 0; c < parsed[r].length; c++) {
+          let targetCol = startCol + colOffset
+          // Skip action columns
+          while (targetCol < columns.length && isActionColumn(columns[targetCol])) {
+            colOffset++
+            targetCol = startCol + colOffset
+          }
+          if (targetCol >= columns.length) break
+
+          const col = columns[targetCol]
+          if (col && isDataColumn(col) && !col.readOnly) {
+            const dataCol = col as DataColumnDef<T>
+            const pastedValue = parsed[r][c]
+            const result = parseAndValidateValue(pastedValue, dataCol)
+            if (result.ok) {
+              onCellChange(dataRowIndex, dataCol.key as keyof T, result.value as T[keyof T])
+            } else {
+              formatErrors.push(`Row ${dataRowIndex + 1} "${dataCol.header}": ${result.message}`)
+            }
+          }
+
+          maxPastedRow = Math.max(maxPastedRow, dataRowIndex)
+          maxPastedCol = Math.max(maxPastedCol, targetCol)
           colOffset++
-          targetCol = startCol + colOffset
         }
-        if (targetCol >= columns.length) break
-
-        const col = columns[targetCol]
-        if (col && isDataColumn(col) && !col.readOnly) {
-          const pastedValue = parsed[r][c]
-          const key = (col as DataColumnDef<T>).key as keyof T
-          onCellChange(dataRowIndex, key, pastedValue as T[keyof T])
-        }
-
-        maxPastedRow = Math.max(maxPastedRow, dataRowIndex)
-        maxPastedCol = Math.max(maxPastedCol, targetCol)
-        colOffset++
       }
-    }
 
-    // Select the pasted range for visual feedback
-    store.setActiveCell({ rowIndex: startRow, colIndex: startCol })
-    if (maxPastedRow !== startRow || maxPastedCol !== startCol) {
-      store.extendSelection({ rowIndex: maxPastedRow, colIndex: maxPastedCol })
-    }
+      // Select the pasted range for visual feedback
+      store.setActiveCell({ rowIndex: startRow, colIndex: startCol })
+      if (maxPastedRow !== startRow || maxPastedCol !== startCol) {
+        store.extendSelection({ rowIndex: maxPastedRow, colIndex: maxPastedCol })
+      }
 
-    // Clear clipboard marching ants
-    store.clearClipboardRange()
-  })
+      // Clear clipboard marching ants
+      store.clearClipboardRange()
+
+      // Show format errors as toast
+      if (formatErrors.length > 0) {
+        store.showToast(formatErrors)
+      }
+    })
+    .catch(() => {
+      // Clipboard read can fail (permission denied, non-HTTPS, etc.)
+    })
 }
 
 function handleCut<T>(

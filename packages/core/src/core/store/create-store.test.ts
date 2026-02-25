@@ -324,4 +324,38 @@ describe('createStore', () => {
       expect(listener).toHaveBeenCalledTimes(2)
     })
   })
+
+  describe('toast state', () => {
+    it('starts with empty messages', () => {
+      const store = createTestStore()
+      expect(store.getToastMessages()).toEqual([])
+    })
+
+    it('showToast sets messages and notifies', () => {
+      const store = createTestStore()
+      const listener = vi.fn()
+      store.subscribe(listener)
+      store.showToast(['error one', 'error two'])
+      expect(store.getToastMessages()).toEqual(['error one', 'error two'])
+      expect(listener).toHaveBeenCalledOnce()
+    })
+
+    it('clearToast empties messages and notifies', () => {
+      const store = createTestStore()
+      store.showToast(['error'])
+      const listener = vi.fn()
+      store.subscribe(listener)
+      store.clearToast()
+      expect(store.getToastMessages()).toEqual([])
+      expect(listener).toHaveBeenCalledOnce()
+    })
+
+    it('increments toast version on showToast', () => {
+      const store = createTestStore()
+      const v1 = store.getToastVersion()
+      store.showToast(['error'])
+      const v2 = store.getToastVersion()
+      expect(v2).toBeGreaterThan(v1)
+    })
+  })
 })

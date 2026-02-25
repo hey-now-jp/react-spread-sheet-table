@@ -2,7 +2,7 @@ import type { ColumnDef } from '../types/column'
 import type { FilterCondition, FilterState } from '../types/filter'
 import type { CellPosition, SelectionRange, SelectionState } from '../types/selection'
 import type { SortDirection, SortState } from '../types/sort'
-import type { CellChange, ChangeInfo } from '../types/table'
+import type { ChangeInfo } from '../types/table'
 import type { CellValidationError } from '../types/validation'
 import {
   createDataSlice,
@@ -90,6 +90,12 @@ export type TableStore<T> = {
   getValidationErrors(): ReadonlyArray<CellValidationError>
   setValidationErrors(errors: ReadonlyArray<CellValidationError>): void
 
+  // Toast
+  getToastMessages(): ReadonlyArray<string>
+  getToastVersion(): number
+  showToast(messages: ReadonlyArray<string>): void
+  clearToast(): void
+
   // Subscriptions
   subscribe(listener: () => void): () => void
   getSnapshot(): number
@@ -109,6 +115,8 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
   let editSlice: EditSlice = createEditSlice()
   let clipboardRange: SelectionRange | null = null
   let validationErrors: ReadonlyArray<CellValidationError> = []
+  let toastMessages: ReadonlyArray<string> = []
+  let toastVersion = 0
 
   let version = 0
   const listeners = new Set<() => void>()
@@ -295,6 +303,19 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
     getValidationErrors: () => validationErrors,
     setValidationErrors: (errors) => {
       validationErrors = errors
+    },
+
+    // Toast
+    getToastMessages: () => toastMessages,
+    getToastVersion: () => toastVersion,
+    showToast: (messages) => {
+      toastMessages = messages
+      toastVersion += 1
+      notify()
+    },
+    clearToast: () => {
+      toastMessages = []
+      notify()
     },
 
     // Subscriptions
