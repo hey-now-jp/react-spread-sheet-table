@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.idea/
+
+# Vitest
+coverage/
+
+# Playwright
+apps/playground/test-results/
+apps/playground/playwright-report/
+
+# OS
+.DS_Store
+
+# Environment
+.env
+.env.local

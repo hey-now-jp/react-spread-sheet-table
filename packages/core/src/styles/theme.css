@@ -1,0 +1,26 @@
+:root {
+  /* Font */
+  --sst-font-family: system-ui, -apple-system, sans-serif;
+  --sst-font-size: 14px;
+
+  /* Cell */
+  --sst-cell-height: 32px;
+  --sst-cell-padding: 4px 8px;
+
+  /* Colors */
+  --sst-border-color: #e0e0e0;
+  --sst-header-bg: #f5f5f5;
+  --sst-header-color: #333;
+  --sst-row-bg: #fff;
+  --sst-row-alt-bg: #fafafa;
+
+  /* Selection */
+  --sst-selected-bg: rgba(33, 150, 243, 0.08);
+  --sst-selected-border: #2196f3;
+
+  /* Validation */
+  --sst-error-bg: #fff0f0;
+  --sst-error-border: #e53935;
+  --sst-warn-bg: #fffbe6;
+  --sst-warn-border: #f9a825;
+}
