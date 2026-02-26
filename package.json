@@ -1,5 +1,6 @@
 {
   "private": true,
+  "packageManager": "pnpm@9.15.4",
   "scripts": {
     "dev": "pnpm --filter playground dev",
     "build": "pnpm --filter @heynow/react-spread-sheet-table build",
