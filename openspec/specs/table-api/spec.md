@@ -2,9 +2,7 @@
 
 useSpreadSheetTableフックと非制御パターンによるパブリックAPIを提供する。テーブル状態管理、変更追跡、ダーティ管理を一つのフックに集約する。
 useSpreadSheetTableフックと非制御パターンのパブリックAPI
-
 ## Requirements
-
 ### Requirement: useSpreadSheetTable Hook
 
 テーブル状態管理のパブリックAPIとして `useSpreadSheetTable<T>` フックを提供しなければならない（MUST）。
@@ -110,3 +108,4 @@ type ChangeInfo<T> = {
 #### Scenario: Read-only mode
 - **WHEN** `<SpreadSheetTable table={table} readOnly />` をレンダリングする
 - **THEN** 全セルが編集不可となる
+
