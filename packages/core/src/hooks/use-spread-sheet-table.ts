@@ -105,18 +105,3 @@ export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): 
 
   return table
 }
-
-// Helper to access internal store from table instance
-export function getStoreFromTable<T>(table: TableInstance<T>): TableStore<T> {
-  return (table as TableInstance<T> & { __store: TableStore<T> }).__store
-}
-
-export function getHandleCellChange<T>(
-  table: TableInstance<T>,
-): (rowIndex: number, columnKey: keyof T, value: T[keyof T]) => void {
-  return (
-    table as TableInstance<T> & {
-      __handleCellChange: (rowIndex: number, columnKey: keyof T, value: T[keyof T]) => void
-    }
-  ).__handleCellChange
-}
