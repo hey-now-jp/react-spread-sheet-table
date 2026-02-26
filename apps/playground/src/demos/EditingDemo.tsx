@@ -50,7 +50,7 @@ function customValidate(
   columnKey: keyof FormRow,
 ): ValidationResult | null {
   if (columnKey === 'score' && typeof value === 'number' && value > 80) {
-    return { level: 'warn', message: 'High score - please double check' }
+    return { level: 'warn', message: '高スコアです - 再確認してください' }
   }
   return null
 }

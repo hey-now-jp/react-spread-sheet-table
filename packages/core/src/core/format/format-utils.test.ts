@@ -48,7 +48,7 @@ describe('parseAndValidateValue', () => {
       const result = parseAndValidateValue('abc', col)
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.message).toContain('number')
+        expect(result.message).toContain('数値')
       }
     })
 
@@ -117,7 +117,7 @@ describe('parseAndValidateValue', () => {
       const result = parseAndValidateValue('9:30', col)
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.message).toContain('time')
+        expect(result.message).toContain('時刻')
       }
     })
 

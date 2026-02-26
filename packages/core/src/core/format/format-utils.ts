@@ -45,41 +45,41 @@ export function parseAndValidateValue<T>(rawValue: string, column: DataColumnDef
 function parseNumber(raw: string): ParseResult {
   const trimmed = raw.trim()
   if (!/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(trimmed)) {
-    return { ok: false, message: `"${raw}" is not a valid number` }
+    return { ok: false, message: `"${raw}" は有効な数値ではありません` }
   }
   const num = Number(trimmed)
   if (!Number.isFinite(num)) {
-    return { ok: false, message: `"${raw}" is not a valid number` }
+    return { ok: false, message: `"${raw}" は有効な数値ではありません` }
   }
   return { ok: true, value: num }
 }
 
 function parseDate(raw: string): ParseResult {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
-    return { ok: false, message: `"${raw}" is not a valid date (expected YYYY-MM-DD)` }
+    return { ok: false, message: `"${raw}" は有効な日付ではありません (YYYY-MM-DD形式)` }
   }
   // Construct as local midnight to avoid UTC offset shifting the date
   const date = new Date(`${raw}T00:00:00`)
   if (Number.isNaN(date.getTime())) {
-    return { ok: false, message: `"${raw}" is not a valid date` }
+    return { ok: false, message: `"${raw}" は有効な日付ではありません` }
   }
   // Verify the parsed date matches the input (catches things like 2024-02-30)
   const [y, m, d] = raw.split('-').map(Number)
   if (date.getFullYear() !== y || date.getMonth() + 1 !== m || date.getDate() !== d) {
-    return { ok: false, message: `"${raw}" is not a valid date` }
+    return { ok: false, message: `"${raw}" は有効な日付ではありません` }
   }
   return { ok: true, value: raw }
 }
 
 function parseTime(raw: string): ParseResult {
   if (!/^\d{2}:\d{2}(:\d{2})?$/.test(raw)) {
-    return { ok: false, message: `"${raw}" is not a valid time (expected HH:MM)` }
+    return { ok: false, message: `"${raw}" は有効な時刻ではありません (HH:MM形式)` }
   }
   const parts = raw.split(':').map(Number)
   const [hours, minutes] = parts
   const seconds = parts[2] ?? 0
   if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59 || seconds < 0 || seconds > 59) {
-    return { ok: false, message: `"${raw}" is not a valid time` }
+    return { ok: false, message: `"${raw}" は有効な時刻ではありません` }
   }
   return { ok: true, value: raw }
 }
@@ -88,15 +88,15 @@ function parseBoolean(raw: string): ParseResult {
   const lower = raw.toLowerCase()
   if (lower === 'true') return { ok: true, value: true }
   if (lower === 'false') return { ok: true, value: false }
-  return { ok: false, message: `"${raw}" is not a valid boolean (expected true/false)` }
+  return { ok: false, message: `"${raw}" は有効な真偽値ではありません (true/false)` }
 }
 
 function parseList(raw: string, options: readonly string[] | undefined): ParseResult {
   if (!options || options.length === 0) {
-    return { ok: false, message: 'No valid options defined for this column' }
+    return { ok: false, message: 'この列に有効な選択肢が定義されていません' }
   }
   if (options.includes(raw)) {
     return { ok: true, value: raw }
   }
-  return { ok: false, message: `"${raw}" is not a valid option` }
+  return { ok: false, message: `"${raw}" は有効な選択肢ではありません` }
 }

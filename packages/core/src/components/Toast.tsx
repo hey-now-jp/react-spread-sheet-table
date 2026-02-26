@@ -36,7 +36,7 @@ function ToastInner<T>({ store }: ToastProps<T>) {
         <button type="button" className={styles.toastClose} onClick={handleClose}>
           x
         </button>
-        <div className={styles.toastTitle}>Format Error</div>
+        <div className={styles.toastTitle}>入力エラー</div>
         <ul className={styles.toastList}>
           {messages.map((msg) => (
             <li key={msg}>{msg}</li>

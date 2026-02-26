@@ -8,7 +8,7 @@ export function validateCellValue<T>(
 ): ValidationResult | null {
   // required check
   if (column.required && (value === null || value === undefined || value === '')) {
-    return { level: 'error', message: 'This field is required' }
+    return { level: 'error', message: 'この項目は必須です' }
   }
 
   // Skip further checks if value is empty and not required
@@ -39,10 +39,10 @@ function validateText<T>(
   const str = String(value)
 
   if (column.maxLength !== undefined && str.length > column.maxLength) {
-    return { level: 'error', message: `Maximum ${column.maxLength} characters allowed` }
+    return { level: 'error', message: `最大${column.maxLength}文字までです` }
   }
   if (column.pattern !== undefined && !column.pattern.test(str)) {
-    return { level: 'error', message: 'Invalid format' }
+    return { level: 'error', message: '形式が正しくありません' }
   }
   return null
 }
@@ -54,13 +54,13 @@ function validateNumber<T>(
   const num = typeof value === 'number' ? value : Number(value)
 
   if (Number.isNaN(num)) {
-    return { level: 'error', message: 'Must be a number' }
+    return { level: 'error', message: '数値を入力してください' }
   }
   if (column.min !== undefined && num < column.min) {
-    return { level: 'error', message: `Minimum value is ${column.min}` }
+    return { level: 'error', message: `最小値は${column.min}です` }
   }
   if (column.max !== undefined && num > column.max) {
-    return { level: 'error', message: `Maximum value is ${column.max}` }
+    return { level: 'error', message: `最大値は${column.max}です` }
   }
   return null
 }
@@ -73,13 +73,13 @@ function validateDate<T>(
   const date = new Date(str)
 
   if (Number.isNaN(date.getTime())) {
-    return { level: 'error', message: 'Invalid date' }
+    return { level: 'error', message: '無効な日付です' }
   }
   if (column.minDate !== undefined && str < column.minDate) {
-    return { level: 'error', message: `Date must be on or after ${column.minDate}` }
+    return { level: 'error', message: `${column.minDate}以降の日付を入力してください` }
   }
   if (column.maxDate !== undefined && str > column.maxDate) {
-    return { level: 'error', message: `Date must be on or before ${column.maxDate}` }
+    return { level: 'error', message: `${column.maxDate}以前の日付を入力してください` }
   }
   return null
 }
@@ -91,13 +91,13 @@ function validateTime<T>(
   const str = String(value)
 
   if (!/^\d{2}:\d{2}(:\d{2})?$/.test(str)) {
-    return { level: 'error', message: 'Invalid time format (HH:MM)' }
+    return { level: 'error', message: '無効な時刻形式です (HH:MM)' }
   }
   if (column.minTime !== undefined && str < column.minTime) {
-    return { level: 'error', message: `Time must be on or after ${column.minTime}` }
+    return { level: 'error', message: `${column.minTime}以降の時刻を入力してください` }
   }
   if (column.maxTime !== undefined && str > column.maxTime) {
-    return { level: 'error', message: `Time must be on or before ${column.maxTime}` }
+    return { level: 'error', message: `${column.maxTime}以前の時刻を入力してください` }
   }
   return null
 }

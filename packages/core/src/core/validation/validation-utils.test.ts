@@ -13,7 +13,7 @@ describe('validateCellValue', () => {
       required: true,
     }
     const result = validateCellValue('', column, { id: '1', name: '', age: 0, date: '', time: '' })
-    expect(result).toEqual({ level: 'error', message: 'This field is required' })
+    expect(result).toEqual({ level: 'error', message: 'この項目は必須です' })
   })
 
   it('validates required field - null', () => {
@@ -30,7 +30,7 @@ describe('validateCellValue', () => {
       date: '',
       time: '',
     })
-    expect(result).toEqual({ level: 'error', message: 'This field is required' })
+    expect(result).toEqual({ level: 'error', message: 'この項目は必須です' })
   })
 
   it('passes when required field has value', () => {
@@ -104,7 +104,7 @@ describe('validateCellValue', () => {
   it('validates number min', () => {
     const column: DataColumnDef<TestRow> = { type: 'number', key: 'age', header: 'Age', min: 0 }
     const result = validateCellValue(-1, column, { id: '1', name: '', age: -1, date: '', time: '' })
-    expect(result).toEqual({ level: 'error', message: 'Minimum value is 0' })
+    expect(result).toEqual({ level: 'error', message: '最小値は0です' })
   })
 
   it('validates number max', () => {
@@ -116,7 +116,7 @@ describe('validateCellValue', () => {
       date: '',
       time: '',
     })
-    expect(result).toEqual({ level: 'error', message: 'Maximum value is 150' })
+    expect(result).toEqual({ level: 'error', message: '最大値は150です' })
   })
 
   it('passes number within range', () => {
