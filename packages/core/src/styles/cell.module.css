@@ -18,9 +18,7 @@
   padding: var(--sst-cell-padding);
   border-right: 1px solid var(--sst-border-color);
   box-sizing: border-box;
-  overflow: hidden;
   white-space: nowrap;
-  text-overflow: ellipsis;
   position: relative;
   flex-shrink: 0;
   cursor: default;
