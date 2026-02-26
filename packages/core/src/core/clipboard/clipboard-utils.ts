@@ -3,6 +3,13 @@ export function serializeToTsv(data: ReadonlyArray<ReadonlyArray<unknown>>): str
     .map((row) =>
       row
         .map((cell) => {
+          if (Array.isArray(cell)) {
+            const str = cell.join(', ')
+            if (str.includes('\t') || str.includes('\n') || str.includes('"')) {
+              return `"${str.replace(/"/g, '""')}"`
+            }
+            return str
+          }
           const str = cell === null || cell === undefined ? '' : String(cell)
           if (str.includes('\t') || str.includes('\n') || str.includes('"')) {
             return `"${str.replace(/"/g, '""')}"`

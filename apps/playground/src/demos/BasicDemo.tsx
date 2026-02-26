@@ -16,6 +16,13 @@ const columns: ReadonlyArray<ColumnDef<Employee>> = [
     options: ['Engineering', 'Sales', 'HR', 'Finance'],
   },
   {
+    key: 'skills',
+    header: 'スキル',
+    type: 'multiList',
+    options: ['React', 'TypeScript', 'Node.js', 'Python', 'Docker', 'SQL', 'Excel', 'PowerPoint'],
+    width: 200,
+  },
+  {
     key: 'actions',
     type: 'action',
     header: '',

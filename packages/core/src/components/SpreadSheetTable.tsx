@@ -203,6 +203,12 @@ function SpreadSheetTableInner<T>({
               handleCellChange(selection.activeCell.rowIndex, colKey, !current as T[keyof T])
               break
             }
+            if (activeCol.type === 'multiList') {
+              const current = store.getCellValue(selection.activeCell.rowIndex, colKey)
+              const arr = Array.isArray(current) ? current : []
+              store.startEditing(selection.activeCell, JSON.stringify(arr))
+              break
+            }
             const value = store.getCellValue(selection.activeCell.rowIndex, colKey)
             store.startEditing(selection.activeCell, String(value ?? ''))
           }
@@ -237,6 +243,10 @@ function SpreadSheetTableInner<T>({
                 } else if (activeCol.type === 'list') {
                   const value = store.getCellValue(selection.activeCell.rowIndex, colKey)
                   store.startEditing(selection.activeCell, String(value ?? ''))
+                } else if (activeCol.type === 'multiList') {
+                  const current = store.getCellValue(selection.activeCell.rowIndex, colKey)
+                  const arr = Array.isArray(current) ? current : []
+                  store.startEditing(selection.activeCell, JSON.stringify(arr))
                 }
               }
             }
@@ -246,7 +256,12 @@ function SpreadSheetTableInner<T>({
           if (!readOnly && !e.ctrlKey && !e.metaKey && !e.altKey && e.key.length === 1) {
             const activeCol = columns[selection.activeCell.colIndex]
             if (activeCol && isDataColumn(activeCol) && !activeCol.readOnly) {
-              if (activeCol.type === 'boolean' || activeCol.type === 'list') break
+              if (
+                activeCol.type === 'boolean' ||
+                activeCol.type === 'list' ||
+                activeCol.type === 'multiList'
+              )
+                break
               store.startEditing(selection.activeCell, e.key)
             }
           }
@@ -501,6 +516,11 @@ function handleCut<T>(
   }
 }
 
+function getClearValue<T>(col: DataColumnDef<T>): T[keyof T] {
+  if (col.type === 'multiList') return [] as T[keyof T]
+  return '' as T[keyof T]
+}
+
 function clearSelectedCells<T>(
   store: TableStore<T>,
   columns: ReadonlyArray<import('../core/types/column').ColumnDef<T>>,
@@ -516,18 +536,16 @@ function clearSelectedCells<T>(
       for (let c = minCol; c <= maxCol; c++) {
         const col = columns[c]
         if (col && isDataColumn(col) && !col.readOnly) {
-          onCellChange(r, (col as DataColumnDef<T>).key as keyof T, '' as T[keyof T])
+          const dataCol = col as DataColumnDef<T>
+          onCellChange(r, dataCol.key as keyof T, getClearValue(dataCol))
         }
       }
     }
   } else {
     const col = columns[selection.activeCell.colIndex]
     if (col && isDataColumn(col) && !col.readOnly) {
-      onCellChange(
-        selection.activeCell.rowIndex,
-        (col as DataColumnDef<T>).key as keyof T,
-        '' as T[keyof T],
-      )
+      const dataCol = col as DataColumnDef<T>
+      onCellChange(selection.activeCell.rowIndex, dataCol.key as keyof T, getClearValue(dataCol))
     }
   }
   store.endBatch()

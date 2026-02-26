@@ -50,10 +50,20 @@ function FilterPopoverInner<T>({
 
     for (const row of rows) {
       const raw = row[key]
-      const str = raw === null || raw === undefined ? '' : String(raw)
-      if (str !== '' && !seen.has(str)) {
-        seen.add(str)
-        values.push(str)
+      if (Array.isArray(raw)) {
+        for (const item of raw) {
+          const str = item === null || item === undefined ? '' : String(item)
+          if (str !== '' && !seen.has(str)) {
+            seen.add(str)
+            values.push(str)
+          }
+        }
+      } else {
+        const str = raw === null || raw === undefined ? '' : String(raw)
+        if (str !== '' && !seen.has(str)) {
+          seen.add(str)
+          values.push(str)
+        }
       }
     }
 

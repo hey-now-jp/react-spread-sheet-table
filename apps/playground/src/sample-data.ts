@@ -6,6 +6,7 @@ export type Employee = {
   startTime: string
   active: boolean
   department: string
+  skills: string[]
 }
 
 export const sampleData: ReadonlyArray<Employee> = [
@@ -17,6 +18,7 @@ export const sampleData: ReadonlyArray<Employee> = [
     startTime: '09:00',
     active: true,
     department: 'Engineering',
+    skills: ['React', 'TypeScript'],
   },
   {
     id: '2',
@@ -26,6 +28,7 @@ export const sampleData: ReadonlyArray<Employee> = [
     startTime: '08:30',
     active: true,
     department: 'Sales',
+    skills: ['Excel', 'PowerPoint'],
   },
   {
     id: '3',
@@ -35,6 +38,7 @@ export const sampleData: ReadonlyArray<Employee> = [
     startTime: '10:00',
     active: false,
     department: 'HR',
+    skills: ['Excel', 'Python'],
   },
   {
     id: '4',
@@ -44,6 +48,7 @@ export const sampleData: ReadonlyArray<Employee> = [
     startTime: '09:30',
     active: true,
     department: 'Engineering',
+    skills: ['React', 'Node.js', 'TypeScript'],
   },
   {
     id: '5',
@@ -53,6 +58,7 @@ export const sampleData: ReadonlyArray<Employee> = [
     startTime: '08:00',
     active: true,
     department: 'Finance',
+    skills: ['Excel', 'SQL'],
   },
   {
     id: '6',
@@ -62,6 +68,7 @@ export const sampleData: ReadonlyArray<Employee> = [
     startTime: '09:00',
     active: true,
     department: 'Engineering',
+    skills: ['Python', 'Docker'],
   },
   {
     id: '7',
@@ -71,6 +78,7 @@ export const sampleData: ReadonlyArray<Employee> = [
     startTime: '08:30',
     active: true,
     department: 'Sales',
+    skills: ['PowerPoint', 'Excel'],
   },
   {
     id: '8',
@@ -80,6 +88,7 @@ export const sampleData: ReadonlyArray<Employee> = [
     startTime: '10:00',
     active: true,
     department: 'HR',
+    skills: ['Excel'],
   },
   {
     id: '9',
@@ -89,6 +98,7 @@ export const sampleData: ReadonlyArray<Employee> = [
     startTime: '09:00',
     active: false,
     department: 'Finance',
+    skills: ['SQL', 'Python', 'Excel'],
   },
   {
     id: '10',
@@ -98,6 +108,7 @@ export const sampleData: ReadonlyArray<Employee> = [
     startTime: '08:00',
     active: true,
     department: 'Engineering',
+    skills: ['React', 'Node.js'],
   },
   {
     id: '11',
@@ -107,6 +118,7 @@ export const sampleData: ReadonlyArray<Employee> = [
     startTime: '09:30',
     active: true,
     department: 'Sales',
+    skills: ['PowerPoint'],
   },
   {
     id: '12',
@@ -116,6 +128,7 @@ export const sampleData: ReadonlyArray<Employee> = [
     startTime: '09:00',
     active: true,
     department: 'Engineering',
+    skills: ['TypeScript', 'Docker', 'SQL'],
   },
   {
     id: '13',
@@ -125,6 +138,7 @@ export const sampleData: ReadonlyArray<Employee> = [
     startTime: '10:00',
     active: true,
     department: 'HR',
+    skills: ['Excel', 'PowerPoint'],
   },
   {
     id: '14',
@@ -134,6 +148,7 @@ export const sampleData: ReadonlyArray<Employee> = [
     startTime: '08:30',
     active: false,
     department: 'Finance',
+    skills: ['SQL', 'Excel'],
   },
   {
     id: '15',
@@ -143,6 +158,7 @@ export const sampleData: ReadonlyArray<Employee> = [
     startTime: '09:00',
     active: true,
     department: 'Sales',
+    skills: ['Excel', 'SQL'],
   },
   {
     id: '16',
@@ -152,6 +168,7 @@ export const sampleData: ReadonlyArray<Employee> = [
     startTime: '08:00',
     active: true,
     department: 'Engineering',
+    skills: ['React', 'Python', 'Docker'],
   },
   {
     id: '17',
@@ -161,6 +178,7 @@ export const sampleData: ReadonlyArray<Employee> = [
     startTime: '09:30',
     active: true,
     department: 'HR',
+    skills: ['Excel'],
   },
   {
     id: '18',
@@ -170,6 +188,7 @@ export const sampleData: ReadonlyArray<Employee> = [
     startTime: '08:00',
     active: true,
     department: 'Finance',
+    skills: ['Excel', 'PowerPoint', 'SQL'],
   },
   {
     id: '19',
@@ -179,6 +198,7 @@ export const sampleData: ReadonlyArray<Employee> = [
     startTime: '09:00',
     active: true,
     department: 'Engineering',
+    skills: ['Node.js', 'TypeScript'],
   },
   {
     id: '20',
@@ -188,5 +208,6 @@ export const sampleData: ReadonlyArray<Employee> = [
     startTime: '10:00',
     active: false,
     department: 'Sales',
+    skills: ['PowerPoint', 'Excel'],
   },
 ]

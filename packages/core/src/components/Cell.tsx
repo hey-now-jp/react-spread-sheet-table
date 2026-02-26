@@ -7,6 +7,7 @@ import styles from '../styles/cell.module.css'
 import { BooleanEditor } from './editors/BooleanEditor'
 import { DateEditor } from './editors/DateEditor'
 import { ListEditor } from './editors/ListEditor'
+import { MultiListEditor } from './editors/MultiListEditor'
 import { NumberEditor } from './editors/NumberEditor'
 import { TextEditor } from './editors/TextEditor'
 import { TimeEditor } from './editors/TimeEditor'
@@ -55,6 +56,11 @@ function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChang
   const handleDoubleClick = useCallback(() => {
     if (isReadOnly) return
     if (column.type === 'boolean') return
+    if (column.type === 'multiList') {
+      const arr = Array.isArray(value) ? value : []
+      store.startEditing({ rowIndex, colIndex }, JSON.stringify(arr))
+      return
+    }
     store.startEditing({ rowIndex, colIndex }, String(value ?? ''))
   }, [store, rowIndex, colIndex, isReadOnly, column.type, value])
 
@@ -207,6 +213,16 @@ function renderEditor<T>(
           onCancel={onCancel}
         />
       )
+    case 'multiList':
+      return (
+        <MultiListEditor
+          value={editingValue}
+          options={column.options as string[]}
+          onChange={onChange}
+          onCommit={onCommit}
+          onCancel={onCancel}
+        />
+      )
     case 'boolean':
       return null
   }
@@ -217,6 +233,9 @@ function formatDisplayValue<T>(value: unknown, column: DataColumnDef<T>): string
   if (column.type === 'boolean') return String(value)
   if (column.type === 'number' && column.precision !== undefined) {
     return Number(value).toFixed(column.precision)
+  }
+  if (column.type === 'multiList' && Array.isArray(value)) {
+    return value.join(', ')
   }
   return String(value)
 }

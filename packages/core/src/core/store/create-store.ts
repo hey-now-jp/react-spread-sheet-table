@@ -427,6 +427,9 @@ function compareValues(a: unknown, b: unknown): number {
   if (a == null) return -1
   if (b == null) return 1
 
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return a.join(', ').localeCompare(b.join(', '))
+  }
   if (typeof a === 'string' && typeof b === 'string') {
     return a.localeCompare(b)
   }
@@ -446,8 +449,15 @@ function matchesFilter(
 ): boolean {
   switch (condition.type) {
     case 'eq':
+      if (Array.isArray(value)) {
+        return value.includes(condition.value)
+      }
       return value === condition.value
     case 'contains':
+      if (Array.isArray(value)) {
+        const lower = condition.value.toLowerCase()
+        return value.some((v) => String(v).toLowerCase().includes(lower))
+      }
       return String(value ?? '')
         .toLowerCase()
         .includes(condition.value.toLowerCase())
@@ -459,6 +469,9 @@ function matchesFilter(
       return true
     }
     case 'in':
+      if (Array.isArray(value)) {
+        return value.some((v) => condition.values.includes(v))
+      }
       return condition.values.includes(value)
   }
 }

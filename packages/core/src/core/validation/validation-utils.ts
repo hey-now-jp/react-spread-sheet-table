@@ -6,12 +6,20 @@ export function validateCellValue<T>(
   _row: T,
 ): ValidationResult | null {
   // required check
-  if (column.required && (value === null || value === undefined || value === '')) {
-    return { level: 'error', message: 'この項目は必須です' }
+  if (column.required) {
+    if (column.type === 'multiList') {
+      if (!Array.isArray(value) || value.length === 0) {
+        return { level: 'error', message: 'この項目は必須です' }
+      }
+    } else if (value === null || value === undefined || value === '') {
+      return { level: 'error', message: 'この項目は必須です' }
+    }
   }
 
   // Skip further checks if value is empty and not required
-  if (value === null || value === undefined || value === '') {
+  if (column.type === 'multiList') {
+    if (!Array.isArray(value) || value.length === 0) return null
+  } else if (value === null || value === undefined || value === '') {
     return null
   }
 
@@ -27,6 +35,7 @@ export function validateCellValue<T>(
       return validateTime(value, column)
     case 'boolean':
     case 'list':
+    case 'multiList':
       return null
   }
 }

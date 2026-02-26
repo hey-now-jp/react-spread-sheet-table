@@ -9,6 +9,7 @@ type TestRow = {
   startTime: string
   active: boolean
   department: string
+  skills: string[]
 }
 
 describe('parseAndValidateValue', () => {
@@ -183,6 +184,56 @@ describe('parseAndValidateValue', () => {
     it('accepts empty string', () => {
       const result = parseAndValidateValue('', col)
       expect(result).toEqual({ ok: true, value: '' })
+    })
+  })
+
+  describe('multiList column', () => {
+    const col: DataColumnDef<TestRow> = {
+      key: 'skills',
+      header: 'Skills',
+      type: 'multiList',
+      options: ['React', 'TypeScript', 'Python'],
+    }
+
+    it('parses JSON array of valid options', () => {
+      const result = parseAndValidateValue('["React","TypeScript"]', col)
+      expect(result).toEqual({ ok: true, value: ['React', 'TypeScript'] })
+    })
+
+    it('parses comma-separated string of valid options', () => {
+      const result = parseAndValidateValue('React, Python', col)
+      expect(result).toEqual({ ok: true, value: ['React', 'Python'] })
+    })
+
+    it('parses single value comma-separated', () => {
+      const result = parseAndValidateValue('React', col)
+      expect(result).toEqual({ ok: true, value: ['React'] })
+    })
+
+    it('rejects invalid option in JSON array', () => {
+      const result = parseAndValidateValue('["React","Java"]', col)
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.message).toContain('Java')
+      }
+    })
+
+    it('rejects invalid option in comma-separated', () => {
+      const result = parseAndValidateValue('React, Java', col)
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.message).toContain('Java')
+      }
+    })
+
+    it('returns empty array for empty string', () => {
+      const result = parseAndValidateValue('', col)
+      expect(result).toEqual({ ok: true, value: [] })
+    })
+
+    it('parses empty JSON array', () => {
+      const result = parseAndValidateValue('[]', col)
+      expect(result).toEqual({ ok: true, value: [] })
     })
   })
 })

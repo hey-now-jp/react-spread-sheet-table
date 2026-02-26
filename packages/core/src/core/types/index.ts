@@ -6,6 +6,7 @@ export type {
   DataColumnType,
   DateColumnDef,
   ListColumnDef,
+  MultiListColumnDef,
   NumberColumnDef,
   TextColumnDef,
   TimeColumnDef,

@@ -53,6 +53,11 @@ export type ListColumnDef<T, K extends keyof T = keyof T> = ColumnDefBase<T, K> 
   readonly options: readonly string[]
 }
 
+export type MultiListColumnDef<T, K extends keyof T = keyof T> = ColumnDefBase<T, K> & {
+  readonly type: 'multiList'
+  readonly options: readonly string[]
+}
+
 // ---------------------------------------------------------------------------
 // Data column union
 // ---------------------------------------------------------------------------
@@ -64,6 +69,7 @@ export type DataColumnDef<T, K extends keyof T = keyof T> =
   | TimeColumnDef<T, K>
   | BooleanColumnDef<T, K>
   | ListColumnDef<T, K>
+  | MultiListColumnDef<T, K>
 
 // ---------------------------------------------------------------------------
 // Action column

@@ -16,6 +16,7 @@ export type {
   FilterCondition,
   FilterState,
   ListColumnDef,
+  MultiListColumnDef,
   NumberColumnDef,
   SelectionRange,
   SelectionState,

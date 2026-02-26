@@ -18,6 +18,9 @@ export type ParseResult = ParseSuccess | ParseFailure
  */
 export function parseAndValidateValue<T>(rawValue: string, column: DataColumnDef<T>): ParseResult {
   if (rawValue === '') {
+    if (column.type === 'multiList') {
+      return { ok: true, value: [] }
+    }
     return { ok: true, value: '' }
   }
 
@@ -39,6 +42,9 @@ export function parseAndValidateValue<T>(rawValue: string, column: DataColumnDef
 
     case 'list':
       return parseList(rawValue, 'options' in column ? column.options : undefined)
+
+    case 'multiList':
+      return parseMultiList(rawValue, 'options' in column ? column.options : undefined)
   }
 }
 
@@ -99,4 +105,35 @@ function parseList(raw: string, options: readonly string[] | undefined): ParseRe
     return { ok: true, value: raw }
   }
   return { ok: false, message: `"${raw}" は有効な選択肢ではありません` }
+}
+
+function parseMultiList(raw: string, options: readonly string[] | undefined): ParseResult {
+  if (!options || options.length === 0) {
+    return { ok: false, message: 'この列に有効な選択肢が定義されていません' }
+  }
+
+  // Try JSON parse first (internal format from editor)
+  try {
+    const parsed = JSON.parse(raw)
+    if (Array.isArray(parsed)) {
+      const invalid = parsed.filter((v: unknown) => typeof v !== 'string' || !options.includes(v))
+      if (invalid.length > 0) {
+        return { ok: false, message: `"${invalid.join(', ')}" は有効な選択肢ではありません` }
+      }
+      return { ok: true, value: parsed as string[] }
+    }
+  } catch {
+    // Not JSON, try comma-separated (clipboard paste format)
+  }
+
+  // Comma-separated fallback (from clipboard paste)
+  const values = raw
+    .split(',')
+    .map((v) => v.trim())
+    .filter((v) => v !== '')
+  const invalid = values.filter((v) => !options.includes(v))
+  if (invalid.length > 0) {
+    return { ok: false, message: `"${invalid.join(', ')}" は有効な選択肢ではありません` }
+  }
+  return { ok: true, value: values }
 }
