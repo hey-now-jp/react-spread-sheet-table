@@ -2,9 +2,7 @@
 
 セルのダブルクリックやEnterキーによる編集モードの開始・終了、型に応じたエディタUI、キーボードナビゲーションを提供する。
 セル編集モードとキーボードナビゲーション
-
 ## Requirements
-
 ### Requirement: Edit Mode Activation
 
 セルはダブルクリックまたはEnterキーで編集モードに入らなければならない（MUST）。
@@ -67,24 +65,27 @@
 
 ### Requirement: Keyboard Navigation
 
-矢印キー、Tab、Shift+Tabによるセル間のキーボードナビゲーションを提供しなければならない（MUST）。
+キーボードナビゲーションに undo/redo ショートカットを追加する（MUST）。
 
-#### Scenario: Arrow key navigation
-- **WHEN** 非編集モードで矢印キーを押す
-- **THEN** アクティブセルが対応する方向に移動する
+#### Scenario: Cmd/Ctrl+Z triggers undo
+- **GIVEN** セルの値を編集確定済みで、編集モードではない
+- **WHEN** Cmd+Z（macOS）または Ctrl+Z（Windows/Linux）を押す
+- **THEN** 直前のデータ変更が取り消される
 
-#### Scenario: Tab moves to next cell
-- **WHEN** 非編集モードでTabキーを押す
-- **THEN** アクティブセルが右の次のデータセルに移動する
-- **AND** アクション列はスキップされる
+#### Scenario: Cmd/Ctrl+Y triggers redo
+- **GIVEN** undo を実行済みで、編集モードではない
+- **WHEN** Cmd+Y（macOS）または Ctrl+Y（Windows/Linux）を押す
+- **THEN** 取り消した変更がやり直される
 
-#### Scenario: Shift+Tab moves to previous cell
-- **WHEN** 非編集モードでShift+Tabを押す
-- **THEN** アクティブセルが左の前のデータセルに移動する
+#### Scenario: Cmd/Ctrl+Shift+Z triggers redo (macOS convention)
+- **GIVEN** undo を実行済みで、編集モードではない
+- **WHEN** Cmd+Shift+Z を押す
+- **THEN** 取り消した変更がやり直される
 
-#### Scenario: Navigation wraps at row boundary
-- **WHEN** 行末のセルでTabキーを押す
-- **THEN** 次の行の最初のデータセルに移動する
+#### Scenario: Undo/redo disabled during edit mode
+- **GIVEN** セルが編集モード中
+- **WHEN** Cmd+Z または Cmd+Y を押す
+- **THEN** テーブルの undo/redo は実行されない（ブラウザのテキスト入力 undo に委ねる）
 
 ### Requirement: Direct Input
 
@@ -94,3 +95,4 @@
 - **WHEN** 非編集モードでアルファベットや数字を入力する
 - **THEN** セルが編集モードになる
 - **AND** 既存の値がクリアされ、入力した文字が反映される
+
