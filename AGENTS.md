@@ -69,8 +69,21 @@ pnpm lint:fix     # Biome 自動修正
 
 - `SpreadSheetTable` - メインコンポーネント、キーボード操作、クリップボード、マウス選択
 - `Cell` - セル描画、編集モード制御、バリデーション表示
-- `editors/` - 型別エディタ (Text, Number, Date, Time, List, Boolean)
+- `editors/` - 型別エディタ (Text, Number, Date, Time, List, MultiList, Boolean)
 - `HeaderRow` - カラムヘッダー、ソート/フィルタ操作
+
+### カラム型 (DataColumnDef の判別共用体)
+
+| type | 値の型 | エディタ | 備考 |
+|------|--------|----------|------|
+| `text` | `string` | `<input type="text">` | maxLength, pattern バリデーション |
+| `number` | `number` | `<input type="number">` | min, max, step, precision |
+| `date` | `string` (YYYY-MM-DD) | `<input type="date">` | minDate, maxDate |
+| `time` | `string` (HH:MM) | `<input type="time">` | minTime, maxTime, step |
+| `boolean` | `boolean` | `<input type="checkbox">` | 常時表示、Space/Enter でトグル |
+| `list` | `string` | `<select>` | options から単一選択 |
+| `multiList` | `string[]` | チェックボックス一覧 | options から複数選択、カンマ区切り表示 |
+| `action` | - | カスタム render 関数 | 読み取り専用、ソート/フィルタ対象外 |
 
 ### 型定義
 
