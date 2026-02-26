@@ -3,6 +3,7 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [react()],
+  base: process.env.GITHUB_PAGES === 'true' ? '/react-spread-sheet-table/' : '/',
   server: {
     port: 5173,
   },
