@@ -113,4 +113,70 @@ test.describe('セル編集', () => {
     const select = page.locator('select').first()
     await expect(select).toBeVisible()
   })
+
+  test('multiList セルで Enter → チェック切替 → Enter で確定', async ({ page }) => {
+    await goToBasicDemo(page)
+    // skills 列 = colIndex 6, row 0 = ['React', 'TypeScript']
+    const cell = getCell(page, 0, 6)
+    await expect(cell).toHaveText('React, TypeScript')
+
+    await clickCell(page, 0, 6)
+    await page.keyboard.press('Enter')
+
+    // エディタが表示される
+    const editor = page.locator('[class*="multiListEditor"]')
+    await expect(editor).toBeVisible()
+
+    // Python のチェックボックスをクリックして追加
+    const pythonLabel = editor.locator('label', { hasText: 'Python' })
+    await pythonLabel.click()
+
+    // Enter で確定
+    await page.keyboard.press('Enter')
+
+    // 値が更新されている
+    await expect(cell).toHaveText('React, TypeScript, Python')
+  })
+
+  test('multiList セルで Escape でキャンセル', async ({ page }) => {
+    await goToBasicDemo(page)
+    // skills 列 = colIndex 6, row 0 = ['React', 'TypeScript']
+    const cell = getCell(page, 0, 6)
+    await clickCell(page, 0, 6)
+    await page.keyboard.press('Enter')
+
+    const editor = page.locator('[class*="multiListEditor"]')
+    await expect(editor).toBeVisible()
+
+    // Docker をチェック
+    const dockerLabel = editor.locator('label', { hasText: 'Docker' })
+    await dockerLabel.click()
+
+    // Escape でキャンセル
+    await page.keyboard.press('Escape')
+
+    // 元の値のまま
+    await expect(cell).toHaveText('React, TypeScript')
+  })
+
+  test('multiList セルで Space から編集開始', async ({ page }) => {
+    await goToBasicDemo(page)
+    // skills 列 = colIndex 6
+    await clickCell(page, 0, 5)
+    await page.keyboard.press('ArrowRight')
+    await page.keyboard.press('Space')
+
+    const editor = page.locator('[class*="multiListEditor"]')
+    await expect(editor).toBeVisible()
+  })
+
+  test('multiList セルの直接文字入力は無視される', async ({ page }) => {
+    await goToBasicDemo(page)
+    await clickCell(page, 0, 6)
+    await page.keyboard.type('A')
+
+    // エディタは表示されない
+    const editor = page.locator('[class*="multiListEditor"]')
+    await expect(editor).not.toBeVisible({ timeout: 500 })
+  })
 })

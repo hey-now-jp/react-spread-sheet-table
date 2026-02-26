@@ -53,8 +53,26 @@ test.describe('カラム型', () => {
     await expect(options).toHaveCount(4) // Engineering, Sales, HR, Finance
   })
 
+  test('multiList は編集モードでチェックボックス一覧表示', async ({ page }) => {
+    // skills 列 = colIndex 6
+    await clickCell(page, 0, 6)
+    await page.keyboard.press('Enter')
+
+    // チェックボックスが複数表示される
+    const checkboxes = page.locator('[class*="multiListEditor"] input[type="checkbox"]')
+    await expect(checkboxes.first()).toBeVisible()
+    const count = await checkboxes.count()
+    expect(count).toBe(8) // React, TypeScript, Node.js, Python, Docker, SQL, Excel, PowerPoint
+  })
+
+  test('multiList の初期値がカンマ区切りで表示', async ({ page }) => {
+    // skills 列 = colIndex 6, row 0 = ['React', 'TypeScript']
+    const cell = getCell(page, 0, 6)
+    await expect(cell).toHaveText('React, TypeScript')
+  })
+
   test('action 列はカスタム render が表示される', async ({ page }) => {
-    // action 列 = colIndex 6 (最後の列)
+    // action 列 = colIndex 7 (最後の列)
     const actionButton = page.locator('button', { hasText: '詳細' }).first()
     await expect(actionButton).toBeVisible()
   })
