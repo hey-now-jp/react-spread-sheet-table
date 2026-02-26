@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { ColumnDef } from '../types/column'
+import type { ColumnDef } from '../types'
 import {
   getNextDataCellIndex,
   getNormalizedRange,

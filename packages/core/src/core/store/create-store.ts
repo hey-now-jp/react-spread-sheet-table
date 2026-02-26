@@ -1,9 +1,15 @@
-import type { ColumnDef } from '../types/column'
-import type { FilterCondition, FilterState } from '../types/filter'
-import type { CellPosition, SelectionRange, SelectionState } from '../types/selection'
-import type { SortDirection, SortState } from '../types/sort'
-import type { ChangeInfo } from '../types/table'
-import type { CellValidationError } from '../types/validation'
+import type {
+  CellPosition,
+  CellValidationError,
+  ChangeInfo,
+  ColumnDef,
+  FilterCondition,
+  FilterState,
+  SelectionRange,
+  SelectionState,
+  SortDirection,
+  SortState,
+} from '../types'
 import {
   createDataSlice,
   type DataSlice,

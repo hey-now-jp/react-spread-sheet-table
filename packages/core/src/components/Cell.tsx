@@ -1,14 +1,8 @@
 import { memo, useCallback, useMemo, useState, useSyncExternalStore } from 'react'
 import { parseAndValidateValue } from '../core/format/format-utils'
 import type { TableStore } from '../core/store/create-store'
-import type { DataColumnDef } from '../core/types/column'
-import {
-  getRangeEdges,
-  getSelectionEdges,
-  isActiveCell,
-  isInSelection,
-} from '../core/types/selection'
-import type { CellValidationError } from '../core/types/validation'
+import type { CellValidationError, DataColumnDef } from '../core/types'
+import { getRangeEdges, getSelectionEdges, isActiveCell, isInSelection } from '../core/types'
 import styles from '../styles/cell.module.css'
 import { BooleanEditor } from './editors/BooleanEditor'
 import { DateEditor } from './editors/DateEditor'

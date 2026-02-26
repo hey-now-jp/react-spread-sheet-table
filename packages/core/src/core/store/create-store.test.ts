@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { ColumnDef } from '../types/column'
+import type { ColumnDef } from '../types'
 import { createStore } from './create-store'
 
 type TestRow = {

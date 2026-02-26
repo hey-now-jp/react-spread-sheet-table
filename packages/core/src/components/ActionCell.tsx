@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import type { ActionColumnDef } from '../core/types/column'
+import type { ActionColumnDef } from '../core/types'
 import styles from '../styles/cell.module.css'
 
 type ActionCellProps<T> = {

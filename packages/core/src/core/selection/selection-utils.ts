@@ -1,6 +1,5 @@
-import type { ColumnDef } from '../types/column'
-import { isActionColumn } from '../types/column'
-import type { CellPosition, SelectionRange } from '../types/selection'
+import type { CellPosition, ColumnDef, SelectionRange } from '../types'
+import { isActionColumn } from '../types'
 
 export function getNextDataCellIndex<T>(
   columns: ReadonlyArray<ColumnDef<T>>,

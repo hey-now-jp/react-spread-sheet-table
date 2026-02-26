@@ -1,4 +1,4 @@
-import type { CellChange, ChangeInfo } from '../types/table'
+import type { CellChange, ChangeInfo } from '../types'
 
 export type DataSlice<T> = {
   readonly rows: ReadonlyArray<T>

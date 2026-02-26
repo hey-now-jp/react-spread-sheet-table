@@ -1,11 +1,14 @@
 import { useCallback, useRef, useSyncExternalStore } from 'react'
 import { createStore, type TableStore } from '../core/store/create-store'
-import type { DataColumnDef } from '../core/types/column'
-import { isDataColumn } from '../core/types/column'
-import type { FilterCondition } from '../core/types/filter'
-import type { SelectionRange } from '../core/types/selection'
-import type { SortDirection } from '../core/types/sort'
-import type { TableInstance, UseSpreadSheetTableOptions } from '../core/types/table'
+import type {
+  DataColumnDef,
+  FilterCondition,
+  SelectionRange,
+  SortDirection,
+  TableInstance,
+  UseSpreadSheetTableOptions,
+} from '../core/types'
+import { isDataColumn } from '../core/types'
 import { runValidation } from '../core/validation/validation-utils'
 
 export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): TableInstance<T> {

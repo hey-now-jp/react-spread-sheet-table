@@ -1,4 +1,4 @@
-import type { FilterCondition, FilterState } from '../types/filter'
+import type { FilterCondition, FilterState } from '../types'
 
 export type FilterSlice<T> = {
   readonly filterState: FilterState<T>

@@ -1,7 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { TableStore } from '../core/store/create-store'
-import type { DataColumnDef } from '../core/types/column'
-import type { FilterCondition } from '../core/types/filter'
+import type { DataColumnDef, FilterCondition } from '../core/types'
 import styles from '../styles/filter.module.css'
 
 type FilterPopoverProps<T> = {

@@ -1,4 +1,4 @@
-import type { CellPosition } from '../types/selection'
+import type { CellPosition } from '../types'
 
 export type EditSlice = {
   readonly editingCell: CellPosition | null

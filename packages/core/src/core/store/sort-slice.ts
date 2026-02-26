@@ -1,4 +1,4 @@
-import type { SortDirection, SortState } from '../types/sort'
+import type { SortDirection, SortState } from '../types'
 
 export type SortSlice<T> = {
   readonly sortState: SortState<T>

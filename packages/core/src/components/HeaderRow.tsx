@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import type { TableStore } from '../core/store/create-store'
-import type { ColumnDef } from '../core/types/column'
+import type { ColumnDef } from '../core/types'
 import styles from '../styles/header.module.css'
 import { HeaderCell } from './HeaderCell'
 

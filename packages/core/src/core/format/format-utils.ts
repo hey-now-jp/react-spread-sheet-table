@@ -1,4 +1,4 @@
-import type { DataColumnDef } from '../types/column'
+import type { DataColumnDef } from '../types'
 
 export type ParseSuccess = {
   readonly ok: true

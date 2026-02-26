@@ -7,10 +7,8 @@ import {
   tabToNextCell,
 } from '../core/selection/selection-utils'
 import type { TableStore } from '../core/store/create-store'
-import type { DataColumnDef } from '../core/types/column'
-import { isActionColumn, isDataColumn } from '../core/types/column'
-import type { CellPosition, SelectionRange } from '../core/types/selection'
-import type { TableInstance } from '../core/types/table'
+import type { CellPosition, DataColumnDef, SelectionRange, TableInstance } from '../core/types'
+import { isActionColumn, isDataColumn } from '../core/types'
 import { useVirtualScroll } from '../hooks/use-virtual-scroll'
 import scrollStyles from '../styles/scroll.module.css'
 import tableStyles from '../styles/table.module.css'

@@ -36,7 +36,18 @@
         "noUnusedImports": "error"
       },
       "style": {
-        "useComponentExportOnlyModules": "off"
+        "useComponentExportOnlyModules": "off",
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "patterns": [
+              {
+                "group": ["**/types/*"],
+                "message": "Import from the barrel '../types' instead of deep submodule paths."
+              }
+            ]
+          }
+        }
       }
     },
     "domains": {

@@ -1,5 +1,4 @@
-import type { DataColumnDef } from '../types/column'
-import type { CellValidationError, ValidationResult } from '../types/validation'
+import type { CellValidationError, DataColumnDef, ValidationResult } from '../types'
 
 export function validateCellValue<T>(
   value: unknown,

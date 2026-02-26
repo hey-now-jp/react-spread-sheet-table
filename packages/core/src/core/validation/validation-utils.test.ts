@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { DataColumnDef } from '../types/column'
+import type { DataColumnDef } from '../types'
 import { runValidation, validateCellValue } from './validation-utils'
 
 type TestRow = { id: string; name: string; age: number; date: string; time: string }

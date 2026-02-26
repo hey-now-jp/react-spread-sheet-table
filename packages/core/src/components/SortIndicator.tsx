@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import type { SortDirection } from '../core/types/sort'
+import type { SortDirection } from '../core/types'
 import styles from '../styles/header.module.css'
 
 type SortIndicatorProps = {

@@ -1,4 +1,4 @@
-import type { CellPosition, SelectionRange, SelectionState } from '../types/selection'
+import type { CellPosition, SelectionRange, SelectionState } from '../types'
 
 export type SelectionSlice = SelectionState
 

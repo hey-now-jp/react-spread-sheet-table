@@ -1,4 +1,4 @@
-import type { SortState } from '../types/sort'
+import type { SortState } from '../types'
 
 export function applySortToIndices<T>(
   rows: ReadonlyArray<T>,
