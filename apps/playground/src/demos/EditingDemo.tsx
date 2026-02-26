@@ -77,10 +77,16 @@ export function EditingDemo() {
         組み込みバリデーション (必須、最小/最大、パターン) + カスタムバリデーション
         (高スコア警告)。エラーセルにホバーでツールチップ表示。
       </p>
-      <div style={{ marginBottom: 12, display: 'flex', gap: 16 }}>
+      <div style={{ marginBottom: 12, display: 'flex', gap: 16, alignItems: 'center' }}>
         <span style={{ color: '#e53935' }}>エラー: {errorCount}</span>
         <span style={{ color: '#f9a825' }}>警告: {warnCount}</span>
         <span>有効: {table.isValid() ? 'はい' : 'いいえ'}</span>
+        <button type="button" onClick={() => table.undo()} disabled={!table.canUndo}>
+          元に戻す
+        </button>
+        <button type="button" onClick={() => table.redo()} disabled={!table.canRedo}>
+          やり直し
+        </button>
       </div>
       <SpreadSheetTable table={table} height={300} />
     </div>

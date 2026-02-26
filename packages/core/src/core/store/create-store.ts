@@ -32,6 +32,13 @@ import {
   setFilter as setFilterSlice,
 } from './filter-slice'
 import {
+  createHistorySlice,
+  type HistorySlice,
+  pushEntry as pushHistoryEntry,
+  redoEntry as redoHistoryEntry,
+  undoEntry as undoHistoryEntry,
+} from './history-slice'
+import {
   clearSelection as clearSelectionSlice,
   createSelectionSlice,
   extendSelection as extendSelectionSlice,
@@ -106,6 +113,14 @@ export type TableStore<T> = {
   showToast(messages: ReadonlyArray<string>): void
   clearToast(): void
 
+  // Undo/Redo
+  undo(): void
+  redo(): void
+  canUndo(): boolean
+  canRedo(): boolean
+  beginBatch(): void
+  endBatch(): void
+
   // Subscriptions
   subscribe(listener: () => void): () => void
   getSnapshot(): number
@@ -123,6 +138,13 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
   let sortSlice: SortSlice<T> = createSortSlice<T>()
   let filterSlice: FilterSlice<T> = createFilterSlice<T>()
   let editSlice: EditSlice = createEditSlice()
+  let historySlice: HistorySlice<T> = createHistorySlice<T>()
+  let batchChanges: Array<{
+    rowIndex: number
+    columnKey: keyof T
+    previousValue: T[keyof T]
+    newValue: T[keyof T]
+  }> | null = null
   let clipboardRange: SelectionRange | null = null
   let validationErrors: ReadonlyArray<CellValidationError> = []
   let openFilterKey: string | null = null
@@ -191,7 +213,18 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
       return row[columnKey]
     },
     setCellValue: (rowIndex, columnKey, value) => {
+      const row = dataSlice.rows[rowIndex] as T | undefined
+      if (row == null) return
+      const previousValue = row[columnKey]
+      if (previousValue === value) return
       dataSlice = setDataCellValue(dataSlice, rowIndex, columnKey, value)
+      if (batchChanges !== null) {
+        batchChanges.push({ rowIndex, columnKey, previousValue, newValue: value })
+      } else {
+        historySlice = pushHistoryEntry(historySlice, {
+          changes: [{ rowIndex, columnKey, previousValue, newValue: value }],
+        })
+      }
       dataVersion += 1
       invalidateDerivedCache()
       notify()
@@ -334,6 +367,46 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
     clearToast: () => {
       toastMessages = []
       notify()
+    },
+
+    // Undo/Redo
+    undo: () => {
+      const result = undoHistoryEntry(historySlice)
+      if (result === null) return
+      historySlice = result.slice
+      for (const change of result.entry.changes) {
+        dataSlice = setDataCellValue(
+          dataSlice,
+          change.rowIndex,
+          change.columnKey,
+          change.previousValue,
+        )
+      }
+      dataVersion += 1
+      invalidateDerivedCache()
+      notify()
+    },
+    redo: () => {
+      const result = redoHistoryEntry(historySlice)
+      if (result === null) return
+      historySlice = result.slice
+      for (const change of result.entry.changes) {
+        dataSlice = setDataCellValue(dataSlice, change.rowIndex, change.columnKey, change.newValue)
+      }
+      dataVersion += 1
+      invalidateDerivedCache()
+      notify()
+    },
+    canUndo: () => historySlice.undoStack.length > 0,
+    canRedo: () => historySlice.redoStack.length > 0,
+    beginBatch: () => {
+      batchChanges = []
+    },
+    endBatch: () => {
+      if (batchChanges !== null && batchChanges.length > 0) {
+        historySlice = pushHistoryEntry(historySlice, { changes: batchChanges })
+      }
+      batchChanges = null
     },
 
     // Subscriptions

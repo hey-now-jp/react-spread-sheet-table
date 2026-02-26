@@ -358,4 +358,146 @@ describe('createStore', () => {
       expect(v2).toBeGreaterThan(v1)
     })
   })
+
+  describe('undo/redo', () => {
+    it('undo restores previous cell value', () => {
+      const store = createTestStore()
+      store.setCellValue(0, 'name', 'Alice Updated')
+      expect(store.getCellValue(0, 'name')).toBe('Alice Updated')
+
+      store.undo()
+      expect(store.getCellValue(0, 'name')).toBe('Alice')
+    })
+
+    it('redo re-applies undone change', () => {
+      const store = createTestStore()
+      store.setCellValue(0, 'name', 'Alice Updated')
+      store.undo()
+      expect(store.getCellValue(0, 'name')).toBe('Alice')
+
+      store.redo()
+      expect(store.getCellValue(0, 'name')).toBe('Alice Updated')
+    })
+
+    it('canUndo and canRedo reflect stack state', () => {
+      const store = createTestStore()
+      expect(store.canUndo()).toBe(false)
+      expect(store.canRedo()).toBe(false)
+
+      store.setCellValue(0, 'name', 'X')
+      expect(store.canUndo()).toBe(true)
+      expect(store.canRedo()).toBe(false)
+
+      store.undo()
+      expect(store.canUndo()).toBe(false)
+      expect(store.canRedo()).toBe(true)
+
+      store.redo()
+      expect(store.canUndo()).toBe(true)
+      expect(store.canRedo()).toBe(false)
+    })
+
+    it('new edit clears redo stack', () => {
+      const store = createTestStore()
+      store.setCellValue(0, 'name', 'X')
+      store.undo()
+      expect(store.canRedo()).toBe(true)
+
+      store.setCellValue(0, 'name', 'Y')
+      expect(store.canRedo()).toBe(false)
+    })
+
+    it('undo is no-op when stack is empty', () => {
+      const store = createTestStore()
+      store.undo()
+      expect(store.getCellValue(0, 'name')).toBe('Alice')
+    })
+
+    it('redo is no-op when stack is empty', () => {
+      const store = createTestStore()
+      store.redo()
+      expect(store.getCellValue(0, 'name')).toBe('Alice')
+    })
+
+    it('supports multiple sequential undos', () => {
+      const store = createTestStore()
+      store.setCellValue(0, 'name', 'X')
+      store.setCellValue(0, 'name', 'Y')
+      store.setCellValue(0, 'name', 'Z')
+
+      store.undo()
+      expect(store.getCellValue(0, 'name')).toBe('Y')
+
+      store.undo()
+      expect(store.getCellValue(0, 'name')).toBe('X')
+
+      store.undo()
+      expect(store.getCellValue(0, 'name')).toBe('Alice')
+    })
+
+    it('undo notifies subscribers', () => {
+      const store = createTestStore()
+      store.setCellValue(0, 'name', 'X')
+
+      const listener = vi.fn()
+      store.subscribe(listener)
+      store.undo()
+      expect(listener).toHaveBeenCalledOnce()
+    })
+
+    it('redo notifies subscribers', () => {
+      const store = createTestStore()
+      store.setCellValue(0, 'name', 'X')
+      store.undo()
+
+      const listener = vi.fn()
+      store.subscribe(listener)
+      store.redo()
+      expect(listener).toHaveBeenCalledOnce()
+    })
+
+    it('undo updates sorted/filtered indices', () => {
+      const store = createTestStore()
+      store.setSort('age', 'asc')
+
+      // Original: Bob(25), Alice(30), Charlie(35)
+      expect(store.getSortedFilteredIndices()).toEqual([1, 0, 2])
+
+      store.setCellValue(0, 'age', 10) // Alice -> 10
+      // Now: Alice(10), Bob(25), Charlie(35)
+      expect(store.getSortedFilteredIndices()).toEqual([0, 1, 2])
+
+      store.undo()
+      // Back to: Bob(25), Alice(30), Charlie(35)
+      expect(store.getSortedFilteredIndices()).toEqual([1, 0, 2])
+    })
+
+    it('batch groups multiple changes into single undo entry', () => {
+      const store = createTestStore()
+      store.beginBatch()
+      store.setCellValue(0, 'name', 'X')
+      store.setCellValue(1, 'name', 'Y')
+      store.setCellValue(2, 'name', 'Z')
+      store.endBatch()
+
+      // All three changes should undo as one
+      store.undo()
+      expect(store.getCellValue(0, 'name')).toBe('Alice')
+      expect(store.getCellValue(1, 'name')).toBe('Bob')
+      expect(store.getCellValue(2, 'name')).toBe('Charlie')
+    })
+
+    it('endBatch with no changes does not push entry', () => {
+      const store = createTestStore()
+      store.beginBatch()
+      store.endBatch()
+      expect(store.canUndo()).toBe(false)
+    })
+
+    it('skips no-op setCellValue (same value)', () => {
+      const store = createTestStore()
+      store.setCellValue(0, 'name', 'Alice') // same as initial
+      expect(store.canUndo()).toBe(false)
+    })
+  })
 })

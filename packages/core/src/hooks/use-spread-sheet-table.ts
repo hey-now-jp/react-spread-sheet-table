@@ -90,6 +90,12 @@ export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): 
     // Validation
     getValidationErrors: store.getValidationErrors,
     isValid: () => store.getValidationErrors().every((e) => e.result.level !== 'error'),
+
+    // Undo/Redo
+    undo: store.undo,
+    redo: store.redo,
+    canUndo: store.canUndo(),
+    canRedo: store.canRedo(),
   }
 
   // Attach store for internal component access

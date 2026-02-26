@@ -67,6 +67,12 @@ export type TableInstance<T> = {
   // Validation
   readonly getValidationErrors: () => ReadonlyArray<CellValidationError>
   readonly isValid: () => boolean
+
+  // Undo/Redo
+  readonly undo: () => void
+  readonly redo: () => void
+  readonly canUndo: boolean
+  readonly canRedo: boolean
 }
 
 // ---------------------------------------------------------------------------

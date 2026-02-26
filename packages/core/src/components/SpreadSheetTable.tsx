@@ -91,8 +91,22 @@ function SpreadSheetTableInner<T>({
       const selection = store.getSelection()
       const editingCell = store.getEditingCell()
 
-      // Clipboard shortcuts
+      // Clipboard & undo/redo shortcuts
       if ((e.ctrlKey || e.metaKey) && !editingCell) {
+        if (e.key === 'z' || e.key === 'Z') {
+          if (e.shiftKey) {
+            store.redo()
+          } else {
+            store.undo()
+          }
+          e.preventDefault()
+          return
+        }
+        if (e.key === 'y' || e.key === 'Y') {
+          store.redo()
+          e.preventDefault()
+          return
+        }
         if (e.key === 'c' || e.key === 'C') {
           handleCopy(store)
           e.preventDefault()
@@ -404,6 +418,7 @@ function handlePaste<T>(
       let maxPastedCol = startCol
       const formatErrors: string[] = []
 
+      store.beginBatch()
       for (let r = 0; r < parsed.length; r++) {
         const dataRowIndex = startRow + r
         if (dataRowIndex >= rows.length) break
@@ -435,6 +450,8 @@ function handlePaste<T>(
           colOffset++
         }
       }
+
+      store.endBatch()
 
       // Select the pasted range for visual feedback
       store.setActiveCell({ rowIndex: startRow, colIndex: startCol })
@@ -475,6 +492,7 @@ function clearSelectedCells<T>(
   const selection = store.getSelection()
   if (selection.activeCell === null) return
 
+  store.beginBatch()
   if (selection.range) {
     const { minRow, maxRow, minCol, maxCol } = getNormalizedRange(selection.range)
     for (let r = minRow; r <= maxRow; r++) {
@@ -495,6 +513,7 @@ function clearSelectedCells<T>(
       )
     }
   }
+  store.endBatch()
 }
 
 export const SpreadSheetTable = memo(SpreadSheetTableInner) as typeof SpreadSheetTableInner
