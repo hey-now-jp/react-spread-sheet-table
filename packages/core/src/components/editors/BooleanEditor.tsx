@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useCallback } from 'react'
 import styles from '../../styles/editor.module.css'
 
 type BooleanEditorProps = {
@@ -12,13 +12,18 @@ export const BooleanEditor = memo(function BooleanEditor({
   onChange,
   readOnly,
 }: BooleanEditorProps) {
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.checked),
+    [onChange],
+  )
+
   return (
     <input
       className={styles.checkbox}
       type="checkbox"
       checked={value}
       disabled={readOnly}
-      onChange={(e) => onChange(e.target.checked)}
+      onChange={handleChange}
     />
   )
 })

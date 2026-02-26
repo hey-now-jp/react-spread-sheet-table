@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef } from 'react'
+import { memo, useCallback, useEffect, useRef } from 'react'
 import styles from '../../styles/editor.module.css'
 
 type ListEditorProps = {
@@ -22,24 +22,34 @@ export const ListEditor = memo(function ListEditor({
     selectRef.current?.focus()
   }, [])
 
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      onChange(e.target.value)
+      onCommit()
+    },
+    [onChange, onCommit],
+  )
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        onCancel()
+      } else if (e.key === 'Tab') {
+        e.stopPropagation()
+        onCommit()
+      }
+    },
+    [onCommit, onCancel],
+  )
+
   return (
     <select
       ref={selectRef}
       className={styles.selectEditor}
       value={value}
-      onChange={(e) => {
-        onChange(e.target.value)
-        onCommit()
-      }}
-      onKeyDown={(e) => {
-        if (e.key === 'Escape') {
-          e.stopPropagation()
-          onCancel()
-        } else if (e.key === 'Tab') {
-          e.stopPropagation()
-          onCommit()
-        }
-      }}
+      onChange={handleChange}
+      onKeyDown={handleKeyDown}
       onBlur={onCommit}
     >
       {options.map((opt) => (

@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef } from 'react'
+import { memo, useCallback, useEffect, useRef } from 'react'
 import styles from '../../styles/editor.module.css'
 
 type NumberEditorProps = {
@@ -27,6 +27,27 @@ export const NumberEditor = memo(function NumberEditor({
     inputRef.current?.select()
   }, [])
 
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value),
+    [onChange],
+  )
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        onCancel()
+      } else if (e.key === 'Enter') {
+        e.stopPropagation()
+        onCommit()
+      } else if (e.key === 'Tab') {
+        e.stopPropagation()
+        onCommit()
+      }
+    },
+    [onCommit, onCancel],
+  )
+
   return (
     <input
       ref={inputRef}
@@ -36,19 +57,8 @@ export const NumberEditor = memo(function NumberEditor({
       min={min}
       max={max}
       step={step}
-      onChange={(e) => onChange(e.target.value)}
-      onKeyDown={(e) => {
-        if (e.key === 'Escape') {
-          e.stopPropagation()
-          onCancel()
-        } else if (e.key === 'Enter') {
-          e.stopPropagation()
-          onCommit()
-        } else if (e.key === 'Tab') {
-          e.stopPropagation()
-          onCommit()
-        }
-      }}
+      onChange={handleChange}
+      onKeyDown={handleKeyDown}
       onBlur={onCommit}
     />
   )

@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef } from 'react'
+import { memo, useCallback, useEffect, useRef } from 'react'
 import styles from '../../styles/editor.module.css'
 
 type DateEditorProps = {
@@ -24,6 +24,27 @@ export const DateEditor = memo(function DateEditor({
     inputRef.current?.focus()
   }, [])
 
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value),
+    [onChange],
+  )
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        onCancel()
+      } else if (e.key === 'Enter') {
+        e.stopPropagation()
+        onCommit()
+      } else if (e.key === 'Tab') {
+        e.stopPropagation()
+        onCommit()
+      }
+    },
+    [onCommit, onCancel],
+  )
+
   return (
     <input
       ref={inputRef}
@@ -32,21 +53,8 @@ export const DateEditor = memo(function DateEditor({
       value={value}
       min={minDate}
       max={maxDate}
-      onChange={(e) => {
-        onChange(e.target.value)
-      }}
-      onKeyDown={(e) => {
-        if (e.key === 'Escape') {
-          e.stopPropagation()
-          onCancel()
-        } else if (e.key === 'Enter') {
-          e.stopPropagation()
-          onCommit()
-        } else if (e.key === 'Tab') {
-          e.stopPropagation()
-          onCommit()
-        }
-      }}
+      onChange={handleChange}
+      onKeyDown={handleKeyDown}
       onBlur={onCommit}
     />
   )
