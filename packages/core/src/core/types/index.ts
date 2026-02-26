@@ -23,7 +23,7 @@ export type {
   SelectionState,
 } from './selection'
 
-export { isActiveCell, isInSelection } from './selection'
+export { getRangeEdges, getSelectionEdges, isActiveCell, isInSelection } from './selection'
 
 export type {
   SortDirection,
