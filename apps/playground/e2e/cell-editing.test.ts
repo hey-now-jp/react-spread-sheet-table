@@ -1,0 +1,116 @@
+import { expect, test } from '@playwright/test'
+import { clickCell, getCell, goToBasicDemo, goToVirtualScrollDemo } from './helpers'
+
+test.describe('セル編集', () => {
+  test('ダブルクリックで編集モードに入り、Enter で確定', async ({ page }) => {
+    await goToBasicDemo(page)
+    const nameCell = page.getByText('Tanaka Taro')
+    await nameCell.dblclick()
+
+    const input = page.locator('input[type="text"]').first()
+    await expect(input).toBeVisible()
+    await input.fill('Test Name')
+    await input.press('Enter')
+
+    await expect(page.getByText('Test Name')).toBeVisible()
+  })
+
+  test('Enter キーで編集モード開始', async ({ page }) => {
+    await goToBasicDemo(page)
+    await clickCell(page, 0, 0)
+    await page.keyboard.press('Enter')
+
+    const input = page.locator('input[type="text"]').first()
+    await expect(input).toBeVisible()
+  })
+
+  test('Escape で編集キャンセル (元の値に戻る)', async ({ page }) => {
+    await goToBasicDemo(page)
+    const cell = getCell(page, 0, 0)
+    await cell.dblclick()
+
+    const input = page.locator('input[type="text"]').first()
+    await input.fill('Cancelled')
+    await input.press('Escape')
+
+    await expect(cell).toHaveText('Tanaka Taro')
+  })
+
+  test('Tab で値が確定される', async ({ page }) => {
+    await goToBasicDemo(page)
+    const cell = getCell(page, 0, 0)
+    await cell.dblclick()
+
+    const input = page.locator('input[type="text"]').first()
+    await expect(input).toBeVisible()
+    await input.fill('Tab Test')
+    await input.press('Tab')
+
+    // 値が確定されている
+    await expect(page.getByText('Tab Test')).toBeVisible()
+    // 編集モードが解除されている
+    await expect(input).not.toBeVisible()
+  })
+
+  test('直接文字入力で編集開始 (既存値を置換)', async ({ page }) => {
+    await goToBasicDemo(page)
+    await clickCell(page, 0, 0)
+    await page.keyboard.type('A')
+
+    const input = page.locator('input[type="text"]').first()
+    await expect(input).toBeVisible()
+    await expect(input).toHaveValue('A')
+  })
+
+  test('read-only セルは編集不可', async ({ page }) => {
+    await goToVirtualScrollDemo(page)
+    // index 列 (colIndex=0) は readOnly
+    const cell = getCell(page, 0, 0)
+    await cell.dblclick()
+
+    // 編集用の input は表示されない (チェックボックスも除外)
+    await expect(page.locator('input:not([type="checkbox"]), select').first()).not.toBeVisible({
+      timeout: 500,
+    })
+  })
+
+  test('boolean セルを Space でトグル', async ({ page }) => {
+    await goToBasicDemo(page)
+    // active 列 = colIndex 4
+    const checkbox = getCell(page, 0, 4).locator('input[type="checkbox"]')
+    const initial = await checkbox.isChecked()
+
+    // まず隣のセルをクリック (wrapper にフォーカスが残る)
+    await clickCell(page, 0, 3)
+    // 矢印キーで boolean セルに移動
+    await page.keyboard.press('ArrowRight')
+    await page.keyboard.press('Space')
+
+    const after = await checkbox.isChecked()
+    expect(after).not.toBe(initial)
+  })
+
+  test('boolean セルを Enter でトグル', async ({ page }) => {
+    await goToBasicDemo(page)
+    const checkbox = getCell(page, 0, 4).locator('input[type="checkbox"]')
+    const initial = await checkbox.isChecked()
+
+    // 隣のセルから矢印キーで移動
+    await clickCell(page, 0, 3)
+    await page.keyboard.press('ArrowRight')
+    await page.keyboard.press('Enter')
+
+    const after = await checkbox.isChecked()
+    expect(after).not.toBe(initial)
+  })
+
+  test('list セルで Enter → 選択 → 自動確定', async ({ page }) => {
+    await goToBasicDemo(page)
+    // department 列 = colIndex 5
+    await clickCell(page, 0, 5)
+    await page.keyboard.press('Enter')
+
+    const select = page.locator('select').first()
+    await expect(select).toBeVisible()
+  })
+})
