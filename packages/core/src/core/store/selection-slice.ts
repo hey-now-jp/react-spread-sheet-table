@@ -9,7 +9,7 @@ export function createSelectionSlice(): SelectionSlice {
   }
 }
 
-export function setActiveCell(slice: SelectionSlice, position: CellPosition): SelectionSlice {
+export function setActiveCell(_slice: SelectionSlice, position: CellPosition): SelectionSlice {
   return {
     activeCell: position,
     range: null,

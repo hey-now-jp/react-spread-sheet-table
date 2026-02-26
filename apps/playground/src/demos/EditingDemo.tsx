@@ -62,7 +62,6 @@ export function EditingDemo() {
     rowKey: 'id',
     validate: customValidate,
     onValidationError: (errors) => {
-      // biome-ignore lint: demo logging
       console.log('Validation errors:', errors)
     },
   })

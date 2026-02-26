@@ -35,7 +35,6 @@ export function BasicDemo() {
     initialData: sampleData,
     rowKey: 'id',
     onChange: (changedRows) => {
-      // biome-ignore lint: demo logging
       console.log('Changed rows:', changedRows)
     },
   })

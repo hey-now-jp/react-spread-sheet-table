@@ -4,7 +4,7 @@ import type { CellValidationError, ValidationResult } from '../types/validation'
 export function validateCellValue<T>(
   value: unknown,
   column: DataColumnDef<T>,
-  row: T,
+  _row: T,
 ): ValidationResult | null {
   // required check
   if (column.required && (value === null || value === undefined || value === '')) {
