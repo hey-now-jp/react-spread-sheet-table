@@ -60,7 +60,8 @@ function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChang
 
   const handleCommit = useCallback(() => {
     if (!isEditing) return
-    const result = parseAndValidateValue(editingValue, column)
+    const currentValue = store.getEditingValue()
+    const result = parseAndValidateValue(currentValue, column)
     if (result.ok) {
       onCellChange(rowIndex, column.key as keyof T, result.value as T[keyof T])
       store.stopEditing()
@@ -68,7 +69,7 @@ function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChang
       store.showToast([`"${column.header}": ${result.message}`])
       store.stopEditing()
     }
-  }, [isEditing, editingValue, column, onCellChange, rowIndex, store])
+  }, [isEditing, column, onCellChange, rowIndex, store])
 
   const handleCancel = useCallback(() => {
     store.stopEditing()

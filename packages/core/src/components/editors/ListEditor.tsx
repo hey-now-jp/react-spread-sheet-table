@@ -19,7 +19,14 @@ export const ListEditor = memo(function ListEditor({
   const selectRef = useRef<HTMLSelectElement>(null)
 
   useEffect(() => {
-    selectRef.current?.focus()
+    const select = selectRef.current
+    if (!select) return
+    select.focus()
+    try {
+      select.showPicker()
+    } catch {
+      // showPicker not supported in this browser
+    }
   }, [])
 
   const handleChange = useCallback(
@@ -35,6 +42,9 @@ export const ListEditor = memo(function ListEditor({
       if (e.key === 'Escape') {
         e.stopPropagation()
         onCancel()
+      } else if (e.key === 'Enter') {
+        e.stopPropagation()
+        onCommit()
       } else if (e.key === 'Tab') {
         e.stopPropagation()
         onCommit()

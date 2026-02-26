@@ -197,10 +197,13 @@ function SpreadSheetTableInner<T>({
           e.preventDefault()
           const activeCol = columns[selection.activeCell.colIndex]
           if (activeCol && isDataColumn(activeCol) && !readOnly && !activeCol.readOnly) {
-            const value = store.getCellValue(
-              selection.activeCell.rowIndex,
-              (activeCol as DataColumnDef<T>).key as keyof T,
-            )
+            const colKey = (activeCol as DataColumnDef<T>).key as keyof T
+            if (activeCol.type === 'boolean') {
+              const current = store.getCellValue(selection.activeCell.rowIndex, colKey)
+              handleCellChange(selection.activeCell.rowIndex, colKey, !current as T[keyof T])
+              break
+            }
+            const value = store.getCellValue(selection.activeCell.rowIndex, colKey)
             store.startEditing(selection.activeCell, String(value ?? ''))
           }
           break
@@ -222,14 +225,28 @@ function SpreadSheetTableInner<T>({
           break
         }
         default: {
-          // Prevent space from scrolling the page
           if (e.key === ' ') {
             e.preventDefault()
+            if (!readOnly) {
+              const activeCol = columns[selection.activeCell.colIndex]
+              if (activeCol && isDataColumn(activeCol) && !activeCol.readOnly) {
+                const colKey = (activeCol as DataColumnDef<T>).key as keyof T
+                if (activeCol.type === 'boolean') {
+                  const current = store.getCellValue(selection.activeCell.rowIndex, colKey)
+                  handleCellChange(selection.activeCell.rowIndex, colKey, !current as T[keyof T])
+                } else if (activeCol.type === 'list') {
+                  const value = store.getCellValue(selection.activeCell.rowIndex, colKey)
+                  store.startEditing(selection.activeCell, String(value ?? ''))
+                }
+              }
+            }
+            break
           }
           // Direct input: start editing with typed character
           if (!readOnly && !e.ctrlKey && !e.metaKey && !e.altKey && e.key.length === 1) {
             const activeCol = columns[selection.activeCell.colIndex]
             if (activeCol && isDataColumn(activeCol) && !activeCol.readOnly) {
+              if (activeCol.type === 'boolean' || activeCol.type === 'list') break
               store.startEditing(selection.activeCell, e.key)
             }
           }
