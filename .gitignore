@@ -15,3 +15,6 @@ apps/playground/playwright-report/
 # Environment
 .env
 .env.local
+
+.playwright-cli
+.reports
