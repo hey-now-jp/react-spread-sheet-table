@@ -1,3 +1,23 @@
+export function expandClipboardData(
+  parsed: ReadonlyArray<ReadonlyArray<string>>,
+  targetRows: number,
+  targetCols: number,
+): string[][] {
+  const sourceRows = parsed.length
+  const sourceCols = Math.max(...parsed.map((r) => r.length))
+
+  const result: string[][] = []
+  for (let r = 0; r < targetRows; r++) {
+    const row: string[] = []
+    for (let c = 0; c < targetCols; c++) {
+      const sourceRow = parsed[r % sourceRows]
+      row.push(sourceRow?.[c % sourceCols] ?? '')
+    }
+    result.push(row)
+  }
+  return result
+}
+
 export function serializeToTsv(data: ReadonlyArray<ReadonlyArray<unknown>>): string {
   return data
     .map((row) =>

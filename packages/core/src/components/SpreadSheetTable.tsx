@@ -1,5 +1,9 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
-import { deserializeTsv, serializeToTsv } from '../core/clipboard/clipboard-utils'
+import {
+  deserializeTsv,
+  expandClipboardData,
+  serializeToTsv,
+} from '../core/clipboard/clipboard-utils'
 import { parseAndValidateValue } from '../core/format/format-utils'
 import {
   getNormalizedRange,
@@ -423,6 +427,18 @@ function handleCopy<T>(store: TableStore<T>): void {
   store.setClipboardRange(clipRange)
 }
 
+function countDataColsInRange<T>(
+  columns: ReadonlyArray<import('../core/types/column').ColumnDef<T>>,
+  minCol: number,
+  maxCol: number,
+): number {
+  let count = 0
+  for (let c = minCol; c <= maxCol; c++) {
+    if (!isActionColumn(columns[c])) count++
+  }
+  return count
+}
+
 function handlePaste<T>(
   store: TableStore<T>,
   columns: ReadonlyArray<import('../core/types/column').ColumnDef<T>>,
@@ -435,6 +451,7 @@ function handlePaste<T>(
   if (selection.activeCell === null) return
 
   const activeCell = selection.activeCell
+  const range = selection.range
 
   navigator.clipboard
     .readText()
@@ -442,21 +459,36 @@ function handlePaste<T>(
       const parsed = deserializeTsv(text)
       if (parsed.length === 0) return
 
-      const startRow = activeCell.rowIndex
-      const startCol = activeCell.colIndex
       const rows = store.getRows()
+
+      let startRow: number
+      let startCol: number
+      let pasteData: string[][]
+
+      if (range) {
+        const { minRow, maxRow, minCol, maxCol } = getNormalizedRange(range)
+        startRow = minRow
+        startCol = minCol
+        const targetRows = maxRow - minRow + 1
+        const targetDataCols = countDataColsInRange(columns, minCol, maxCol)
+        pasteData = expandClipboardData(parsed, targetRows, targetDataCols)
+      } else {
+        startRow = activeCell.rowIndex
+        startCol = activeCell.colIndex
+        pasteData = parsed.map((row) => [...row])
+      }
 
       let maxPastedRow = startRow
       let maxPastedCol = startCol
       const formatErrors: string[] = []
 
       store.beginBatch()
-      for (let r = 0; r < parsed.length; r++) {
+      for (let r = 0; r < pasteData.length; r++) {
         const dataRowIndex = startRow + r
         if (dataRowIndex >= rows.length) break
 
         let colOffset = 0
-        for (let c = 0; c < parsed[r].length; c++) {
+        for (let c = 0; c < pasteData[r].length; c++) {
           let targetCol = startCol + colOffset
           // Skip action columns
           while (targetCol < columns.length && isActionColumn(columns[targetCol])) {
@@ -468,7 +500,7 @@ function handlePaste<T>(
           const col = columns[targetCol]
           if (col && isDataColumn(col) && !col.readOnly) {
             const dataCol = col as DataColumnDef<T>
-            const pastedValue = parsed[r][c]
+            const pastedValue = pasteData[r][c]
             const result = parseAndValidateValue(pastedValue, dataCol)
             if (result.ok) {
               onCellChange(dataRowIndex, dataCol.key as keyof T, result.value as T[keyof T])
