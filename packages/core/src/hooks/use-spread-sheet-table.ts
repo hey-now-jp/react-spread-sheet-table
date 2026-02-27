@@ -96,6 +96,9 @@ export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): 
     redo: store.redo,
     canUndo: store.canUndo(),
     canRedo: store.canRedo(),
+
+    // Reorder
+    reorderable: options.reorderable ?? false,
   }
 
   // Attach store for internal component access
@@ -108,6 +111,11 @@ export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): 
   ;(
     table as TableInstance<T> & { __handleCellChange: typeof handleCellChange }
   ).__handleCellChange = handleCellChange
+  ;(
+    table as TableInstance<T> & {
+      __onReorder: UseSpreadSheetTableOptions<T>['onReorder']
+    }
+  ).__onReorder = options.onReorder
 
   return table
 }

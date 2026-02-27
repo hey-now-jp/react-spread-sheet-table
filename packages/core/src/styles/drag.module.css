@@ -1,0 +1,58 @@
+.sortableRow {
+  display: flex;
+  align-items: stretch;
+}
+
+.dragHandle {
+  width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  color: var(--sst-text-secondary, #999);
+  flex-shrink: 0;
+  user-select: none;
+  border-right: 1px solid var(--sst-border-color);
+}
+
+.dragHandle:hover {
+  color: var(--sst-text-primary, #555);
+  background: var(--sst-hover-bg, #f0f0f0);
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.dragOverlay {
+  background: var(--sst-row-bg, #fff);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 2px;
+  opacity: 0.9;
+}
+
+.gripIcon {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.gripDot {
+  display: flex;
+  gap: 2px;
+}
+
+.gripDot::before,
+.gripDot::after {
+  content: "";
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.dragHandleHeader {
+  width: 24px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--sst-border-color);
+}

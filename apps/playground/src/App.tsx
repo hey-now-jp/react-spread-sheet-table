@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Toaster } from 'sonner'
 import { BasicDemo } from './demos/BasicDemo'
 import { EditingDemo } from './demos/EditingDemo'
 import { VirtualScrollDemo } from './demos/VirtualScrollDemo'
@@ -42,6 +43,7 @@ export function App() {
         {activePage === 'editing' && <EditingDemo />}
         {activePage === 'virtual-scroll' && <VirtualScrollDemo />}
       </div>
+      <Toaster position="bottom-center" />
     </div>
   )
 }

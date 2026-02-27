@@ -18,7 +18,7 @@ function makeEntry(
   previousValue: TestRow[keyof TestRow],
   newValue: TestRow[keyof TestRow],
 ): HistoryEntry<TestRow> {
-  return { changes: [{ rowIndex, columnKey, previousValue, newValue }] }
+  return { type: 'cellChanges', changes: [{ rowIndex, columnKey, previousValue, newValue }] }
 }
 
 function expectUndo(result: UndoResult<TestRow>): {
@@ -59,7 +59,7 @@ describe('history-slice', () => {
 
     it('ignores empty changes', () => {
       const slice = createHistorySlice<TestRow>()
-      const result = pushEntry(slice, { changes: [] })
+      const result = pushEntry(slice, { type: 'cellChanges', changes: [] })
       expect(result.undoStack).toHaveLength(0)
     })
 
@@ -81,7 +81,10 @@ describe('history-slice', () => {
       }
       expect(slice.undoStack).toHaveLength(25)
       const firstEntry = slice.undoStack[0]
-      expect(firstEntry.changes[0].previousValue).toBe(5)
+      expect(firstEntry.type).toBe('cellChanges')
+      if (firstEntry.type === 'cellChanges') {
+        expect(firstEntry.changes[0].previousValue).toBe(5)
+      }
     })
   })
 
@@ -170,6 +173,7 @@ describe('history-slice', () => {
     it('handles bulk entry (multi-cell paste)', () => {
       let slice = createHistorySlice<TestRow>()
       const bulkEntry: HistoryEntry<TestRow> = {
+        type: 'cellChanges',
         changes: [
           { rowIndex: 0, columnKey: 'name', previousValue: 'A', newValue: 'X' },
           { rowIndex: 1, columnKey: 'name', previousValue: 'B', newValue: 'Y' },
@@ -179,10 +183,13 @@ describe('history-slice', () => {
       slice = pushEntry(slice, bulkEntry)
 
       const result = expectUndo(undoEntry(slice))
-      expect(result.entry.changes).toHaveLength(3)
-      expect(result.entry.changes[0].previousValue).toBe('A')
-      expect(result.entry.changes[1].previousValue).toBe('B')
-      expect(result.entry.changes[2].previousValue).toBe('C')
+      expect(result.entry.type).toBe('cellChanges')
+      if (result.entry.type === 'cellChanges') {
+        expect(result.entry.changes).toHaveLength(3)
+        expect(result.entry.changes[0].previousValue).toBe('A')
+        expect(result.entry.changes[1].previousValue).toBe('B')
+        expect(result.entry.changes[2].previousValue).toBe('C')
+      }
     })
   })
 })

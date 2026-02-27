@@ -29,6 +29,7 @@ function TableRowInner<T>({
   return (
     <div
       className={`${styles.row} ${displayRowIndex % 2 === 0 ? styles.rowEven : styles.rowOdd}`}
+      style={{ flex: 1 }}
       data-rowindex={displayRowIndex}
     >
       {columns.map((column, colIndex) => {

@@ -15,6 +15,7 @@ import {
   type DataSlice,
   getChangedRows as getChangedRowsFromSlice,
   markAsSaved as markDataAsSaved,
+  reorderRows as reorderDataRows,
   resetToInitial as resetDataToInitial,
   setCellValue as setDataCellValue,
 } from './data-slice'
@@ -63,6 +64,8 @@ export type TableStore<T> = {
   isDirty(): boolean
   markAsSaved(): void
   resetToInitial(): void
+
+  reorderRows(fromIndex: number, toIndex: number): void
 
   // Selection
   getSelection(): SelectionState
@@ -222,6 +225,7 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
         batchChanges.push({ rowIndex, columnKey, previousValue, newValue: value })
       } else {
         historySlice = pushHistoryEntry(historySlice, {
+          type: 'cellChanges',
           changes: [{ rowIndex, columnKey, previousValue, newValue: value }],
         })
       }
@@ -237,6 +241,19 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
     },
     resetToInitial: () => {
       dataSlice = resetDataToInitial(dataSlice)
+      dataVersion += 1
+      invalidateDerivedCache()
+      notify()
+    },
+    reorderRows: (fromIndex, toIndex) => {
+      if (fromIndex === toIndex) return
+      dataSlice = reorderDataRows(dataSlice, fromIndex, toIndex)
+      historySlice = pushHistoryEntry(historySlice, {
+        type: 'reorder',
+        fromIndex,
+        toIndex,
+      })
+      selectionSlice = clearSelectionSlice()
       dataVersion += 1
       invalidateDerivedCache()
       notify()
@@ -374,13 +391,18 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
       const result = undoHistoryEntry(historySlice)
       if (result === null) return
       historySlice = result.slice
-      for (const change of result.entry.changes) {
-        dataSlice = setDataCellValue(
-          dataSlice,
-          change.rowIndex,
-          change.columnKey,
-          change.previousValue,
-        )
+      const entry = result.entry
+      if (entry.type === 'cellChanges') {
+        for (const change of entry.changes) {
+          dataSlice = setDataCellValue(
+            dataSlice,
+            change.rowIndex,
+            change.columnKey,
+            change.previousValue,
+          )
+        }
+      } else {
+        dataSlice = reorderDataRows(dataSlice, entry.toIndex, entry.fromIndex)
       }
       dataVersion += 1
       invalidateDerivedCache()
@@ -390,8 +412,18 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
       const result = redoHistoryEntry(historySlice)
       if (result === null) return
       historySlice = result.slice
-      for (const change of result.entry.changes) {
-        dataSlice = setDataCellValue(dataSlice, change.rowIndex, change.columnKey, change.newValue)
+      const entry = result.entry
+      if (entry.type === 'cellChanges') {
+        for (const change of entry.changes) {
+          dataSlice = setDataCellValue(
+            dataSlice,
+            change.rowIndex,
+            change.columnKey,
+            change.newValue,
+          )
+        }
+      } else {
+        dataSlice = reorderDataRows(dataSlice, entry.fromIndex, entry.toIndex)
       }
       dataVersion += 1
       invalidateDerivedCache()
@@ -404,7 +436,10 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
     },
     endBatch: () => {
       if (batchChanges !== null && batchChanges.length > 0) {
-        historySlice = pushHistoryEntry(historySlice, { changes: batchChanges })
+        historySlice = pushHistoryEntry(historySlice, {
+          type: 'cellChanges',
+          changes: batchChanges,
+        })
       }
       batchChanges = null
     },

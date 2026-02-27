@@ -500,4 +500,75 @@ describe('createStore', () => {
       expect(store.canUndo()).toBe(false)
     })
   })
+
+  describe('reorderRows', () => {
+    it('reorders rows correctly', () => {
+      const store = createTestStore()
+      // Alice(0), Bob(1), Charlie(2) -> Bob(0), Charlie(1), Alice(2)
+      store.reorderRows(0, 2)
+      const rows = store.getRows()
+      expect(rows[0].name).toBe('Bob')
+      expect(rows[1].name).toBe('Charlie')
+      expect(rows[2].name).toBe('Alice')
+    })
+
+    it('clears selection on reorder', () => {
+      const store = createTestStore()
+      store.setActiveCell({ rowIndex: 0, colIndex: 0 })
+      store.reorderRows(0, 2)
+      expect(store.getSelection().activeCell).toBeNull()
+    })
+
+    it('no-op when fromIndex === toIndex', () => {
+      const store = createTestStore()
+      const listener = vi.fn()
+      store.subscribe(listener)
+      store.reorderRows(1, 1)
+      expect(listener).not.toHaveBeenCalled()
+    })
+
+    it('preserves dirty tracking after reorder', () => {
+      const store = createTestStore()
+      store.setCellValue(0, 'name', 'Modified')
+      expect(store.isDirty()).toBe(true)
+      store.reorderRows(0, 2)
+      expect(store.isDirty()).toBe(true)
+      const changed = store.getChangedRows()
+      expect(changed.length).toBe(1)
+      // Row was at index 0, now at index 2
+      expect(changed[0].rowIndex).toBe(2)
+    })
+
+    it('undo reverts reorder', () => {
+      const store = createTestStore()
+      store.reorderRows(0, 2)
+      expect(store.getRows()[0].name).toBe('Bob')
+      store.undo()
+      expect(store.getRows()[0].name).toBe('Alice')
+      expect(store.getRows()[1].name).toBe('Bob')
+      expect(store.getRows()[2].name).toBe('Charlie')
+    })
+
+    it('redo re-applies reorder', () => {
+      const store = createTestStore()
+      store.reorderRows(0, 2)
+      store.undo()
+      store.redo()
+      expect(store.getRows()[0].name).toBe('Bob')
+      expect(store.getRows()[1].name).toBe('Charlie')
+      expect(store.getRows()[2].name).toBe('Alice')
+    })
+
+    it('undo reorder then undo cell change', () => {
+      const store = createTestStore()
+      store.setCellValue(0, 'name', 'Modified')
+      store.reorderRows(0, 2)
+      // Undo reorder
+      store.undo()
+      expect(store.getRows()[0].name).toBe('Modified')
+      // Undo cell change
+      store.undo()
+      expect(store.getRows()[0].name).toBe('Alice')
+    })
+  })
 })

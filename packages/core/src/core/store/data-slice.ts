@@ -1,4 +1,5 @@
 import type { CellChange, ChangeInfo } from '../types'
+import { remapIndex, reorderArray } from './reorder-utils'
 
 export type DataSlice<T> = {
   readonly rows: ReadonlyArray<T>
@@ -77,5 +78,34 @@ export function resetToInitial<T>(slice: DataSlice<T>): DataSlice<T> {
     rows: [...slice.initialRows],
     dirtyRowIndices: new Set(),
     rowChanges: new Map(),
+  }
+}
+
+export function reorderRows<T>(
+  slice: DataSlice<T>,
+  fromIndex: number,
+  toIndex: number,
+): DataSlice<T> {
+  if (fromIndex === toIndex) return slice
+  if (fromIndex < 0 || fromIndex >= slice.rows.length) return slice
+  if (toIndex < 0 || toIndex >= slice.rows.length) return slice
+
+  const newRows = reorderArray(slice.rows, fromIndex, toIndex)
+
+  const newDirtyIndices = new Set<number>()
+  for (const idx of slice.dirtyRowIndices) {
+    newDirtyIndices.add(remapIndex(idx, fromIndex, toIndex))
+  }
+
+  const newRowChanges = new Map<number, ReadonlyArray<CellChange<T>>>()
+  for (const [idx, changes] of slice.rowChanges) {
+    newRowChanges.set(remapIndex(idx, fromIndex, toIndex), changes)
+  }
+
+  return {
+    ...slice,
+    rows: newRows,
+    dirtyRowIndices: newDirtyIndices,
+    rowChanges: newRowChanges,
   }
 }

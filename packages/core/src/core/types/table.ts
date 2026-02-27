@@ -35,6 +35,8 @@ export type UseSpreadSheetTableOptions<T> = {
   readonly onFilter?: (filterState: FilterState<T>) => void
   readonly onValidationError?: (errors: ReadonlyArray<CellValidationError>) => void
   readonly validate?: (value: unknown, row: T, columnKey: keyof T) => ValidationResult | null
+  readonly reorderable?: boolean
+  readonly onReorder?: (newData: ReadonlyArray<T>) => void
 }
 
 // ---------------------------------------------------------------------------
@@ -73,6 +75,9 @@ export type TableInstance<T> = {
   readonly redo: () => void
   readonly canUndo: boolean
   readonly canRedo: boolean
+
+  // Reorder
+  readonly reorderable: boolean
 }
 
 // ---------------------------------------------------------------------------

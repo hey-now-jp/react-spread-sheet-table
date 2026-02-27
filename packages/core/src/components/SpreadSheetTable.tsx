@@ -1,3 +1,14 @@
+import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { memo, useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
 import {
   deserializeTsv,
@@ -11,12 +22,19 @@ import {
   tabToNextCell,
 } from '../core/selection/selection-utils'
 import type { TableStore } from '../core/store/create-store'
-import type { CellPosition, DataColumnDef, SelectionRange, TableInstance } from '../core/types'
+import type {
+  CellPosition,
+  DataColumnDef,
+  SelectionRange,
+  TableInstance,
+  UseSpreadSheetTableOptions,
+} from '../core/types'
 import { isActionColumn, isDataColumn } from '../core/types'
 import { useVirtualScroll } from '../hooks/use-virtual-scroll'
 import scrollStyles from '../styles/scroll.module.css'
 import tableStyles from '../styles/table.module.css'
 import { HeaderRow } from './HeaderRow'
+import { SortableRow } from './SortableRow'
 import { TableRow } from './TableRow'
 import { Toast } from './Toast'
 
@@ -57,6 +75,11 @@ function SpreadSheetTableInner<T>({
       __handleCellChange: (rowIndex: number, columnKey: keyof T, value: T[keyof T]) => void
     }
   ).__handleCellChange
+  const onReorder = (
+    table as TableInstance<T> & {
+      __onReorder: UseSpreadSheetTableOptions<T>['onReorder']
+    }
+  ).__onReorder
 
   const wrapperRef = useRef<HTMLDivElement>(null)
 
@@ -88,6 +111,40 @@ function SpreadSheetTableInner<T>({
 
   const sortable = true
   const filterable = true
+
+  // DnD reorder
+  const canReorder =
+    table.reorderable && store.getSortState() === null && store.getFilterState().size === 0
+
+  const rowKey = store.getRowKey()
+  const rows = store.getRows()
+
+  const sortableItems = useMemo(() => {
+    if (!canReorder) return []
+    return sortedFilteredIndices.map((idx) => String(rows[idx][rowKey]))
+  }, [canReorder, sortedFilteredIndices, rows, rowKey])
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor),
+  )
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event
+      if (!over || active.id === over.id) return
+      const fromIndex = sortedFilteredIndices.findIndex(
+        (idx) => String(rows[idx][rowKey]) === String(active.id),
+      )
+      const toIndex = sortedFilteredIndices.findIndex(
+        (idx) => String(rows[idx][rowKey]) === String(over.id),
+      )
+      if (fromIndex === -1 || toIndex === -1) return
+      store.reorderRows(sortedFilteredIndices[fromIndex], sortedFilteredIndices[toIndex])
+      onReorder?.(store.getRows())
+    },
+    [store, sortedFilteredIndices, rows, rowKey, onReorder],
+  )
 
   // Keyboard navigation
   const handleKeyDown = useCallback(
@@ -366,7 +423,13 @@ function SpreadSheetTableInner<T>({
       tabIndex={0}
     >
       <Toast store={store} />
-      <HeaderRow columns={columns} store={store} sortable={sortable} filterable={filterable} />
+      <HeaderRow
+        columns={columns}
+        store={store}
+        sortable={sortable}
+        filterable={filterable}
+        reorderable={canReorder}
+      />
       <div
         ref={virtualScroll.containerRef}
         className={scrollStyles.scrollContainer}
@@ -377,17 +440,41 @@ function SpreadSheetTableInner<T>({
             className={scrollStyles.visibleRows}
             style={{ transform: `translateY(${virtualScroll.offsetTop}px)` }}
           >
-            {visibleIndices.map((dataRowIndex, displayOffset) => (
-              <TableRow
-                key={dataRowIndex}
-                columns={columns}
-                dataRowIndex={dataRowIndex}
-                displayRowIndex={virtualScroll.visibleStart + displayOffset}
-                store={store}
-                readOnly={readOnly}
-                onCellChange={handleCellChange}
-              />
-            ))}
+            {canReorder ? (
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                modifiers={[restrictToVerticalAxis]}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext items={sortableItems} strategy={verticalListSortingStrategy}>
+                  {visibleIndices.map((dataRowIndex, displayOffset) => (
+                    <SortableRow
+                      key={String(rows[dataRowIndex][rowKey])}
+                      id={String(rows[dataRowIndex][rowKey])}
+                      columns={columns}
+                      dataRowIndex={dataRowIndex}
+                      displayRowIndex={virtualScroll.visibleStart + displayOffset}
+                      store={store}
+                      readOnly={readOnly}
+                      onCellChange={handleCellChange}
+                    />
+                  ))}
+                </SortableContext>
+              </DndContext>
+            ) : (
+              visibleIndices.map((dataRowIndex, displayOffset) => (
+                <TableRow
+                  key={dataRowIndex}
+                  columns={columns}
+                  dataRowIndex={dataRowIndex}
+                  displayRowIndex={virtualScroll.visibleStart + displayOffset}
+                  store={store}
+                  readOnly={readOnly}
+                  onCellChange={handleCellChange}
+                />
+              ))
+            )}
           </div>
         </div>
       </div>

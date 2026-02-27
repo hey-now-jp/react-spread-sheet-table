@@ -1,6 +1,7 @@
 import { memo } from 'react'
 import type { TableStore } from '../core/store/create-store'
 import type { ColumnDef } from '../core/types'
+import dragStyles from '../styles/drag.module.css'
 import styles from '../styles/header.module.css'
 import { HeaderCell } from './HeaderCell'
 
@@ -9,11 +10,19 @@ type HeaderRowProps<T> = {
   readonly store: TableStore<T>
   readonly sortable: boolean
   readonly filterable: boolean
+  readonly reorderable?: boolean
 }
 
-function HeaderRowInner<T>({ columns, store, sortable, filterable }: HeaderRowProps<T>) {
+function HeaderRowInner<T>({
+  columns,
+  store,
+  sortable,
+  filterable,
+  reorderable,
+}: HeaderRowProps<T>) {
   return (
     <div className={styles.headerRow}>
+      {reorderable && <div className={dragStyles.dragHandleHeader} />}
       {columns.map((column, colIndex) => (
         <HeaderCell
           key={String(column.key)}

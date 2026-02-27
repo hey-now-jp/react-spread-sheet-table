@@ -1,5 +1,6 @@
 import type { ColumnDef } from '@heynow/react-spread-sheet-table'
 import { SpreadSheetTable, useSpreadSheetTable } from '@heynow/react-spread-sheet-table'
+import { toast } from 'sonner'
 import type { Employee } from '../sample-data'
 import { sampleData } from '../sample-data'
 
@@ -41,8 +42,14 @@ export function BasicDemo() {
     columns,
     initialData: sampleData,
     rowKey: 'id',
+    reorderable: true,
     onChange: (changedRows) => {
       console.log('Changed rows:', changedRows)
+    },
+    onReorder: (newData) => {
+      toast('行を並び替えました', {
+        description: `${newData.length} 行`,
+      })
     },
   })
 
@@ -50,7 +57,8 @@ export function BasicDemo() {
     <div>
       <h2>基本テーブル</h2>
       <p style={{ color: '#666', marginBottom: 16 }}>
-        全カラム型対応: ソート、フィルター、選択、セル編集、クリップボード、キーボード操作
+        全カラム型対応:
+        ソート、フィルター、選択、セル編集、クリップボード、キーボード操作、行の並び替え
       </p>
       <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
         <button
@@ -64,7 +72,7 @@ export function BasicDemo() {
           type="button"
           onClick={() => {
             table.markAsSaved()
-            alert('保存しました')
+            toast.success('保存しました')
           }}
           style={{ padding: '6px 12px' }}
         >
