@@ -109,8 +109,7 @@ function SpreadSheetTableInner<T>({
     [sortedFilteredIndices, virtualScroll.visibleStart, virtualScroll.visibleEnd],
   )
 
-  const sortable = true
-  const filterable = true
+  const { sortable, filterable } = table
 
   // DnD reorder
   const canReorder =

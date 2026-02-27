@@ -57,11 +57,13 @@ export type TableInstance<T> = {
   readonly clearSelection: () => void
 
   // Sort
+  readonly sortable: boolean
   readonly sortState: SortState<T>
   readonly sort: (key: keyof T, direction: SortDirection) => void
   readonly clearSort: () => void
 
   // Filter
+  readonly filterable: boolean
   readonly filterState: FilterState<T>
   readonly filter: (key: keyof T, condition: FilterCondition) => void
   readonly clearFilter: (key?: keyof T) => void

@@ -66,6 +66,7 @@ export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): 
     clearSelection: store.clearSelection,
 
     // Sort
+    sortable: options.sortable ?? true,
     sortState: store.getSortState(),
     sort: (key: keyof T, direction: SortDirection) => {
       store.setSort(key, direction)
@@ -77,6 +78,7 @@ export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): 
     },
 
     // Filter
+    filterable: options.filterable ?? true,
     filterState: store.getFilterState(),
     filter: (key: keyof T, condition: FilterCondition) => {
       store.setFilter(key, condition)
