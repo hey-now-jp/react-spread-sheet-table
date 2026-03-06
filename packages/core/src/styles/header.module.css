@@ -29,16 +29,13 @@
   border-right: none;
 }
 
-.headerFiltered {
-  background: rgba(33, 150, 243, 0.08);
-}
-
-.sortable {
+.headerCell:hover {
+  background: rgba(0, 0, 0, 0.04);
   cursor: pointer;
 }
 
-.sortable:hover {
-  background: rgba(0, 0, 0, 0.04);
+.headerFiltered {
+  background: rgba(33, 150, 243, 0.08);
 }
 
 .headerContent {
@@ -46,6 +43,7 @@
   align-items: center;
   gap: 4px;
   overflow: hidden;
+  min-width: 0;
 }
 
 .headerLabel {
@@ -53,24 +51,41 @@
   text-overflow: ellipsis;
 }
 
-.sortIndicator {
-  display: inline-flex;
-  flex-direction: column;
-  line-height: 1;
-  font-size: 8px;
-  gap: 0;
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
   flex-shrink: 0;
 }
 
-.sortArrow {
-  opacity: 0.2;
-  line-height: 0.8;
+.sortButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 2px;
+  font-size: 8px;
+  color: var(--sst-header-color);
+  opacity: 0.3;
+  padding: 0;
 }
 
-.sortArrowActive {
+.sortButton:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.sortActive {
   opacity: 1;
   color: var(--sst-selected-border);
-  line-height: 0.8;
+}
+
+.sortActive:hover {
+  opacity: 0.85;
 }
 
 .filterButton {

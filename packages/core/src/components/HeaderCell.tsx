@@ -4,7 +4,6 @@ import type { ColumnDef, DataColumnDef, FilterCondition, SortDirection } from '.
 import { isActionColumn, isDataColumn } from '../core/types'
 import styles from '../styles/header.module.css'
 import { FilterPopover } from './FilterPopover'
-import { SortIndicator } from './SortIndicator'
 
 type HeaderCellProps<T> = {
   readonly column: ColumnDef<T>
@@ -14,7 +13,7 @@ type HeaderCellProps<T> = {
   readonly filterable: boolean
 }
 
-function HeaderCellInner<T>({ column, store, sortable, filterable }: HeaderCellProps<T>) {
+function HeaderCellInner<T>({ column, colIndex, store, sortable, filterable }: HeaderCellProps<T>) {
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
 
   const columnKey = isDataColumn(column) ? String((column as DataColumnDef<T>).key) : ''
@@ -35,6 +34,15 @@ function HeaderCellInner<T>({ column, store, sortable, filterable }: HeaderCellP
   const currentFilter: FilterCondition | undefined = isData
     ? filterState.get((column as DataColumnDef<T>).key as keyof T)
     : undefined
+
+  const handleColumnSelect = useCallback(() => {
+    const rows = store.getRows()
+    if (rows.length === 0) return
+    store.setActiveCell({ rowIndex: 0, colIndex })
+    if (rows.length > 1) {
+      store.extendSelection({ rowIndex: rows.length - 1, colIndex })
+    }
+  }, [store, colIndex])
 
   const handleSort = useCallback(() => {
     if (!canSort || !isData) return
@@ -58,53 +66,60 @@ function HeaderCellInner<T>({ column, store, sortable, filterable }: HeaderCellP
 
   return (
     <div
-      className={`${styles.headerCell} ${canSort ? styles.sortable : ''} ${currentFilter ? styles.headerFiltered : ''}`}
+      className={`${styles.headerCell} ${currentFilter ? styles.headerFiltered : ''}`}
       style={{ width, minWidth: width }}
-      onClick={handleSort}
-      onKeyDown={(e) => {
-        if (canSort && (e.key === 'Enter' || e.key === ' ')) {
-          e.preventDefault()
-          handleSort()
-        }
-      }}
-      tabIndex={canSort ? 0 : undefined}
+      onClick={handleColumnSelect}
       data-sort={currentSortDir ?? undefined}
     >
       <div className={styles.headerContent}>
         <span className={styles.headerLabel}>
           {isAction ? (column.header ?? '') : (column as DataColumnDef<T>).header}
         </span>
-        {canSort && <SortIndicator direction={currentSortDir} />}
       </div>
-      {canFilter && (
-        <div style={{ position: 'relative' }}>
+      <div className={styles.headerActions}>
+        {canSort && (
           <button
             type="button"
-            className={`${styles.filterButton} ${currentFilter ? styles.filterActive : ''}`}
+            className={`${styles.sortButton} ${currentSortDir ? styles.sortActive : ''}`}
             onClick={(e) => {
               e.stopPropagation()
-              const opening = !filterOpen
-              store.setOpenFilterKey(opening ? columnKey : null)
-              if (opening) {
-                store.clearSelection()
-              }
+              handleSort()
             }}
-            aria-label="フィルター"
+            aria-label="ソート"
           >
-            {'\u2630'}
+            {currentSortDir === 'asc' ? '\u25B2' : currentSortDir === 'desc' ? '\u25BC' : '\u25B2'}
           </button>
-          {filterOpen && (
-            <FilterPopover
-              column={column as DataColumnDef<T>}
-              store={store}
-              currentCondition={currentFilter}
-              onApply={handleFilterApply}
-              onClear={handleFilterClear}
-              onClose={() => store.setOpenFilterKey(null)}
-            />
-          )}
-        </div>
-      )}
+        )}
+        {canFilter && (
+          <div style={{ position: 'relative' }}>
+            <button
+              type="button"
+              className={`${styles.filterButton} ${currentFilter ? styles.filterActive : ''}`}
+              onClick={(e) => {
+                e.stopPropagation()
+                const opening = !filterOpen
+                store.setOpenFilterKey(opening ? columnKey : null)
+                if (opening) {
+                  store.clearSelection()
+                }
+              }}
+              aria-label="フィルター"
+            >
+              {'\u2630'}
+            </button>
+            {filterOpen && (
+              <FilterPopover
+                column={column as DataColumnDef<T>}
+                store={store}
+                currentCondition={currentFilter}
+                onApply={handleFilterApply}
+                onClear={handleFilterClear}
+                onClose={() => store.setOpenFilterKey(null)}
+              />
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
