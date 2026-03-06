@@ -110,6 +110,7 @@ function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChang
     cellError?.result.level === 'error' ? styles.errorCell : '',
     cellError?.result.level === 'warn' ? styles.warnCell : '',
     column.type === 'boolean' ? styles.booleanCell : '',
+    isReadOnly ? styles.readOnlyCell : '',
   ]
     .filter(Boolean)
     .join(' ')
@@ -146,7 +147,12 @@ function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChang
           readOnly={isReadOnly}
         />
       ) : (
-        <span className={styles.cellContent}>{formatDisplayValue(value, column)}</span>
+        <>
+          <span className={styles.cellContent}>{formatDisplayValue(value, column)}</span>
+          {(column.type === 'list' || column.type === 'multiList') && (
+            <span className={styles.dropdownIcon} />
+          )}
+        </>
       )}
       {showTooltip && cellError && <div className={styles.tooltip}>{cellError.result.message}</div>}
     </div>

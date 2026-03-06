@@ -37,25 +37,38 @@
 }
 
 .selectionTop {
-  border-top: 1px solid var(--sst-selection-range-border);
+  --sel-top: inset 0 1px 0 0 var(--sst-selection-range-border);
 }
 
 .selectionBottom {
-  border-bottom: 1px solid var(--sst-selection-range-border);
+  --sel-bottom: inset 0 -1px 0 0 var(--sst-selection-range-border);
 }
 
 .selectionLeft {
-  border-left: 1px solid var(--sst-selection-range-border);
+  --sel-left: inset 1px 0 0 0 var(--sst-selection-range-border);
 }
 
 .selectionRight {
-  border-right: 1px solid var(--sst-selection-range-border);
+  --sel-right: inset -1px 0 0 0 var(--sst-selection-range-border);
+}
+
+.selectionTop,
+.selectionBottom,
+.selectionLeft,
+.selectionRight {
+  box-shadow:
+    var(--sel-top, 0 0 0 0 transparent), var(--sel-bottom, 0 0 0 0 transparent),
+    var(--sel-left, 0 0 0 0 transparent), var(--sel-right, 0 0 0 0 transparent);
 }
 
 .cell.activeCell {
   outline: 2px solid var(--sst-selected-border);
   outline-offset: -2px;
   z-index: 1;
+}
+
+.readOnlyCell {
+  background: var(--sst-readonly-bg);
 }
 
 .errorCell {
@@ -76,6 +89,23 @@
 
 .booleanCell {
   justify-content: center;
+}
+
+.dropdownIcon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-left: 4px;
+  opacity: 0.5;
+  background: currentColor;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
 }
 
 /* Clipboard marching ants */
