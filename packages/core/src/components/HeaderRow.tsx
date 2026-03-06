@@ -1,8 +1,8 @@
-import { memo } from 'react'
+import { memo, useCallback } from 'react'
 import type { TableStore } from '../core/store/create-store'
 import type { ColumnDef } from '../core/types'
-import dragStyles from '../styles/drag.module.css'
 import styles from '../styles/header.module.css'
+import rowHeaderStyles from '../styles/row-header.module.css'
 import { HeaderCell } from './HeaderCell'
 
 type HeaderRowProps<T> = {
@@ -13,16 +13,17 @@ type HeaderRowProps<T> = {
   readonly reorderable?: boolean
 }
 
-function HeaderRowInner<T>({
-  columns,
-  store,
-  sortable,
-  filterable,
-  reorderable,
-}: HeaderRowProps<T>) {
+function HeaderRowInner<T>({ columns, store, sortable, filterable }: HeaderRowProps<T>) {
+  const handleSelectAll = useCallback(() => {
+    const rows = store.getRows()
+    if (rows.length === 0 || columns.length === 0) return
+    store.setActiveCell({ rowIndex: 0, colIndex: 0 })
+    store.extendSelection({ rowIndex: rows.length - 1, colIndex: columns.length - 1 })
+  }, [store, columns])
+
   return (
     <div className={styles.headerRow}>
-      {reorderable && <div className={dragStyles.dragHandleHeader} />}
+      <div className={rowHeaderStyles.selectAllCell} onClick={handleSelectAll} />
       {columns.map((column, colIndex) => (
         <HeaderCell
           key={String(column.key)}

@@ -2,39 +2,45 @@ import { expect, test } from '@playwright/test'
 import { getCell, goToBasicDemo } from './helpers'
 
 test.describe('行の並び替え (DnD)', () => {
-  test('grip ハンドルが表示される', async ({ page }) => {
+  test('行番号が表示される', async ({ page }) => {
     await goToBasicDemo(page)
-    const handles = page.locator('[class*="dragHandle"]')
-    await expect(handles.first()).toBeVisible()
+    const rowHeaders = page.locator('[class*="rowHeader"]:not([class*="Placeholder"])')
+    await expect(rowHeaders.first()).toBeVisible()
+    await expect(rowHeaders.first()).toHaveText('1')
   })
 
-  test('ヘッダーにもハンドルスペーサーが表示される', async ({ page }) => {
+  test('ヘッダー行に全選択セルが表示される', async ({ page }) => {
     await goToBasicDemo(page)
-    const headerSpacer = page.locator('[class*="dragHandleHeader"]')
-    await expect(headerSpacer).toBeVisible()
+    const selectAll = page.locator('[class*="selectAllCell"]')
+    await expect(selectAll).toBeVisible()
   })
 
-  test('ソート有効時に grip ハンドルが非表示になる', async ({ page }) => {
+  test('ソート有効時にドラッグカーソルが無効になる', async ({ page }) => {
     await goToBasicDemo(page)
 
-    // ソート前はハンドルが表示される
-    const handles = page.locator('[class*="dragHandle"]')
-    await expect(handles.first()).toBeVisible()
+    // ソート前は行番号がドラッグ可能
+    const rowHeader = page.locator('[class*="rowHeader"]:not([class*="Placeholder"])').first()
+    await expect(rowHeader).toHaveClass(/draggable/)
 
     // ソートを有効化
     const ageHeader = page.locator('[class*="headerCell"]', { hasText: '年齢' })
-    await ageHeader.click()
+    const ageSortBtn = ageHeader.locator('button[aria-label="ソート"]')
+    await ageSortBtn.click()
     await expect(ageHeader).toHaveAttribute('data-sort', 'asc')
 
-    // ハンドルが非表示になる
-    await expect(handles).toHaveCount(0)
+    // ドラッグ可能クラスがなくなる (通常行の行番号にはdraggableなし)
+    const rowHeaderAfter = page.locator('[class*="rowHeader"]:not([class*="Placeholder"])').first()
+    await expect(rowHeaderAfter).not.toHaveClass(/draggable/)
 
     // ソートを解除 (desc -> 解除)
-    await ageHeader.click()
-    await ageHeader.click()
+    await ageSortBtn.click()
+    await ageSortBtn.click()
 
-    // ハンドルが再表示される
-    await expect(handles.first()).toBeVisible()
+    // ドラッグ可能クラスが復帰
+    const rowHeaderRestored = page
+      .locator('[class*="rowHeader"]:not([class*="Placeholder"])')
+      .first()
+    await expect(rowHeaderRestored).toHaveClass(/draggable/)
   })
 
   test('DnD で行の順序を変更できる', async ({ page }) => {
@@ -44,15 +50,13 @@ test.describe('行の並び替え (DnD)', () => {
     const firstCell = getCell(page, 0, 0)
     const firstName = await firstCell.textContent()
 
-    // 1行目のグリップハンドルを取得
-    const firstHandle = page
-      .locator('[class*="dragHandle"]:not([class*="dragHandleHeader"])')
-      .first()
-    const handleBox = await firstHandle.boundingBox()
-    if (!handleBox) throw new Error('Handle not found')
+    // 1行目の行番号ヘッダーを取得
+    const firstRowHeader = page.locator('[class*="rowHeader"]:not([class*="Placeholder"])').first()
+    const headerBox = await firstRowHeader.boundingBox()
+    if (!headerBox) throw new Error('Row header not found')
 
-    const startX = handleBox.x + handleBox.width / 2
-    const startY = handleBox.y + handleBox.height / 2
+    const startX = headerBox.x + headerBox.width / 2
+    const startY = headerBox.y + headerBox.height / 2
 
     // @dnd-kit の PointerSensor (distance: 5) を有効化するため、
     // ゆっくりとしたマウスドラッグをシミュレーション
@@ -78,5 +82,17 @@ test.describe('行の並び替え (DnD)', () => {
     const newFirstCell = getCell(page, 0, 0)
     const newFirstName = await newFirstCell.textContent()
     expect(newFirstName).not.toBe(firstName)
+  })
+
+  test('行番号クリックで行全体を選択', async ({ page }) => {
+    await goToBasicDemo(page)
+
+    // 2行目の行番号をクリック
+    const rowHeader = page.locator('[class*="rowHeader"]:not([class*="Placeholder"])').nth(1)
+    await rowHeader.click()
+
+    // 2行目の最初のセルがアクティブ
+    const firstCol = page.locator('[data-row][data-col="0"]').nth(1)
+    await expect(firstCol).toHaveClass(/activeCell/)
   })
 })

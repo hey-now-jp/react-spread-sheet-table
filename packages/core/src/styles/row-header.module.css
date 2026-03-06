@@ -1,0 +1,44 @@
+.rowHeader {
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  user-select: none;
+  border-right: 1px solid var(--sst-border-color);
+  border-bottom: 1px solid var(--sst-border-color);
+  font-size: 11px;
+  color: var(--sst-header-color);
+  background: var(--sst-header-bg);
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.rowHeader:hover {
+  background: #ebebeb;
+}
+
+.draggable {
+  cursor: grab;
+}
+
+.draggable:active {
+  cursor: grabbing;
+}
+
+.rowHeaderPlaceholder {
+  width: 40px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--sst-border-color);
+}
+
+.selectAllCell {
+  width: 40px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--sst-border-color);
+  cursor: pointer;
+}
+
+.selectAllCell:hover {
+  background: #ebebeb;
+}

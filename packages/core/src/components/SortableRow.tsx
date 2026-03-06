@@ -1,29 +1,11 @@
-import type { DraggableAttributes } from '@dnd-kit/core'
-import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { memo } from 'react'
 import type { TableStore } from '../core/store/create-store'
 import type { ColumnDef } from '../core/types'
 import dragStyles from '../styles/drag.module.css'
+import { RowHeader } from './RowHeader'
 import { TableRow } from './TableRow'
-
-type DragHandleProps = {
-  readonly listeners: SyntheticListenerMap | undefined
-  readonly attributes: DraggableAttributes
-}
-
-function DragHandle({ listeners, attributes }: DragHandleProps) {
-  return (
-    <div className={dragStyles.dragHandle} {...listeners} {...attributes}>
-      <div className={dragStyles.gripIcon}>
-        <span className={dragStyles.gripDot} />
-        <span className={dragStyles.gripDot} />
-        <span className={dragStyles.gripDot} />
-      </div>
-    </div>
-  )
-}
 
 type SortableRowProps<T> = {
   readonly id: string
@@ -56,7 +38,15 @@ function SortableRowInner<T>({
 
   return (
     <div ref={setNodeRef} style={style} className={dragStyles.sortableRow}>
-      <DragHandle listeners={listeners} attributes={attributes} />
+      <RowHeader
+        displayRowIndex={displayRowIndex}
+        dataRowIndex={dataRowIndex}
+        colCount={columns.length}
+        store={store}
+        draggable
+        listeners={listeners}
+        attributes={attributes}
+      />
       <TableRow
         columns={columns}
         dataRowIndex={dataRowIndex}

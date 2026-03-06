@@ -31,9 +31,11 @@ import type {
 } from '../core/types'
 import { isActionColumn, isDataColumn } from '../core/types'
 import { useVirtualScroll } from '../hooks/use-virtual-scroll'
+import dragStyles from '../styles/drag.module.css'
 import scrollStyles from '../styles/scroll.module.css'
 import tableStyles from '../styles/table.module.css'
 import { HeaderRow } from './HeaderRow'
+import { RowHeader } from './RowHeader'
 import { SortableRow } from './SortableRow'
 import { TableRow } from './TableRow'
 import { Toast } from './Toast'
@@ -200,6 +202,8 @@ function SpreadSheetTableInner<T>({
             | 'down'
             | 'left'
             | 'right'
+          const isMeta = e.ctrlKey || e.metaKey
+
           if (direction === 'up' || direction === 'down') {
             const currentPos = e.shiftKey
               ? selection.range
@@ -208,7 +212,14 @@ function SpreadSheetTableInner<T>({
               : selection.activeCell
             const visualIndex = sortedFilteredIndices.indexOf(currentPos.rowIndex)
             if (visualIndex === -1) break
-            const newVisualIndex = direction === 'up' ? visualIndex - 1 : visualIndex + 1
+
+            const newVisualIndex = isMeta
+              ? direction === 'up'
+                ? 0
+                : sortedFilteredIndices.length - 1
+              : direction === 'up'
+                ? visualIndex - 1
+                : visualIndex + 1
             if (newVisualIndex < 0 || newVisualIndex >= sortedFilteredIndices.length) break
             const newPos = {
               rowIndex: sortedFilteredIndices[newVisualIndex],
@@ -221,17 +232,58 @@ function SpreadSheetTableInner<T>({
             }
             scrollRowIntoView(virtualScroll.containerRef, newVisualIndex, ROW_HEIGHT, height)
           } else {
-            const rowCount = sortedFilteredIndices.length
-            if (e.shiftKey) {
-              const range = selection.range
-              const endPos = range ? range.end : selection.activeCell
-              const newEnd = moveActiveCell(columns, endPos, direction, rowCount)
-              if (newEnd) store.extendSelection(newEnd)
+            const currentPos = e.shiftKey
+              ? selection.range
+                ? selection.range.end
+                : selection.activeCell
+              : selection.activeCell
+            if (isMeta) {
+              const newColIndex = direction === 'left' ? 0 : columns.length - 1
+              const newPos = { rowIndex: currentPos.rowIndex, colIndex: newColIndex }
+              if (e.shiftKey) {
+                store.extendSelection(newPos)
+              } else {
+                store.setActiveCell(newPos)
+              }
             } else {
-              const newPos = moveActiveCell(columns, selection.activeCell, direction, rowCount)
-              if (newPos) store.setActiveCell(newPos)
+              const rowCount = sortedFilteredIndices.length
+              if (e.shiftKey) {
+                const newEnd = moveActiveCell(columns, currentPos, direction, rowCount)
+                if (newEnd) store.extendSelection(newEnd)
+              } else {
+                const newPos = moveActiveCell(columns, selection.activeCell, direction, rowCount)
+                if (newPos) store.setActiveCell(newPos)
+              }
             }
           }
+          break
+        }
+        case 'PageUp':
+        case 'PageDown': {
+          e.preventDefault()
+          const currentPos = e.shiftKey
+            ? selection.range
+              ? selection.range.end
+              : selection.activeCell
+            : selection.activeCell
+          const visualIndex = sortedFilteredIndices.indexOf(currentPos.rowIndex)
+          if (visualIndex === -1) break
+
+          const pageSize = Math.max(1, Math.floor(height / ROW_HEIGHT) - 1)
+          const newVisualIndex =
+            e.key === 'PageUp'
+              ? Math.max(0, visualIndex - pageSize)
+              : Math.min(sortedFilteredIndices.length - 1, visualIndex + pageSize)
+          const newPos = {
+            rowIndex: sortedFilteredIndices[newVisualIndex],
+            colIndex: currentPos.colIndex,
+          }
+          if (e.shiftKey) {
+            store.extendSelection(newPos)
+          } else {
+            store.setActiveCell(newPos)
+          }
+          scrollRowIntoView(virtualScroll.containerRef, newVisualIndex, ROW_HEIGHT, height)
           break
         }
         case 'Tab': {
@@ -462,17 +514,27 @@ function SpreadSheetTableInner<T>({
                 </SortableContext>
               </DndContext>
             ) : (
-              visibleIndices.map((dataRowIndex, displayOffset) => (
-                <TableRow
-                  key={dataRowIndex}
-                  columns={columns}
-                  dataRowIndex={dataRowIndex}
-                  displayRowIndex={virtualScroll.visibleStart + displayOffset}
-                  store={store}
-                  readOnly={readOnly}
-                  onCellChange={handleCellChange}
-                />
-              ))
+              visibleIndices.map((dataRowIndex, displayOffset) => {
+                const dispIdx = virtualScroll.visibleStart + displayOffset
+                return (
+                  <div key={dataRowIndex} className={dragStyles.sortableRow}>
+                    <RowHeader
+                      displayRowIndex={dispIdx}
+                      dataRowIndex={dataRowIndex}
+                      colCount={columns.length}
+                      store={store}
+                    />
+                    <TableRow
+                      columns={columns}
+                      dataRowIndex={dataRowIndex}
+                      displayRowIndex={dispIdx}
+                      store={store}
+                      readOnly={readOnly}
+                      onCellChange={handleCellChange}
+                    />
+                  </div>
+                )
+              })
             )}
           </div>
         </div>
