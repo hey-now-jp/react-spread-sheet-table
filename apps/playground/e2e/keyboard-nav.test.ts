@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { clickCell, getCell, getScrollContainer, goToBasicDemo } from './helpers'
+import { clickCell, getCell, getScrollContainer, goToBasicDemo, modKey } from './helpers'
 
 test.describe('キーボードナビゲーション', () => {
   test('矢印キーでセル移動 (上下左右)', async ({ page }) => {
@@ -58,6 +58,59 @@ test.describe('キーボードナビゲーション', () => {
 
     // 異なる名前 = カーソルが移動した
     expect(secondName).not.toBe(firstName)
+  })
+
+  test('Cmd+Arrow で端までジャンプ (全セル非空)', async ({ page }) => {
+    await goToBasicDemo(page)
+    await clickCell(page, 0, 0)
+
+    const mod = modKey(page)
+
+    // Cmd+Down: 最終行にジャンプ
+    await page.keyboard.press(`${mod}+ArrowDown`)
+    // 最終行のセルがアクティブ
+    const lastRowCell = page.locator('[data-col="0"]').last()
+    await expect(lastRowCell).toHaveCSS('outline-style', 'solid')
+
+    // Cmd+Up: 先頭行にジャンプ
+    await page.keyboard.press(`${mod}+ArrowUp`)
+    await expect(getCell(page, 0, 0)).toHaveCSS('outline-style', 'solid')
+
+    // Cmd+Right: 最終列にジャンプ
+    await page.keyboard.press(`${mod}+ArrowRight`)
+    const lastColIndex = await page
+      .locator('[data-row="0"][data-col]')
+      .last()
+      .getAttribute('data-col')
+    await expect(getCell(page, 0, Number(lastColIndex))).toHaveCSS('outline-style', 'solid')
+
+    // Cmd+Left: 先頭列にジャンプ
+    await page.keyboard.press(`${mod}+ArrowLeft`)
+    await expect(getCell(page, 0, 0)).toHaveCSS('outline-style', 'solid')
+  })
+
+  test('Cmd+Arrow で値の境界にジャンプ (空セルあり)', async ({ page }) => {
+    await goToBasicDemo(page)
+
+    const mod = modKey(page)
+
+    // 2行目 (index 1) の名前セルを空にする
+    await clickCell(page, 1, 0)
+    await page.keyboard.press('Delete')
+
+    // 0行目から Cmd+Down: 次のセル(1行目)が空なので、その先の非空セル(2行目)にジャンプ
+    await clickCell(page, 0, 0)
+    await page.keyboard.press(`${mod}+ArrowDown`)
+    await expect(getCell(page, 2, 0)).toHaveCSS('outline-style', 'solid')
+
+    // 2行目から Cmd+Up: 次のセル(1行目)が空なので、その先の非空セル(0行目)にジャンプ
+    await page.keyboard.press(`${mod}+ArrowUp`)
+    await expect(getCell(page, 0, 0)).toHaveCSS('outline-style', 'solid')
+
+    // 空セル(1行目)から Cmd+Down: 最初の非空セル(2行目)にジャンプ
+    await clickCell(page, 1, 0)
+    await page.keyboard.press(`${mod}+ArrowDown`)
+    await expect(getCell(page, 2, 0)).toHaveCSS('outline-style', 'solid')
   })
 
   test('Space でページスクロールしない', async ({ page }) => {

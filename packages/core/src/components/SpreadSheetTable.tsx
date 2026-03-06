@@ -49,6 +49,131 @@ type SpreadSheetTableComponentProps<T> = {
 const DEFAULT_HEIGHT = 400
 const ROW_HEIGHT = 32
 
+/**
+ * Excel-style Cmd+Arrow jump: find the boundary where cell value
+ * transitions between empty and non-empty.
+ *
+ * Rules:
+ * 1. Current cell is empty -> jump to the next non-empty cell (or edge)
+ * 2. Current cell is non-empty, next cell is non-empty -> jump to last consecutive non-empty cell
+ * 3. Current cell is non-empty, next cell is empty -> jump to next non-empty cell (or edge)
+ */
+function findJumpTarget<T>(
+  store: TableStore<T>,
+  indices: ReadonlyArray<number>,
+  columns: ReadonlyArray<import('../core/types/column').ColumnDef<T>>,
+  currentVisualIndex: number,
+  colIndex: number,
+  direction: 'up' | 'down' | 'left' | 'right',
+): { visualIndex: number; colIndex: number } {
+  const isVertical = direction === 'up' || direction === 'down'
+  const step = direction === 'up' || direction === 'left' ? -1 : 1
+
+  const getCellEmpty = (vIdx: number, cIdx: number): boolean => {
+    const col = columns[cIdx]
+    if (!col || isActionColumn(col)) return true
+    if (!isDataColumn(col)) return true
+    const dataCol = col as DataColumnDef<T>
+    const rowIndex = isVertical ? indices[vIdx] : indices[currentVisualIndex]
+    const val = store.getCellValue(rowIndex, dataCol.key as keyof T)
+    if (val === null || val === undefined) return true
+    if (typeof val === 'string' && val === '') return true
+    if (Array.isArray(val) && val.length === 0) return true
+    return false
+  }
+
+  if (isVertical) {
+    const maxIdx = indices.length - 1
+    const currentEmpty = getCellEmpty(currentVisualIndex, colIndex)
+    let pos = currentVisualIndex + step
+
+    if (currentEmpty) {
+      // Rule 1: skip empty cells, find first non-empty
+      while (pos >= 0 && pos <= maxIdx && getCellEmpty(pos, colIndex)) {
+        pos += step
+      }
+      if (pos < 0) pos = 0
+      if (pos > maxIdx) pos = maxIdx
+    } else {
+      // Check next cell
+      if (pos < 0 || pos > maxIdx) {
+        return { visualIndex: currentVisualIndex, colIndex }
+      }
+      if (!getCellEmpty(pos, colIndex)) {
+        // Rule 2: next is non-empty, find last consecutive non-empty
+        while (pos + step >= 0 && pos + step <= maxIdx && !getCellEmpty(pos + step, colIndex)) {
+          pos += step
+        }
+      } else {
+        // Rule 3: next is empty, skip to next non-empty
+        while (pos >= 0 && pos <= maxIdx && getCellEmpty(pos, colIndex)) {
+          pos += step
+        }
+        if (pos < 0) pos = 0
+        if (pos > maxIdx) pos = maxIdx
+      }
+    }
+
+    return { visualIndex: pos, colIndex }
+  }
+
+  // Horizontal
+  const maxCol = columns.length - 1
+  const currentEmpty = getCellEmpty(currentVisualIndex, colIndex)
+  let pos = colIndex + step
+
+  // Skip action columns
+  while (pos >= 0 && pos <= maxCol && isActionColumn(columns[pos])) {
+    pos += step
+  }
+
+  if (pos < 0 || pos > maxCol) {
+    return { visualIndex: currentVisualIndex, colIndex }
+  }
+
+  if (currentEmpty) {
+    // Rule 1: find first non-empty (skipping action columns)
+    while (pos >= 0 && pos <= maxCol) {
+      if (!isActionColumn(columns[pos]) && !getCellEmpty(currentVisualIndex, pos)) break
+      pos += step
+    }
+    if (pos < 0) pos = 0
+    if (pos > maxCol) pos = maxCol
+    // If landed on action column, find nearest data column
+    while (pos >= 0 && pos <= maxCol && isActionColumn(columns[pos])) {
+      pos -= step
+    }
+  } else {
+    if (!getCellEmpty(currentVisualIndex, pos)) {
+      // Rule 2: find last consecutive non-empty
+      while (true) {
+        const nextPos = pos + step
+        if (nextPos < 0 || nextPos > maxCol) break
+        if (isActionColumn(columns[nextPos])) break
+        if (getCellEmpty(currentVisualIndex, nextPos)) break
+        pos = nextPos
+      }
+    } else {
+      // Rule 3: skip empty, find next non-empty
+      while (pos >= 0 && pos <= maxCol) {
+        if (isActionColumn(columns[pos])) {
+          pos += step
+          continue
+        }
+        if (!getCellEmpty(currentVisualIndex, pos)) break
+        pos += step
+      }
+      if (pos < 0) pos = 0
+      if (pos > maxCol) pos = maxCol
+      while (pos >= 0 && pos <= maxCol && isActionColumn(columns[pos])) {
+        pos -= step
+      }
+    }
+  }
+
+  return { visualIndex: currentVisualIndex, colIndex: pos }
+}
+
 function scrollRowIntoView(
   containerRef: React.RefObject<HTMLDivElement | null>,
   visualIndex: number,
@@ -204,47 +329,51 @@ function SpreadSheetTableInner<T>({
             | 'right'
           const isMeta = e.ctrlKey || e.metaKey
 
-          if (direction === 'up' || direction === 'down') {
+          {
             const currentPos = e.shiftKey
               ? selection.range
                 ? selection.range.end
                 : selection.activeCell
               : selection.activeCell
-            const visualIndex = sortedFilteredIndices.indexOf(currentPos.rowIndex)
-            if (visualIndex === -1) break
 
-            const newVisualIndex = isMeta
-              ? direction === 'up'
-                ? 0
-                : sortedFilteredIndices.length - 1
-              : direction === 'up'
-                ? visualIndex - 1
-                : visualIndex + 1
-            if (newVisualIndex < 0 || newVisualIndex >= sortedFilteredIndices.length) break
-            const newPos = {
-              rowIndex: sortedFilteredIndices[newVisualIndex],
-              colIndex: currentPos.colIndex,
-            }
-            if (e.shiftKey) {
-              store.extendSelection(newPos)
-            } else {
-              store.setActiveCell(newPos)
-            }
-            scrollRowIntoView(virtualScroll.containerRef, newVisualIndex, ROW_HEIGHT, height)
-          } else {
-            const currentPos = e.shiftKey
-              ? selection.range
-                ? selection.range.end
-                : selection.activeCell
-              : selection.activeCell
             if (isMeta) {
-              const newColIndex = direction === 'left' ? 0 : columns.length - 1
-              const newPos = { rowIndex: currentPos.rowIndex, colIndex: newColIndex }
+              const visualIndex = sortedFilteredIndices.indexOf(currentPos.rowIndex)
+              if (visualIndex === -1) break
+
+              const jump = findJumpTarget(
+                store,
+                sortedFilteredIndices,
+                columns,
+                visualIndex,
+                currentPos.colIndex,
+                direction,
+              )
+              const newPos = {
+                rowIndex: sortedFilteredIndices[jump.visualIndex],
+                colIndex: jump.colIndex,
+              }
               if (e.shiftKey) {
                 store.extendSelection(newPos)
               } else {
                 store.setActiveCell(newPos)
               }
+              scrollRowIntoView(virtualScroll.containerRef, jump.visualIndex, ROW_HEIGHT, height)
+            } else if (direction === 'up' || direction === 'down') {
+              const visualIndex = sortedFilteredIndices.indexOf(currentPos.rowIndex)
+              if (visualIndex === -1) break
+
+              const newVisualIndex = direction === 'up' ? visualIndex - 1 : visualIndex + 1
+              if (newVisualIndex < 0 || newVisualIndex >= sortedFilteredIndices.length) break
+              const newPos = {
+                rowIndex: sortedFilteredIndices[newVisualIndex],
+                colIndex: currentPos.colIndex,
+              }
+              if (e.shiftKey) {
+                store.extendSelection(newPos)
+              } else {
+                store.setActiveCell(newPos)
+              }
+              scrollRowIntoView(virtualScroll.containerRef, newVisualIndex, ROW_HEIGHT, height)
             } else {
               const rowCount = sortedFilteredIndices.length
               if (e.shiftKey) {
