@@ -40,6 +40,8 @@ function TableRowInner<T>({
               column={column}
               row={row}
               rowIndex={dataRowIndex}
+              colIndex={colIndex}
+              store={store}
             />
           )
         }

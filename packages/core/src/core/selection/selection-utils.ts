@@ -1,17 +1,13 @@
 import type { CellPosition, ColumnDef, SelectionRange } from '../types'
-import { isActionColumn } from '../types'
 
 export function getNextDataCellIndex<T>(
   columns: ReadonlyArray<ColumnDef<T>>,
   currentColIndex: number,
   direction: 1 | -1,
 ): number | null {
-  let next = currentColIndex + direction
-  while (next >= 0 && next < columns.length) {
-    if (!isActionColumn(columns[next])) {
-      return next
-    }
-    next += direction
+  const next = currentColIndex + direction
+  if (next >= 0 && next < columns.length) {
+    return next
   }
   return null
 }
@@ -60,22 +56,9 @@ export function tabToNextCell<T>(
   if (nextRow < 0 || nextRow >= rowCount) return null
 
   if (reverse) {
-    // Find last data column
-    for (let i = columns.length - 1; i >= 0; i--) {
-      if (!isActionColumn(columns[i])) {
-        return { rowIndex: nextRow, colIndex: i }
-      }
-    }
-  } else {
-    // Find first data column
-    for (let i = 0; i < columns.length; i++) {
-      if (!isActionColumn(columns[i])) {
-        return { rowIndex: nextRow, colIndex: i }
-      }
-    }
+    return { rowIndex: nextRow, colIndex: columns.length - 1 }
   }
-
-  return null
+  return { rowIndex: nextRow, colIndex: 0 }
 }
 
 export function getNormalizedRange(range: SelectionRange): {

@@ -24,8 +24,8 @@ describe('getNextDataCellIndex', () => {
     expect(getNextDataCellIndex(columns, 0, 1)).toBe(1)
   })
 
-  it('skips action columns going right', () => {
-    expect(getNextDataCellIndex(columns, 1, 1)).toBeNull()
+  it('includes action columns going right', () => {
+    expect(getNextDataCellIndex(columns, 1, 1)).toBe(2)
   })
 
   it('finds previous data cell going left', () => {
@@ -63,9 +63,9 @@ describe('moveActiveCell', () => {
     expect(result).toEqual({ rowIndex: 0, colIndex: 1 })
   })
 
-  it('skips action column when moving right', () => {
+  it('moves to action column when moving right', () => {
     const result = moveActiveCell(columns, { rowIndex: 0, colIndex: 1 }, 'right', 3)
-    expect(result).toBeNull()
+    expect(result).toEqual({ rowIndex: 0, colIndex: 2 })
   })
 })
 
@@ -75,9 +75,9 @@ describe('tabToNextCell', () => {
     expect(result).toEqual({ rowIndex: 0, colIndex: 1 })
   })
 
-  it('wraps to next row at end of row', () => {
+  it('tabs to action column in same row', () => {
     const result = tabToNextCell(columns, { rowIndex: 0, colIndex: 1 }, 3, false)
-    expect(result).toEqual({ rowIndex: 1, colIndex: 0 })
+    expect(result).toEqual({ rowIndex: 0, colIndex: 2 })
   })
 
   it('shift+tabs to previous data cell', () => {
@@ -87,11 +87,11 @@ describe('tabToNextCell', () => {
 
   it('wraps to previous row at start of row', () => {
     const result = tabToNextCell(columns, { rowIndex: 1, colIndex: 0 }, 3, true)
-    expect(result).toEqual({ rowIndex: 0, colIndex: 1 })
+    expect(result).toEqual({ rowIndex: 0, colIndex: 2 })
   })
 
   it('returns null at last cell of last row', () => {
-    const result = tabToNextCell(columns, { rowIndex: 2, colIndex: 1 }, 3, false)
+    const result = tabToNextCell(columns, { rowIndex: 2, colIndex: 2 }, 3, false)
     expect(result).toBeNull()
   })
 })

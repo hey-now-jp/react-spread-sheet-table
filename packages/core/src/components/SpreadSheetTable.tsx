@@ -122,52 +122,34 @@ function findJumpTarget<T>(
   const currentEmpty = getCellEmpty(currentVisualIndex, colIndex)
   let pos = colIndex + step
 
-  // Skip action columns
-  while (pos >= 0 && pos <= maxCol && isActionColumn(columns[pos])) {
-    pos += step
-  }
-
   if (pos < 0 || pos > maxCol) {
     return { visualIndex: currentVisualIndex, colIndex }
   }
 
   if (currentEmpty) {
-    // Rule 1: find first non-empty (skipping action columns)
-    while (pos >= 0 && pos <= maxCol) {
-      if (!isActionColumn(columns[pos]) && !getCellEmpty(currentVisualIndex, pos)) break
+    // Rule 1: find first non-empty
+    while (pos >= 0 && pos <= maxCol && getCellEmpty(currentVisualIndex, pos)) {
       pos += step
     }
     if (pos < 0) pos = 0
     if (pos > maxCol) pos = maxCol
-    // If landed on action column, find nearest data column
-    while (pos >= 0 && pos <= maxCol && isActionColumn(columns[pos])) {
-      pos -= step
-    }
   } else {
     if (!getCellEmpty(currentVisualIndex, pos)) {
       // Rule 2: find last consecutive non-empty
-      while (true) {
-        const nextPos = pos + step
-        if (nextPos < 0 || nextPos > maxCol) break
-        if (isActionColumn(columns[nextPos])) break
-        if (getCellEmpty(currentVisualIndex, nextPos)) break
-        pos = nextPos
+      while (
+        pos + step >= 0 &&
+        pos + step <= maxCol &&
+        !getCellEmpty(currentVisualIndex, pos + step)
+      ) {
+        pos += step
       }
     } else {
       // Rule 3: skip empty, find next non-empty
-      while (pos >= 0 && pos <= maxCol) {
-        if (isActionColumn(columns[pos])) {
-          pos += step
-          continue
-        }
-        if (!getCellEmpty(currentVisualIndex, pos)) break
+      while (pos >= 0 && pos <= maxCol && getCellEmpty(currentVisualIndex, pos)) {
         pos += step
       }
       if (pos < 0) pos = 0
       if (pos > maxCol) pos = maxCol
-      while (pos >= 0 && pos <= maxCol && isActionColumn(columns[pos])) {
-        pos -= step
-      }
     }
   }
 

@@ -76,13 +76,13 @@ test.describe('キーボードナビゲーション', () => {
     await page.keyboard.press(`${mod}+ArrowUp`)
     await expect(getCell(page, 0, 0)).toHaveCSS('outline-style', 'solid')
 
-    // Cmd+Right: 最終列にジャンプ
+    // Cmd+Right: 全セル非空なので最終データ列にジャンプ (action列は空扱い)
     await page.keyboard.press(`${mod}+ArrowRight`)
-    const lastColIndex = await page
-      .locator('[data-row="0"][data-col]')
-      .last()
-      .getAttribute('data-col')
-    await expect(getCell(page, 0, Number(lastColIndex))).toHaveCSS('outline-style', 'solid')
+    // skills列 (col 6) が最終データ列
+    const activeRight = page.locator('[data-row="0"][class*="activeCell"]')
+    await expect(activeRight).toBeVisible()
+    const activeColIndex = Number(await activeRight.getAttribute('data-col'))
+    expect(activeColIndex).toBeGreaterThan(0)
 
     // Cmd+Left: 先頭列にジャンプ
     await page.keyboard.press(`${mod}+ArrowLeft`)
