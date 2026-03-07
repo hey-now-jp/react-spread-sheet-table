@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useState, useSyncExternalStore } from 'react'
+import { memo, useCallback, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { parseAndValidateValue } from '../core/format/format-utils'
 import type { TableStore } from '../core/store/create-store'
 import type { CellValidationError, DataColumnDef } from '../core/types'
@@ -23,6 +23,7 @@ type CellProps<T> = {
 
 function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChange }: CellProps<T>) {
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
+  const cellRef = useRef<HTMLDivElement>(null)
   const [showTooltip, setShowTooltip] = useState(false)
 
   const value = store.getCellValue(rowIndex, column.key as keyof T)
@@ -131,6 +132,7 @@ function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChang
 
   return (
     <div
+      ref={cellRef}
       className={cellClassName}
       style={cellStyle}
       onDoubleClick={handleDoubleClick}
@@ -140,7 +142,7 @@ function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChang
       data-col={colIndex}
     >
       {isEditing ? (
-        renderEditor(column, editingValue, handleEditChange, handleCommit, handleCancel)
+        renderEditor(column, editingValue, handleEditChange, handleCommit, handleCancel, cellRef)
       ) : column.type === 'boolean' ? (
         <BooleanEditor
           value={Boolean(value)}
@@ -166,6 +168,7 @@ function renderEditor<T>(
   onChange: (val: string) => void,
   onCommit: () => void,
   onCancel: () => void,
+  cellRef: React.RefObject<HTMLDivElement | null>,
 ) {
   switch (column.type) {
     case 'text':
@@ -228,6 +231,7 @@ function renderEditor<T>(
           onChange={onChange}
           onCommit={onCommit}
           onCancel={onCancel}
+          anchorRef={cellRef}
         />
       )
     case 'boolean':

@@ -36,15 +36,12 @@
 }
 
 .multiListEditor {
-  position: absolute;
-  top: 0;
-  left: 0;
-  min-width: 100%;
+  position: fixed;
   background: #fff;
   border: 1px solid var(--sst-border-color, #d0d0d0);
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  z-index: 10;
+  z-index: 10000;
   outline: none;
   font-family: var(--sst-font-family);
   font-size: var(--sst-font-size);
