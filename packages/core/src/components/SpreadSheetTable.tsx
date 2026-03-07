@@ -195,15 +195,14 @@ function SpreadSheetTableInner<T>({
   // Subscribe to store
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
 
-  // Refocus wrapper when editing ends so keyboard navigation keeps working
+  // Refocus wrapper when editing ends so keyboard navigation keeps working.
+  // Portal-based editors (MultiListEditor) leave focus outside the wrapper DOM,
+  // so we always refocus unless an unrelated interactive element has focus.
   const editingCell = store.getEditingCell()
   const wasEditing = useRef(false)
   useEffect(() => {
     if (wasEditing.current && editingCell === null) {
-      const active = document.activeElement
-      if (active === document.body || wrapperRef.current?.contains(active)) {
-        wrapperRef.current?.focus()
-      }
+      wrapperRef.current?.focus()
     }
     wasEditing.current = editingCell !== null
   }, [editingCell])
@@ -568,6 +567,8 @@ function SpreadSheetTableInner<T>({
   const handleBlur = useCallback(
     (e: React.FocusEvent) => {
       if (wrapperRef.current?.contains(e.relatedTarget as Node)) return
+      // Don't clear selection when focus moves to a portal-based editor
+      if (store.getEditingCell() !== null) return
       store.clearSelection()
     },
     [store],

@@ -62,7 +62,8 @@
   white-space: nowrap;
 }
 
-.multiListOption:hover {
+.multiListOption:hover,
+.multiListOptionFocused {
   background: var(--sst-hover-bg, #f5f5f5);
 }
 

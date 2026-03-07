@@ -34,6 +34,7 @@ export const MultiListEditor = memo(function MultiListEditor({
   anchorRef,
 }: MultiListEditorProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const [focusIndex, setFocusIndex] = useState(0)
   const [position, setPosition] = useState<{ top: number; left: number; minWidth: number }>({
     top: 0,
     left: 0,
@@ -79,6 +80,17 @@ export const MultiListEditor = memo(function MultiListEditor({
     containerRef.current?.focus()
   }, [])
 
+  // Close on outside click
+  useEffect(() => {
+    const handleMouseDown = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        onCommit()
+      }
+    }
+    document.addEventListener('mousedown', handleMouseDown)
+    return () => document.removeEventListener('mousedown', handleMouseDown)
+  }, [onCommit])
+
   const selected = parseSelected(value)
 
   const handleToggle = useCallback(
@@ -94,18 +106,40 @@ export const MultiListEditor = memo(function MultiListEditor({
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.stopPropagation()
-        onCancel()
-      } else if (e.key === 'Enter') {
-        e.stopPropagation()
-        onCommit()
-      } else if (e.key === 'Tab') {
-        e.stopPropagation()
-        onCommit()
+      switch (e.key) {
+        case 'Escape': {
+          e.preventDefault()
+          e.stopPropagation()
+          onCancel()
+          break
+        }
+        case 'Enter':
+        case 'Tab': {
+          e.preventDefault()
+          e.stopPropagation()
+          onCommit()
+          break
+        }
+        case 'ArrowDown': {
+          e.preventDefault()
+          setFocusIndex((prev) => Math.min(prev + 1, options.length - 1))
+          break
+        }
+        case 'ArrowUp': {
+          e.preventDefault()
+          setFocusIndex((prev) => Math.max(prev - 1, 0))
+          break
+        }
+        case ' ': {
+          e.preventDefault()
+          if (options[focusIndex]) {
+            handleToggle(options[focusIndex])
+          }
+          break
+        }
       }
     },
-    [onCommit, onCancel],
+    [onCommit, onCancel, options, focusIndex, handleToggle],
   )
 
   const popover = (
@@ -117,19 +151,23 @@ export const MultiListEditor = memo(function MultiListEditor({
       tabIndex={0}
     >
       <div className={styles.multiListOptions}>
-        {options.map((opt) => (
-          <label key={opt} className={styles.multiListOption}>
+        {options.map((opt, i) => (
+          <label
+            key={opt}
+            className={`${styles.multiListOption} ${i === focusIndex ? styles.multiListOptionFocused : ''}`}
+          >
             <input
               type="checkbox"
               checked={selected.includes(opt)}
               onChange={() => handleToggle(opt)}
+              tabIndex={-1}
             />
             <span>{opt}</span>
           </label>
         ))}
       </div>
       <div className={styles.multiListActions}>
-        <button type="button" className={styles.multiListDone} onClick={onCommit}>
+        <button type="button" className={styles.multiListDone} onClick={onCommit} tabIndex={-1}>
           OK
         </button>
       </div>
