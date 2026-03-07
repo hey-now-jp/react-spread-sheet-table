@@ -167,6 +167,9 @@ export const MultiListEditor = memo(function MultiListEditor({
         ))}
       </div>
       <div className={styles.multiListActions}>
+        <span className={styles.multiListCount}>
+          {selected.length > 0 ? `${selected.length}件選択中` : '未選択'}
+        </span>
         <button type="button" className={styles.multiListDone} onClick={onCommit} tabIndex={-1}>
           OK
         </button>
