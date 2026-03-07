@@ -87,6 +87,10 @@
   width: 100%;
 }
 
+.numberCell {
+  text-align: right;
+}
+
 .booleanCell {
   justify-content: center;
 }

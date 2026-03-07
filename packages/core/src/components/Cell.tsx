@@ -109,6 +109,7 @@ function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChang
     hasClipboardEdge ? styles.clipboardCell : '',
     cellError?.result.level === 'error' ? styles.errorCell : '',
     cellError?.result.level === 'warn' ? styles.warnCell : '',
+    column.type === 'number' ? styles.numberCell : '',
     column.type === 'boolean' ? styles.booleanCell : '',
     isReadOnly ? styles.readOnlyCell : '',
   ]
