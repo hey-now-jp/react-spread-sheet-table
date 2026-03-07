@@ -34,12 +34,13 @@ test('cell editing via double-click', async ({ page }) => {
   await expect(page.getByText('New Name')).toBeVisible()
 })
 
-test('sort by clicking sort button', async ({ page }) => {
+test('sort via column menu', async ({ page }) => {
   await page.goto('/')
 
-  // Click the sort button in the Age header
+  // Open column menu for Age
   const ageHeader = page.locator('[class*="headerCell"]', { hasText: '年齢' })
-  await ageHeader.locator('button[aria-label="ソート"]').click()
+  await ageHeader.locator('button[aria-label="列メニュー"]').click()
+  await page.locator('button[aria-label="昇順でソート"]').click()
 
   // Should show sort indicator
   await expect(page.locator('[data-sort="asc"]')).toBeVisible()
@@ -105,9 +106,10 @@ test('arrow keys move active cell after clicking', async ({ page }) => {
 test('arrow keys move active cell after sort', async ({ page }) => {
   await page.goto('/')
 
-  // Sort by age ascending via sort button
+  // Sort by age ascending via column menu
   const ageHeader = page.locator('[class*="headerCell"]', { hasText: '年齢' })
-  await ageHeader.locator('button[aria-label="ソート"]').click()
+  await ageHeader.locator('button[aria-label="列メニュー"]').click()
+  await page.locator('button[aria-label="昇順でソート"]').click()
   await expect(page.locator('[data-sort="asc"]')).toBeVisible()
 
   // Click the first visible name cell (youngest person)

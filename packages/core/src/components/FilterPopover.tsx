@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { TableStore } from '../core/store/create-store'
-import type { DataColumnDef, FilterCondition } from '../core/types'
+import type { DataColumnDef, FilterCondition, SortDirection } from '../core/types'
 import styles from '../styles/filter.module.css'
 
 type FilterPopoverProps<T> = {
@@ -10,6 +10,10 @@ type FilterPopoverProps<T> = {
   readonly onApply: (condition: FilterCondition) => void
   readonly onClear: () => void
   readonly onClose: () => void
+  readonly filterable: boolean
+  readonly sortable: boolean
+  readonly currentSortDir: SortDirection | null
+  readonly onSort: (direction: SortDirection | null) => void
 }
 
 function FilterPopoverInner<T>({
@@ -19,6 +23,10 @@ function FilterPopoverInner<T>({
   onApply,
   onClear,
   onClose,
+  filterable,
+  sortable,
+  currentSortDir,
+  onSort,
 }: FilterPopoverProps<T>) {
   const popoverRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -145,51 +153,85 @@ function FilterPopoverInner<T>({
     [suggestions, highlightIndex, query, applyExact, applyContains, onClose],
   )
 
+  const handleSortAsc = useCallback(() => {
+    onSort(currentSortDir === 'asc' ? null : 'asc')
+    onClose()
+  }, [currentSortDir, onSort, onClose])
+
+  const handleSortDesc = useCallback(() => {
+    onSort(currentSortDir === 'desc' ? null : 'desc')
+    onClose()
+  }, [currentSortDir, onSort, onClose])
+
   return (
     <div ref={popoverRef} className={styles.filterPopover} onClick={(e) => e.stopPropagation()}>
-      <input
-        ref={inputRef}
-        className={styles.filterInput}
-        type="text"
-        placeholder="検索..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        onKeyDown={handleKeyDown}
-      />
-      {suggestions.length > 0 && (
-        <ul className={styles.suggestionList}>
-          {suggestions.map((value, i) => (
-            <li key={value}>
-              <button
-                type="button"
-                className={`${styles.suggestionItem} ${i === highlightIndex ? styles.suggestionHighlight : ''}`}
-                onMouseEnter={() => setHighlightIndex(i)}
-                onMouseDown={(e) => {
-                  e.preventDefault()
-                  applyExact(value)
-                }}
-              >
-                {highlightText(value, query)}
-              </button>
-            </li>
-          ))}
-        </ul>
+      {sortable && (
+        <div className={styles.sortSection}>
+          <button
+            type="button"
+            className={`${styles.sortOption} ${currentSortDir === 'asc' ? styles.sortOptionActive : ''}`}
+            onClick={handleSortAsc}
+            aria-label="昇順でソート"
+          >
+            {'\u2191 昇順でソート'}
+          </button>
+          <button
+            type="button"
+            className={`${styles.sortOption} ${currentSortDir === 'desc' ? styles.sortOptionActive : ''}`}
+            onClick={handleSortDesc}
+            aria-label="降順でソート"
+          >
+            {'\u2193 降順でソート'}
+          </button>
+        </div>
       )}
-      {suggestions.length === 0 && query.trim() !== '' && (
-        <div className={styles.noResults}>該当なし</div>
+      {filterable && (
+        <>
+          <input
+            ref={inputRef}
+            className={styles.filterInput}
+            type="text"
+            placeholder="検索..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+          {suggestions.length > 0 && (
+            <ul className={styles.suggestionList}>
+              {suggestions.map((value, i) => (
+                <li key={value}>
+                  <button
+                    type="button"
+                    className={`${styles.suggestionItem} ${i === highlightIndex ? styles.suggestionHighlight : ''}`}
+                    onMouseEnter={() => setHighlightIndex(i)}
+                    onMouseDown={(e) => {
+                      e.preventDefault()
+                      applyExact(value)
+                    }}
+                  >
+                    {highlightText(value, query)}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {suggestions.length === 0 && query.trim() !== '' && (
+            <div className={styles.noResults}>該当なし</div>
+          )}
+          <div className={styles.filterActions}>
+            <button type="button" className={styles.filterActionButton} onClick={handleClear}>
+              クリア
+            </button>
+            <button
+              type="button"
+              className={`${styles.filterActionButton} ${styles.filterApply}`}
+              onClick={() => applyContains(query)}
+            >
+              適用
+            </button>
+          </div>
+        </>
       )}
-      <div className={styles.filterActions}>
-        <button type="button" className={styles.filterActionButton} onClick={handleClear}>
-          クリア
-        </button>
-        <button
-          type="button"
-          className={`${styles.filterActionButton} ${styles.filterApply}`}
-          onClick={() => applyContains(query)}
-        >
-          適用
-        </button>
-      </div>
     </div>
   )
 }

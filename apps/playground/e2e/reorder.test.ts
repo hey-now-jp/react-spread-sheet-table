@@ -22,19 +22,19 @@ test.describe('行の並び替え (DnD)', () => {
     const rowHeader = page.locator('[class*="rowHeader"]:not([class*="Placeholder"])').first()
     await expect(rowHeader).toHaveClass(/draggable/)
 
-    // ソートを有効化
+    // ソートを有効化 (列メニューから)
     const ageHeader = page.locator('[class*="headerCell"]', { hasText: '年齢' })
-    const ageSortBtn = ageHeader.locator('button[aria-label="ソート"]')
-    await ageSortBtn.click()
+    await ageHeader.locator('button[aria-label="列メニュー"]').click()
+    await page.locator('button[aria-label="昇順でソート"]').click()
     await expect(ageHeader).toHaveAttribute('data-sort', 'asc')
 
     // ドラッグ可能クラスがなくなる (通常行の行番号にはdraggableなし)
     const rowHeaderAfter = page.locator('[class*="rowHeader"]:not([class*="Placeholder"])').first()
     await expect(rowHeaderAfter).not.toHaveClass(/draggable/)
 
-    // ソートを解除 (desc -> 解除)
-    await ageSortBtn.click()
-    await ageSortBtn.click()
+    // ソートを解除 (アクティブな昇順をもう一度クリック)
+    await ageHeader.locator('button[aria-label="列メニュー"]').click()
+    await page.locator('button[aria-label="昇順でソート"]').click()
 
     // ドラッグ可能クラスが復帰
     const rowHeaderRestored = page

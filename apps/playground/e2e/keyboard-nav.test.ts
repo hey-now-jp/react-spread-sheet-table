@@ -41,9 +41,10 @@ test.describe('キーボードナビゲーション', () => {
 
   test('ソート後の矢印キー移動はソート順に従う', async ({ page }) => {
     await goToBasicDemo(page)
-    // 年齢で昇順ソート (ソートボタンをクリック)
+    // 年齢で昇順ソート (列メニューから)
     const ageHeader = page.locator('[class*="headerCell"]', { hasText: '年齢' })
-    await ageHeader.locator('button[aria-label="ソート"]').click()
+    await ageHeader.locator('button[aria-label="列メニュー"]').click()
+    await page.locator('button[aria-label="昇順でソート"]').click()
     await expect(page.locator('[data-sort="asc"]')).toBeVisible()
 
     // 最初のセルをクリック

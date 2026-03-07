@@ -1,7 +1,7 @@
 .filterPopover {
   position: absolute;
   top: calc(var(--sst-cell-height) + 2px);
-  left: 0;
+  right: 0;
   min-width: 220px;
   background: #fff;
   border: 1px solid var(--sst-border-color);
@@ -9,6 +9,47 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 100;
   padding: 8px;
+}
+
+.sortSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sortSection:not(:last-child) {
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--sst-border-color);
+}
+
+.sortOption {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 4px;
+  font-family: var(--sst-font-family);
+  font-size: var(--sst-font-size);
+  text-align: left;
+  color: inherit;
+}
+
+.sortOption:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.sortOptionActive {
+  background: rgba(33, 150, 243, 0.1);
+  color: var(--sst-selected-border);
+  font-weight: 600;
+}
+
+.sortOptionActive:hover {
+  background: rgba(33, 150, 243, 0.15);
 }
 
 .filterInput {

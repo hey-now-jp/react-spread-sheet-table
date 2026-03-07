@@ -51,14 +51,7 @@
   text-overflow: ellipsis;
 }
 
-.headerActions {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  flex-shrink: 0;
-}
-
-.sortButton {
+.menuButton {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -72,51 +65,15 @@
   color: var(--sst-header-color);
   opacity: 0.3;
   padding: 0;
+  flex-shrink: 0;
 }
 
-.sortButton:hover {
+.menuButton:hover {
   opacity: 1;
   background: rgba(0, 0, 0, 0.08);
 }
 
-.sortActive {
+.menuButtonActive {
   opacity: 1;
   color: var(--sst-selected-border);
-}
-
-.sortActive:hover {
-  opacity: 0.85;
-}
-
-.filterButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  border-radius: 2px;
-  font-size: 10px;
-  color: var(--sst-header-color);
-  opacity: 0.5;
-  padding: 0;
-}
-
-.filterButton:hover {
-  opacity: 1;
-  background: rgba(0, 0, 0, 0.08);
-}
-
-.filterActive {
-  opacity: 1;
-  color: #fff;
-  background: var(--sst-selected-border);
-  border-radius: 50%;
-}
-
-.filterActive:hover {
-  background: var(--sst-selected-border);
-  opacity: 0.85;
 }

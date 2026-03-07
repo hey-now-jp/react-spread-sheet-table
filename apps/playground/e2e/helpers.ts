@@ -43,8 +43,20 @@ export function getScrollContainer(page: Page) {
   return page.locator('[class*="scrollContainer"]')
 }
 
-/** ヘッダーセルのフィルタボタンをクリック */
-export async function openFilter(page: Page, headerText: string) {
+/** 列メニューを開く */
+export async function openColumnMenu(page: Page, headerText: string) {
   const header = page.locator('[class*="headerCell"]', { hasText: headerText })
-  await header.locator('button[aria-label="フィルター"]').click()
+  await header.locator('button[aria-label="列メニュー"]').click()
+}
+
+/** ヘッダーセルのフィルタポップオーバーを開く (列メニュー経由) */
+export async function openFilter(page: Page, headerText: string) {
+  await openColumnMenu(page, headerText)
+}
+
+/** 列メニューからソートを適用 */
+export async function sortColumn(page: Page, headerText: string, direction: 'asc' | 'desc') {
+  await openColumnMenu(page, headerText)
+  const label = direction === 'asc' ? '昇順でソート' : '降順でソート'
+  await page.locator(`button[aria-label="${label}"]`).click()
 }

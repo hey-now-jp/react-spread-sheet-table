@@ -17,12 +17,13 @@ function HeaderCellInner<T>({ column, colIndex, store, sortable, filterable }: H
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
 
   const columnKey = isDataColumn(column) ? String((column as DataColumnDef<T>).key) : ''
-  const filterOpen = store.getOpenFilterKey() === columnKey
+  const menuOpen = store.getOpenFilterKey() === columnKey
 
   const isAction = isActionColumn(column)
   const isData = isDataColumn(column)
   const canSort = sortable && isData
   const canFilter = filterable && isData
+  const hasMenu = canSort || canFilter
 
   const sortState = store.getSortState()
   const currentSortDir: SortDirection | null =
@@ -35,6 +36,8 @@ function HeaderCellInner<T>({ column, colIndex, store, sortable, filterable }: H
     ? filterState.get((column as DataColumnDef<T>).key as keyof T)
     : undefined
 
+  const isActive = currentSortDir !== null || currentFilter !== undefined
+
   const handleColumnSelect = useCallback(() => {
     const rows = store.getRows()
     if (rows.length === 0) return
@@ -44,10 +47,18 @@ function HeaderCellInner<T>({ column, colIndex, store, sortable, filterable }: H
     }
   }, [store, colIndex])
 
-  const handleSort = useCallback(() => {
-    if (!canSort || !isData) return
-    store.toggleSort((column as DataColumnDef<T>).key as keyof T)
-  }, [canSort, isData, store, column])
+  const handleSort = useCallback(
+    (direction: SortDirection | null) => {
+      if (!isData) return
+      const key = (column as DataColumnDef<T>).key as keyof T
+      if (direction === null) {
+        store.clearSort()
+      } else {
+        store.setSort(key, direction)
+      }
+    },
+    [isData, column, store],
+  )
 
   const handleFilterApply = useCallback(
     (condition: FilterCondition) => {
@@ -76,50 +87,39 @@ function HeaderCellInner<T>({ column, colIndex, store, sortable, filterable }: H
           {isAction ? (column.header ?? '') : (column as DataColumnDef<T>).header}
         </span>
       </div>
-      <div className={styles.headerActions}>
-        {canSort && (
+      {hasMenu && (
+        <div style={{ position: 'relative' }}>
           <button
             type="button"
-            className={`${styles.sortButton} ${currentSortDir ? styles.sortActive : ''}`}
+            className={`${styles.menuButton} ${isActive ? styles.menuButtonActive : ''}`}
             onClick={(e) => {
               e.stopPropagation()
-              handleSort()
+              const opening = !menuOpen
+              store.setOpenFilterKey(opening ? columnKey : null)
+              if (opening) {
+                store.clearSelection()
+              }
             }}
-            aria-label="ソート"
+            aria-label="列メニュー"
           >
-            {currentSortDir === 'asc' ? '\u25B2' : currentSortDir === 'desc' ? '\u25BC' : '\u25B2'}
+            {'\u25BC'}
           </button>
-        )}
-        {canFilter && (
-          <div style={{ position: 'relative' }}>
-            <button
-              type="button"
-              className={`${styles.filterButton} ${currentFilter ? styles.filterActive : ''}`}
-              onClick={(e) => {
-                e.stopPropagation()
-                const opening = !filterOpen
-                store.setOpenFilterKey(opening ? columnKey : null)
-                if (opening) {
-                  store.clearSelection()
-                }
-              }}
-              aria-label="フィルター"
-            >
-              {'\u2630'}
-            </button>
-            {filterOpen && (
-              <FilterPopover
-                column={column as DataColumnDef<T>}
-                store={store}
-                currentCondition={currentFilter}
-                onApply={handleFilterApply}
-                onClear={handleFilterClear}
-                onClose={() => store.setOpenFilterKey(null)}
-              />
-            )}
-          </div>
-        )}
-      </div>
+          {menuOpen && (
+            <FilterPopover
+              column={column as DataColumnDef<T>}
+              store={store}
+              currentCondition={currentFilter}
+              onApply={handleFilterApply}
+              onClear={handleFilterClear}
+              onClose={() => store.setOpenFilterKey(null)}
+              filterable={canFilter}
+              sortable={canSort}
+              currentSortDir={currentSortDir}
+              onSort={handleSort}
+            />
+          )}
+        </div>
+      )}
     </div>
   )
 }
