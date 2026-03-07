@@ -1,4 +1,5 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { TableStore } from '../core/store/create-store'
 import type { DataColumnDef, FilterCondition, SortDirection } from '../core/types'
 import styles from '../styles/filter.module.css'
@@ -14,6 +15,7 @@ type FilterPopoverProps<T> = {
   readonly sortable: boolean
   readonly currentSortDir: SortDirection | null
   readonly onSort: (direction: SortDirection | null) => void
+  readonly anchorRef: React.RefObject<HTMLButtonElement | null>
 }
 
 function FilterPopoverInner<T>({
@@ -27,6 +29,7 @@ function FilterPopoverInner<T>({
   sortable,
   currentSortDir,
   onSort,
+  anchorRef,
 }: FilterPopoverProps<T>) {
   const popoverRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -37,6 +40,46 @@ function FilterPopoverInner<T>({
     return ''
   })
   const [highlightIndex, setHighlightIndex] = useState(-1)
+  const [position, setPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 })
+
+  // Calculate position relative to anchor, flip if needed
+  useLayoutEffect(() => {
+    const anchor = anchorRef.current
+    const popover = popoverRef.current
+    if (!anchor || !popover) return
+
+    const updatePosition = () => {
+      const anchorRect = anchor.getBoundingClientRect()
+      const popoverRect = popover.getBoundingClientRect()
+      const gap = 4
+
+      // Default: below the anchor, right-aligned
+      let top = anchorRect.bottom + gap
+      let left = anchorRect.right - popoverRect.width
+
+      // Flip upward if not enough space below
+      if (top + popoverRect.height > window.innerHeight) {
+        top = anchorRect.top - popoverRect.height - gap
+      }
+
+      // Clamp left so it doesn't go off-screen
+      if (left < 4) {
+        left = 4
+      }
+
+      setPosition({ top, left })
+    }
+
+    updatePosition()
+
+    // Recalculate on scroll/resize (any scroll container)
+    window.addEventListener('scroll', updatePosition, true)
+    window.addEventListener('resize', updatePosition)
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true)
+      window.removeEventListener('resize', updatePosition)
+    }
+  }, [anchorRef])
 
   // Close on outside click
   useEffect(() => {
@@ -163,8 +206,13 @@ function FilterPopoverInner<T>({
     onClose()
   }, [currentSortDir, onSort, onClose])
 
-  return (
-    <div ref={popoverRef} className={styles.filterPopover} onClick={(e) => e.stopPropagation()}>
+  const popover = (
+    <div
+      ref={popoverRef}
+      className={styles.filterPopover}
+      style={{ top: position.top, left: position.left }}
+      onClick={(e) => e.stopPropagation()}
+    >
       {sortable && (
         <div className={styles.sortSection}>
           <button
@@ -234,6 +282,8 @@ function FilterPopoverInner<T>({
       )}
     </div>
   )
+
+  return createPortal(popover, document.body)
 }
 
 function coerceValue<T>(str: string, column: DataColumnDef<T>): unknown {

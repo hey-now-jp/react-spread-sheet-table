@@ -1,4 +1,4 @@
-import { memo, useCallback, useSyncExternalStore } from 'react'
+import { memo, useCallback, useRef, useSyncExternalStore } from 'react'
 import type { TableStore } from '../core/store/create-store'
 import type { ColumnDef, DataColumnDef, FilterCondition, SortDirection } from '../core/types'
 import { isActionColumn, isDataColumn } from '../core/types'
@@ -15,6 +15,7 @@ type HeaderCellProps<T> = {
 
 function HeaderCellInner<T>({ column, colIndex, store, sortable, filterable }: HeaderCellProps<T>) {
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
 
   const columnKey = isDataColumn(column) ? String((column as DataColumnDef<T>).key) : ''
   const menuOpen = store.getOpenFilterKey() === columnKey
@@ -88,8 +89,9 @@ function HeaderCellInner<T>({ column, colIndex, store, sortable, filterable }: H
         </span>
       </div>
       {hasMenu && (
-        <div style={{ position: 'relative' }}>
+        <>
           <button
+            ref={menuButtonRef}
             type="button"
             className={`${styles.menuButton} ${isActive ? styles.menuButtonActive : ''}`}
             onClick={(e) => {
@@ -116,9 +118,10 @@ function HeaderCellInner<T>({ column, colIndex, store, sortable, filterable }: H
               sortable={canSort}
               currentSortDir={currentSortDir}
               onSort={handleSort}
+              anchorRef={menuButtonRef}
             />
           )}
-        </div>
+        </>
       )}
     </div>
   )
