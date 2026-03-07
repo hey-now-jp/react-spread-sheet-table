@@ -6,8 +6,11 @@ test.describe('フィルタ', () => {
     await goToBasicDemo(page)
     await openFilter(page, '名前')
 
+    // 検索して絞り込み、チェックボックスで選択 → 適用
     const input = page.locator('[class*="filterInput"]')
     await input.fill('Tanaka')
+    const checkbox = page.locator('[class*="filterCheckItem"]', { hasText: 'Tanaka Taro' })
+    await checkbox.locator('input[type="checkbox"]').check()
     await page.locator('[class*="filterApply"]').click()
 
     // Tanaka Taro のみ表示される
@@ -16,14 +19,16 @@ test.describe('フィルタ', () => {
     await expect(rows.first()).toHaveText('Tanaka Taro')
   })
 
-  test('数値カラムのフィルタ (完全一致候補選択)', async ({ page }) => {
+  test('数値カラムのフィルタ (チェックボックス選択)', async ({ page }) => {
     await goToBasicDemo(page)
     await openFilter(page, '年齢')
 
+    // 28 を検索して選択
     const input = page.locator('[class*="filterInput"]')
     await input.fill('28')
-    // サジェストから選択
-    await page.locator('[class*="suggestionItem"]', { hasText: '28' }).click()
+    const checkbox = page.locator('[class*="filterCheckItem"]', { hasText: '28' })
+    await checkbox.locator('input[type="checkbox"]').check()
+    await page.locator('[class*="filterApply"]').click()
 
     // 28歳のみ表示
     const rows = page.locator('[data-col="1"]')
@@ -35,8 +40,10 @@ test.describe('フィルタ', () => {
     await goToBasicDemo(page)
     await openFilter(page, '部署')
 
-    // サジェストリストから 'HR' を選択
-    await page.locator('[class*="suggestionItem"]', { hasText: 'HR' }).click()
+    // HR を選択して適用
+    const checkbox = page.locator('[class*="filterCheckItem"]', { hasText: 'HR' })
+    await checkbox.locator('input[type="checkbox"]').check()
+    await page.locator('[class*="filterApply"]').click()
 
     // HR のみ表示
     const deptCells = page.locator('[data-col="5"]')
@@ -50,8 +57,10 @@ test.describe('フィルタ', () => {
     await goToBasicDemo(page)
     await openFilter(page, '在籍')
 
-    // サジェストから false を選択
-    await page.locator('[class*="suggestionItem"]', { hasText: 'false' }).click()
+    // false を選択して適用
+    const checkbox = page.locator('[class*="filterCheckItem"]', { hasText: 'false' })
+    await checkbox.locator('input[type="checkbox"]').check()
+    await page.locator('[class*="filterApply"]').click()
 
     // active=false の行のみ表示 (チェックボックスが unchecked)
     const checkboxes = page.locator('[data-col="4"] input[type="checkbox"]')
@@ -69,6 +78,8 @@ test.describe('フィルタ', () => {
     await openFilter(page, '名前')
     const input = page.locator('[class*="filterInput"]')
     await input.fill('Tanaka')
+    const checkbox = page.locator('[class*="filterCheckItem"]', { hasText: 'Tanaka Taro' })
+    await checkbox.locator('input[type="checkbox"]').check()
     await page.locator('[class*="filterApply"]').click()
     await expect(page.locator('[data-col="0"]')).toHaveCount(1)
 
@@ -79,5 +90,26 @@ test.describe('フィルタ', () => {
     // 全行が復帰
     const rows = page.locator('[data-col="0"]')
     await expect(rows).toHaveCount(20)
+  })
+
+  test('複数値の選択でフィルタ', async ({ page }) => {
+    await goToBasicDemo(page)
+    await openFilter(page, '部署')
+
+    // HR と Engineering を選択
+    const hr = page.locator('[class*="filterCheckItem"]', { hasText: 'HR' })
+    await hr.locator('input[type="checkbox"]').check()
+    const eng = page.locator('[class*="filterCheckItem"]', { hasText: 'Engineering' })
+    await eng.locator('input[type="checkbox"]').check()
+    await page.locator('[class*="filterApply"]').click()
+
+    // HR または Engineering のみ表示
+    const deptCells = page.locator('[data-col="5"]')
+    const count = await deptCells.count()
+    expect(count).toBeGreaterThan(0)
+    for (let i = 0; i < count; i++) {
+      const text = await deptCells.nth(i).textContent()
+      expect(text === 'HR' || text === 'Engineering').toBe(true)
+    }
   })
 })

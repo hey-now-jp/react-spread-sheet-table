@@ -18,6 +18,20 @@ type FilterPopoverProps<T> = {
   readonly anchorRef: React.RefObject<HTMLButtonElement | null>
 }
 
+function getSelectedSet(condition: FilterCondition | undefined): ReadonlySet<string> {
+  if (!condition) return new Set()
+  if (condition.type === 'in') {
+    return new Set(condition.values.map((v) => String(v)))
+  }
+  if (condition.type === 'eq') {
+    return new Set([String(condition.value)])
+  }
+  if (condition.type === 'contains') {
+    return new Set([condition.value])
+  }
+  return new Set()
+}
+
 function FilterPopoverInner<T>({
   column,
   store,
@@ -33,14 +47,11 @@ function FilterPopoverInner<T>({
 }: FilterPopoverProps<T>) {
   const popoverRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const [query, setQuery] = useState(() => {
-    if (!currentCondition) return ''
-    if (currentCondition.type === 'contains') return currentCondition.value
-    if (currentCondition.type === 'eq') return String(currentCondition.value ?? '')
-    return ''
-  })
-  const [highlightIndex, setHighlightIndex] = useState(-1)
-  const [position, setPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 })
+  const [query, setQuery] = useState('')
+  const [selected, setSelected] = useState<ReadonlySet<string>>(() =>
+    getSelectedSet(currentCondition),
+  )
+  const [position, setPosition] = useState<{ top: number; left: number } | null>(null)
 
   // Calculate position relative to anchor, flip if needed
   useLayoutEffect(() => {
@@ -53,7 +64,6 @@ function FilterPopoverInner<T>({
       const popoverRect = popover.getBoundingClientRect()
       const gap = 4
 
-      // Default: below the anchor, right-aligned
       let top = anchorRect.bottom + gap
       let left = anchorRect.right - popoverRect.width
 
@@ -62,7 +72,10 @@ function FilterPopoverInner<T>({
         top = anchorRect.top - popoverRect.height - gap
       }
 
-      // Clamp left so it doesn't go off-screen
+      // Clamp so it doesn't go off-screen
+      if (top < 4) {
+        top = 4
+      }
       if (left < 4) {
         left = 4
       }
@@ -72,7 +85,6 @@ function FilterPopoverInner<T>({
 
     updatePosition()
 
-    // Recalculate on scroll/resize (any scroll container)
     window.addEventListener('scroll', updatePosition, true)
     window.addEventListener('resize', updatePosition)
     return () => {
@@ -134,31 +146,35 @@ function FilterPopoverInner<T>({
     inputRef.current?.focus()
   }, [])
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: suggestions change triggers highlight reset intentionally
-  useEffect(() => {
-    setHighlightIndex(-1)
+  const handleToggle = useCallback((value: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(value)) {
+        next.delete(value)
+      } else {
+        next.add(value)
+      }
+      return next
+    })
+  }, [])
+
+  const handleSelectAll = useCallback(() => {
+    setSelected(new Set(suggestions))
   }, [suggestions])
 
-  const applyContains = useCallback(
-    (value: string) => {
-      if (value.trim() === '') return
-      if (column.type === 'text') {
-        onApply({ type: 'contains', value: value.trim() })
-      } else {
-        onApply({ type: 'eq', value: coerceValue(value.trim(), column) })
-      }
-      onClose()
-    },
-    [column, onApply, onClose],
-  )
+  const handleDeselectAll = useCallback(() => {
+    setSelected(new Set())
+  }, [])
 
-  const applyExact = useCallback(
-    (value: string) => {
-      onApply({ type: 'eq', value: coerceValue(value, column) })
-      onClose()
-    },
-    [column, onApply, onClose],
-  )
+  const handleApply = useCallback(() => {
+    if (selected.size === 0) {
+      onClear()
+    } else {
+      const values = [...selected].map((v) => coerceValue(v, column))
+      onApply({ type: 'in', values })
+    }
+    onClose()
+  }, [selected, column, onApply, onClear, onClose])
 
   const handleClear = useCallback(() => {
     onClear()
@@ -167,33 +183,11 @@ function FilterPopoverInner<T>({
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      switch (e.key) {
-        case 'ArrowDown': {
-          e.preventDefault()
-          setHighlightIndex((prev) => Math.min(prev + 1, suggestions.length - 1))
-          break
-        }
-        case 'ArrowUp': {
-          e.preventDefault()
-          setHighlightIndex((prev) => Math.max(prev - 1, -1))
-          break
-        }
-        case 'Enter': {
-          e.preventDefault()
-          if (highlightIndex >= 0 && highlightIndex < suggestions.length) {
-            applyExact(suggestions[highlightIndex])
-          } else {
-            applyContains(query)
-          }
-          break
-        }
-        case 'Escape': {
-          onClose()
-          break
-        }
+      if (e.key === 'Escape') {
+        onClose()
       }
     },
-    [suggestions, highlightIndex, query, applyExact, applyContains, onClose],
+    [onClose],
   )
 
   const handleSortAsc = useCallback(() => {
@@ -206,11 +200,15 @@ function FilterPopoverInner<T>({
     onClose()
   }, [currentSortDir, onSort, onClose])
 
+  const allVisible = suggestions.length > 0 && suggestions.every((v) => selected.has(v))
+
   const popover = (
     <div
       ref={popoverRef}
       className={styles.filterPopover}
-      style={{ top: position.top, left: position.left }}
+      style={
+        position ? { top: position.top, left: position.left } : { visibility: 'hidden' as const }
+      }
       onClick={(e) => e.stopPropagation()}
     >
       {sortable && (
@@ -244,21 +242,30 @@ function FilterPopoverInner<T>({
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
           />
+          <div className={styles.filterSelectActions}>
+            <button
+              type="button"
+              className={styles.filterSelectButton}
+              onClick={allVisible ? handleDeselectAll : handleSelectAll}
+            >
+              {allVisible ? '全解除' : '全選択'}
+            </button>
+            {selected.size > 0 && (
+              <span className={styles.filterSelectedCount}>{selected.size}件選択中</span>
+            )}
+          </div>
           {suggestions.length > 0 && (
             <ul className={styles.suggestionList}>
-              {suggestions.map((value, i) => (
+              {suggestions.map((value) => (
                 <li key={value}>
-                  <button
-                    type="button"
-                    className={`${styles.suggestionItem} ${i === highlightIndex ? styles.suggestionHighlight : ''}`}
-                    onMouseEnter={() => setHighlightIndex(i)}
-                    onMouseDown={(e) => {
-                      e.preventDefault()
-                      applyExact(value)
-                    }}
-                  >
-                    {highlightText(value, query)}
-                  </button>
+                  <label className={styles.filterCheckItem}>
+                    <input
+                      type="checkbox"
+                      checked={selected.has(value)}
+                      onChange={() => handleToggle(value)}
+                    />
+                    <span>{highlightText(value, query)}</span>
+                  </label>
                 </li>
               ))}
             </ul>
@@ -273,7 +280,7 @@ function FilterPopoverInner<T>({
             <button
               type="button"
               className={`${styles.filterActionButton} ${styles.filterApply}`}
-              onClick={() => applyContains(query)}
+              onClick={handleApply}
             >
               適用
             </button>
