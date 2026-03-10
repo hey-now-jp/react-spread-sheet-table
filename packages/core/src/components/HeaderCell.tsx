@@ -156,7 +156,13 @@ function HeaderCellInner<T>({
             }}
             aria-label="列メニュー"
           >
-            {'\u25BC'}
+            {currentFilter ? (
+              <span className={styles.filterIcon} />
+            ) : currentSortDir === 'asc' ? (
+              '\u25B2'
+            ) : (
+              '\u25BC'
+            )}
           </button>
           {menuOpen && (
             <FilterPopover
