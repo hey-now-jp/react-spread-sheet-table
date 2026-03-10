@@ -104,6 +104,18 @@ function FilterPopoverInner<T>({
     return () => document.removeEventListener('mousedown', handleMouseDown)
   }, [onClose])
 
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        onClose()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
+
   // Extract unique values from column data
   const uniqueValues = useMemo(() => {
     const rows = store.getRows()
@@ -141,9 +153,13 @@ function FilterPopoverInner<T>({
     return uniqueValues.filter((v) => v.toLowerCase().includes(lower))
   }, [uniqueValues, query])
 
-  // Auto-focus input on mount
+  // Auto-focus: input if filterable, otherwise the popover itself
   useEffect(() => {
-    inputRef.current?.focus()
+    if (inputRef.current) {
+      inputRef.current.focus()
+    } else {
+      popoverRef.current?.focus()
+    }
   }, [])
 
   const handleToggle = useCallback((value: string) => {
@@ -181,15 +197,6 @@ function FilterPopoverInner<T>({
     onClose()
   }, [onClear, onClose])
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose()
-      }
-    },
-    [onClose],
-  )
-
   const handleSortAsc = useCallback(() => {
     onSort(currentSortDir === 'asc' ? null : 'asc')
     onClose()
@@ -209,6 +216,7 @@ function FilterPopoverInner<T>({
       style={
         position ? { top: position.top, left: position.left } : { visibility: 'hidden' as const }
       }
+      tabIndex={-1}
       onClick={(e) => e.stopPropagation()}
     >
       {sortable && (
@@ -240,7 +248,6 @@ function FilterPopoverInner<T>({
             placeholder="検索..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
           />
           <div className={styles.filterSelectActions}>
             <button
@@ -282,7 +289,7 @@ function FilterPopoverInner<T>({
               className={`${styles.filterActionButton} ${styles.filterApply}`}
               onClick={handleApply}
             >
-              適用
+              検索
             </button>
           </div>
         </>
