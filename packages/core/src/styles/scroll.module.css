@@ -1,5 +1,5 @@
 .scrollContainer {
-  overflow-y: auto;
+  overflow: auto;
   position: relative;
 }
 
@@ -10,5 +10,4 @@
 .visibleRows {
   position: absolute;
   left: 0;
-  right: 0;
 }

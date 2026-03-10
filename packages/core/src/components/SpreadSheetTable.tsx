@@ -586,19 +586,19 @@ function SpreadSheetTableInner<T>({
       tabIndex={0}
     >
       <Toast store={store} />
-      <HeaderRow
-        columns={columns}
-        store={store}
-        sortable={sortable}
-        filterable={filterable}
-        reorderable={canReorder}
-        resizable={table.resizable}
-      />
       <div
         ref={virtualScroll.containerRef}
         className={scrollStyles.scrollContainer}
         style={{ height }}
       >
+        <HeaderRow
+          columns={columns}
+          store={store}
+          sortable={sortable}
+          filterable={filterable}
+          reorderable={canReorder}
+          resizable={table.resizable}
+        />
         <div className={scrollStyles.spacer} style={{ height: virtualScroll.totalHeight }}>
           <div
             className={scrollStyles.visibleRows}
