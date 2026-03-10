@@ -36,6 +36,7 @@
   width: 40px;
   flex-shrink: 0;
   border-right: 1px solid var(--sst-border-color);
+  box-sizing: border-box;
   cursor: pointer;
 }
 
