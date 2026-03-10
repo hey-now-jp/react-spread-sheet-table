@@ -11,6 +11,11 @@ import type {
   SortState,
 } from '../types'
 import {
+  type ColumnWidthSlice,
+  createColumnWidthSlice,
+  setColumnWidth as setColumnWidthSlice,
+} from './column-width-slice'
+import {
   createDataSlice,
   type DataSlice,
   getChangedRows as getChangedRowsFromSlice,
@@ -124,6 +129,10 @@ export type TableStore<T> = {
   beginBatch(): void
   endBatch(): void
 
+  // Column widths
+  getColumnWidth(columnKey: string): number | undefined
+  setColumnWidth(columnKey: string, width: number): void
+
   // Subscriptions
   subscribe(listener: () => void): () => void
   getSnapshot(): number
@@ -142,6 +151,7 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
   let filterSlice: FilterSlice<T> = createFilterSlice<T>()
   let editSlice: EditSlice = createEditSlice()
   let historySlice: HistorySlice<T> = createHistorySlice<T>()
+  let columnWidthSlice: ColumnWidthSlice = createColumnWidthSlice()
   let batchChanges: Array<{
     rowIndex: number
     columnKey: keyof T
@@ -442,6 +452,13 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
         })
       }
       batchChanges = null
+    },
+
+    // Column widths
+    getColumnWidth: (columnKey) => columnWidthSlice.widths.get(columnKey),
+    setColumnWidth: (columnKey, width) => {
+      columnWidthSlice = setColumnWidthSlice(columnWidthSlice, columnKey, width)
+      notify()
     },
 
     // Subscriptions

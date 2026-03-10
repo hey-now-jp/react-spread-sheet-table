@@ -19,6 +19,7 @@
   box-sizing: border-box;
   white-space: nowrap;
   flex-shrink: 0;
+  position: relative;
 }
 
 .headerCell:focus {
@@ -76,4 +77,20 @@
 .menuButtonActive {
   opacity: 1;
   color: var(--sst-selected-border);
+}
+
+.resizeHandle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 3;
+  background: transparent;
+}
+
+.resizeHandle:hover,
+.resizeHandle:active {
+  background: var(--sst-selected-border);
 }

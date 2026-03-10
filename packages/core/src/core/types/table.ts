@@ -37,6 +37,8 @@ export type UseSpreadSheetTableOptions<T> = {
   readonly validate?: (value: unknown, row: T, columnKey: keyof T) => ValidationResult | null
   readonly reorderable?: boolean
   readonly onReorder?: (newData: ReadonlyArray<T>) => void
+  readonly resizable?: boolean
+  readonly onColumnResize?: (columnKey: string, width: number) => void
 }
 
 // ---------------------------------------------------------------------------
@@ -80,6 +82,9 @@ export type TableInstance<T> = {
 
   // Reorder
   readonly reorderable: boolean
+
+  // Resize
+  readonly resizable: boolean
 }
 
 // ---------------------------------------------------------------------------

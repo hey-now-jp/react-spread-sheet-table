@@ -14,7 +14,9 @@ type ActionCellProps<T> = {
 
 function ActionCellInner<T>({ column, row, rowIndex, colIndex, store }: ActionCellProps<T>) {
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
-  const width = column.width ?? 150
+  const defaultWidth = column.width ?? 150
+  const dynamicWidth = store.getColumnWidth(String(column.key))
+  const width = dynamicWidth ?? defaultWidth
 
   const selection = store.getSelection()
   const isSelected = isInSelection(selection, rowIndex, colIndex)

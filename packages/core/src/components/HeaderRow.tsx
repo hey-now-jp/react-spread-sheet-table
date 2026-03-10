@@ -11,9 +11,10 @@ type HeaderRowProps<T> = {
   readonly sortable: boolean
   readonly filterable: boolean
   readonly reorderable?: boolean
+  readonly resizable: boolean
 }
 
-function HeaderRowInner<T>({ columns, store, sortable, filterable }: HeaderRowProps<T>) {
+function HeaderRowInner<T>({ columns, store, sortable, filterable, resizable }: HeaderRowProps<T>) {
   const handleSelectAll = useCallback(() => {
     const rows = store.getRows()
     if (rows.length === 0 || columns.length === 0) return
@@ -32,6 +33,7 @@ function HeaderRowInner<T>({ columns, store, sortable, filterable }: HeaderRowPr
           store={store}
           sortable={sortable}
           filterable={filterable}
+          resizable={resizable}
         />
       ))}
     </div>

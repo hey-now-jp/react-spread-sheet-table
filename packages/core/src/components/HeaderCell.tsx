@@ -5,15 +5,25 @@ import { isActionColumn, isDataColumn } from '../core/types'
 import styles from '../styles/header.module.css'
 import { FilterPopover } from './FilterPopover'
 
+const MIN_COLUMN_WIDTH = 50
+
 type HeaderCellProps<T> = {
   readonly column: ColumnDef<T>
   readonly colIndex: number
   readonly store: TableStore<T>
   readonly sortable: boolean
   readonly filterable: boolean
+  readonly resizable: boolean
 }
 
-function HeaderCellInner<T>({ column, colIndex, store, sortable, filterable }: HeaderCellProps<T>) {
+function HeaderCellInner<T>({
+  column,
+  colIndex,
+  store,
+  sortable,
+  filterable,
+  resizable,
+}: HeaderCellProps<T>) {
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
   const menuButtonRef = useRef<HTMLButtonElement>(null)
 
@@ -74,7 +84,36 @@ function HeaderCellInner<T>({ column, colIndex, store, sortable, filterable }: H
     store.clearFilter((column as DataColumnDef<T>).key as keyof T)
   }, [isData, store, column])
 
-  const width = column.width ?? 150
+  const defaultWidth = column.width ?? 150
+  const dynamicWidth = store.getColumnWidth(String(column.key))
+  const width = dynamicWidth ?? defaultWidth
+
+  const resizeStartRef = useRef<{ startX: number; startWidth: number } | null>(null)
+
+  const handleResizeStart = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      resizeStartRef.current = { startX: e.clientX, startWidth: width }
+
+      const handleMouseMove = (moveEvent: MouseEvent) => {
+        if (resizeStartRef.current === null) return
+        const delta = moveEvent.clientX - resizeStartRef.current.startX
+        const newWidth = Math.max(MIN_COLUMN_WIDTH, resizeStartRef.current.startWidth + delta)
+        store.setColumnWidth(String(column.key), newWidth)
+      }
+
+      const handleMouseUp = () => {
+        resizeStartRef.current = null
+        document.removeEventListener('mousemove', handleMouseMove)
+        document.removeEventListener('mouseup', handleMouseUp)
+      }
+
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+    },
+    [width, store, column.key],
+  )
 
   return (
     <div
@@ -122,6 +161,13 @@ function HeaderCellInner<T>({ column, colIndex, store, sortable, filterable }: H
             />
           )}
         </>
+      )}
+      {resizable && (
+        <div
+          className={styles.resizeHandle}
+          onMouseDown={handleResizeStart}
+          onClick={(e) => e.stopPropagation()}
+        />
       )}
     </div>
   )

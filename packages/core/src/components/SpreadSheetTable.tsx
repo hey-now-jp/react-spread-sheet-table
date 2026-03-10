@@ -592,6 +592,7 @@ function SpreadSheetTableInner<T>({
         sortable={sortable}
         filterable={filterable}
         reorderable={canReorder}
+        resizable={table.resizable}
       />
       <div
         ref={virtualScroll.containerRef}

@@ -101,6 +101,9 @@ export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): 
 
     // Reorder
     reorderable: options.reorderable ?? false,
+
+    // Resize
+    resizable: options.resizable ?? true,
   }
 
   // Attach store for internal component access

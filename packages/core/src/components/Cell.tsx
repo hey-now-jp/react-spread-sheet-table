@@ -52,7 +52,9 @@ function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChang
   const hasClipboardEdge = cbEdges.top || cbEdges.bottom || cbEdges.left || cbEdges.right
 
   const isReadOnly = readOnly || column.readOnly === true
-  const width = column.width ?? 150
+  const defaultWidth = column.width ?? 150
+  const dynamicWidth = store.getColumnWidth(String(column.key))
+  const width = dynamicWidth ?? defaultWidth
 
   const handleDoubleClick = useCallback(() => {
     if (isReadOnly) return
