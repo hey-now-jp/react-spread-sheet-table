@@ -49,14 +49,27 @@ function HeaderCellInner<T>({
 
   const isActive = currentSortDir !== null || currentFilter !== undefined
 
-  const handleColumnSelect = useCallback(() => {
-    const rows = store.getRows()
-    if (rows.length === 0) return
-    store.setActiveCell({ rowIndex: 0, colIndex })
-    if (rows.length > 1) {
-      store.extendSelection({ rowIndex: rows.length - 1, colIndex })
-    }
-  }, [store, colIndex])
+  const handleColumnSelect = useCallback(
+    (e: React.MouseEvent) => {
+      const rows = store.getRows()
+      if (rows.length === 0) return
+      const lastRow = rows.length - 1
+
+      if (e.shiftKey && store.getSelection().activeCell !== null) {
+        const active = store.getSelection().activeCell
+        if (active) {
+          store.setActiveCell({ rowIndex: 0, colIndex: active.colIndex })
+          store.extendSelection({ rowIndex: lastRow, colIndex })
+        }
+      } else {
+        store.setActiveCell({ rowIndex: 0, colIndex })
+        if (lastRow > 0) {
+          store.extendSelection({ rowIndex: lastRow, colIndex })
+        }
+      }
+    },
+    [store, colIndex],
+  )
 
   const handleSort = useCallback(
     (direction: SortDirection | null) => {

@@ -23,35 +23,32 @@ function RowHeaderInner<T>({
   listeners,
   attributes,
 }: RowHeaderProps<T>) {
-  const handleMouseDown = useCallback(
+  const selectRow = useCallback(
     (e: React.MouseEvent) => {
-      if (draggable) return
       e.stopPropagation()
-      store.setActiveCell({ rowIndex: dataRowIndex, colIndex: 0 })
-      if (colCount > 1) {
-        store.extendSelection({ rowIndex: dataRowIndex, colIndex: colCount - 1 })
-      }
-    },
-    [store, dataRowIndex, colCount, draggable],
-  )
+      const lastCol = colCount - 1
 
-  const handleClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (!draggable) return
-      e.stopPropagation()
-      store.setActiveCell({ rowIndex: dataRowIndex, colIndex: 0 })
-      if (colCount > 1) {
-        store.extendSelection({ rowIndex: dataRowIndex, colIndex: colCount - 1 })
+      if (e.shiftKey && store.getSelection().activeCell !== null) {
+        const active = store.getSelection().activeCell
+        if (active) {
+          store.setActiveCell({ rowIndex: active.rowIndex, colIndex: 0 })
+          store.extendSelection({ rowIndex: dataRowIndex, colIndex: lastCol })
+        }
+      } else {
+        store.setActiveCell({ rowIndex: dataRowIndex, colIndex: 0 })
+        if (lastCol > 0) {
+          store.extendSelection({ rowIndex: dataRowIndex, colIndex: lastCol })
+        }
       }
     },
-    [store, dataRowIndex, colCount, draggable],
+    [store, dataRowIndex, colCount],
   )
 
   return (
     <div
       className={`${styles.rowHeader} ${draggable ? styles.draggable : ''}`}
-      onMouseDown={draggable ? undefined : handleMouseDown}
-      onClick={draggable ? handleClick : undefined}
+      onMouseDown={draggable ? undefined : selectRow}
+      onClick={draggable ? selectRow : undefined}
       {...(draggable ? listeners : undefined)}
       {...(draggable ? attributes : undefined)}
     >
