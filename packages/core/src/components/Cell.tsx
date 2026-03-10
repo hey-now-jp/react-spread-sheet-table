@@ -132,6 +132,8 @@ function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChang
       : undefined),
   }
 
+  const displayValue = formatDisplayValue(value, column)
+
   return (
     <div
       ref={cellRef}
@@ -153,7 +155,9 @@ function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChang
         />
       ) : (
         <>
-          <span className={styles.cellContent}>{formatDisplayValue(value, column)}</span>
+          <span className={styles.cellContent} title={displayValue}>
+            {displayValue}
+          </span>
           {(column.type === 'list' || column.type === 'multiList') && (
             <span className={styles.dropdownIcon} />
           )}
