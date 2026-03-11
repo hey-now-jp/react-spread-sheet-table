@@ -2,7 +2,8 @@
   position: fixed;
   min-width: 220px;
   max-height: calc(100vh - 8px);
-  background: #fff;
+  background: var(--sst-popup-bg);
+  color: var(--sst-popup-color);
   border: 1px solid var(--sst-border-color);
   border-radius: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -61,6 +62,8 @@
   font-family: var(--sst-font-family);
   font-size: var(--sst-font-size);
   box-sizing: border-box;
+  background: var(--sst-popup-bg);
+  color: var(--sst-popup-color);
 }
 
 .filterInput:focus {
@@ -94,7 +97,7 @@
 }
 
 .filterCheckItem:hover {
-  background: var(--sst-hover-bg, #f5f5f5);
+  background: var(--sst-hover-bg);
 }
 
 .filterCheckItem input[type="checkbox"] {
@@ -127,7 +130,7 @@
 
 .filterSelectedCount {
   font-size: 12px;
-  color: #888;
+  color: var(--sst-text-secondary);
 }
 
 .highlightMark {
@@ -138,7 +141,7 @@
 .noResults {
   padding: 8px;
   text-align: center;
-  color: #999;
+  color: var(--sst-text-secondary);
   font-size: 12px;
 }
 
@@ -153,7 +156,8 @@
   padding: 4px 12px;
   border: 1px solid var(--sst-border-color);
   border-radius: 4px;
-  background: #fff;
+  background: var(--sst-popup-bg);
+  color: var(--sst-popup-color);
   cursor: pointer;
   font-family: var(--sst-font-family);
   font-size: 12px;
