@@ -48,6 +48,7 @@ type SpreadSheetTableComponentProps<T> = {
 
 const DEFAULT_HEIGHT = 400
 const ROW_HEIGHT = 32
+const ROW_HEADER_WIDTH = 40
 
 /**
  * Excel-style Cmd+Arrow jump: find the boundary where cell value
@@ -217,7 +218,22 @@ function SpreadSheetTableInner<T>({
     [sortedFilteredIndices, virtualScroll.visibleStart, virtualScroll.visibleEnd],
   )
 
-  const { sortable, filterable } = table
+  const { sortable, filterable, frozenColumns } = table
+
+  const frozenCount = Math.max(0, Math.min(frozenColumns ?? 0, columns.length))
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: store.getSnapshot() triggers recalc on column resize
+  const frozenLeftOffsets: ReadonlyArray<number> = useMemo(() => {
+    if (frozenCount === 0) return []
+    const offsets: number[] = []
+    let acc = ROW_HEADER_WIDTH
+    for (let i = 0; i < frozenCount; i++) {
+      offsets.push(acc)
+      const col = columns[i]
+      acc += store.getColumnWidth(String(col.key)) ?? col.width ?? 150
+    }
+    return offsets
+  }, [frozenCount, columns, store.getColumnWidth, store.getSnapshot()])
 
   // DnD reorder
   const canReorder =
@@ -598,6 +614,7 @@ function SpreadSheetTableInner<T>({
           filterable={filterable}
           reorderable={canReorder}
           resizable={table.resizable}
+          frozenLeftOffsets={frozenLeftOffsets}
         />
         <div className={scrollStyles.spacer} style={{ height: virtualScroll.totalHeight }}>
           <div
@@ -622,6 +639,7 @@ function SpreadSheetTableInner<T>({
                       store={store}
                       readOnly={readOnly}
                       onCellChange={handleCellChange}
+                      frozenLeftOffsets={frozenLeftOffsets}
                     />
                   ))}
                 </SortableContext>
@@ -636,6 +654,7 @@ function SpreadSheetTableInner<T>({
                       dataRowIndex={dataRowIndex}
                       colCount={columns.length}
                       store={store}
+                      frozen={frozenLeftOffsets.length > 0}
                     />
                     <TableRow
                       columns={columns}
@@ -644,6 +663,7 @@ function SpreadSheetTableInner<T>({
                       store={store}
                       readOnly={readOnly}
                       onCellChange={handleCellChange}
+                      frozenLeftOffsets={frozenLeftOffsets}
                     />
                   </div>
                 )

@@ -12,9 +12,17 @@ type HeaderRowProps<T> = {
   readonly filterable: boolean
   readonly reorderable?: boolean
   readonly resizable: boolean
+  readonly frozenLeftOffsets: ReadonlyArray<number>
 }
 
-function HeaderRowInner<T>({ columns, store, sortable, filterable, resizable }: HeaderRowProps<T>) {
+function HeaderRowInner<T>({
+  columns,
+  store,
+  sortable,
+  filterable,
+  resizable,
+  frozenLeftOffsets,
+}: HeaderRowProps<T>) {
   const handleSelectAll = useCallback(() => {
     const rows = store.getRows()
     if (rows.length === 0 || columns.length === 0) return
@@ -22,20 +30,40 @@ function HeaderRowInner<T>({ columns, store, sortable, filterable, resizable }: 
     store.extendSelection({ rowIndex: rows.length - 1, colIndex: columns.length - 1 })
   }, [store, columns])
 
+  const isFrozen = frozenLeftOffsets.length > 0
+
+  const selectAllClassName = [
+    rowHeaderStyles.selectAllCell,
+    isFrozen ? rowHeaderStyles.frozenSelectAllCell : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+
   return (
     <div className={styles.headerRow}>
-      <div className={rowHeaderStyles.selectAllCell} onClick={handleSelectAll} />
-      {columns.map((column, colIndex) => (
-        <HeaderCell
-          key={String(column.key)}
-          column={column}
-          colIndex={colIndex}
-          store={store}
-          sortable={sortable}
-          filterable={filterable}
-          resizable={resizable}
-        />
-      ))}
+      <div className={selectAllClassName} onClick={handleSelectAll} />
+      {columns.map((column, colIndex) => {
+        const stickyLeft =
+          colIndex < frozenLeftOffsets.length ? frozenLeftOffsets[colIndex] : undefined
+        const isFrozenLast =
+          frozenLeftOffsets.length > 0 &&
+          colIndex === frozenLeftOffsets.length - 1 &&
+          frozenLeftOffsets.length < columns.length
+
+        return (
+          <HeaderCell
+            key={String(column.key)}
+            column={column}
+            colIndex={colIndex}
+            store={store}
+            sortable={sortable}
+            filterable={filterable}
+            resizable={resizable}
+            stickyLeft={stickyLeft}
+            isFrozenLast={isFrozenLast}
+          />
+        )
+      })}
     </div>
   )
 }

@@ -12,6 +12,7 @@ type RowHeaderProps<T> = {
   readonly draggable?: boolean
   readonly listeners?: SyntheticListenerMap
   readonly attributes?: DraggableAttributes
+  readonly frozen?: boolean
 }
 
 function RowHeaderInner<T>({
@@ -22,6 +23,7 @@ function RowHeaderInner<T>({
   draggable,
   listeners,
   attributes,
+  frozen,
 }: RowHeaderProps<T>) {
   const selectRow = useCallback(
     (e: React.MouseEvent) => {
@@ -46,7 +48,7 @@ function RowHeaderInner<T>({
 
   return (
     <div
-      className={`${styles.rowHeader} ${draggable ? styles.draggable : ''}`}
+      className={`${styles.rowHeader} ${draggable ? styles.draggable : ''} ${frozen ? styles.frozenRowHeader : ''}`}
       onMouseDown={draggable ? undefined : selectRow}
       onClick={draggable ? selectRow : undefined}
       {...(draggable ? listeners : undefined)}

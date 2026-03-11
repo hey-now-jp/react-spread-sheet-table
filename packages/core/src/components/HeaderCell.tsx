@@ -14,6 +14,8 @@ type HeaderCellProps<T> = {
   readonly sortable: boolean
   readonly filterable: boolean
   readonly resizable: boolean
+  readonly stickyLeft?: number
+  readonly isFrozenLast?: boolean
 }
 
 function HeaderCellInner<T>({
@@ -23,6 +25,8 @@ function HeaderCellInner<T>({
   sortable,
   filterable,
   resizable,
+  stickyLeft,
+  isFrozenLast,
 }: HeaderCellProps<T>) {
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
   const menuButtonRef = useRef<HTMLButtonElement>(null)
@@ -128,10 +132,27 @@ function HeaderCellInner<T>({
     [width, store, column.key],
   )
 
+  const isFrozen = stickyLeft !== undefined
+
+  const headerCellClassName = [
+    styles.headerCell,
+    currentFilter ? styles.headerFiltered : '',
+    isFrozen ? styles.frozenHeaderCell : '',
+    isFrozenLast ? styles.frozenLastHeaderCell : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+
+  const headerCellStyle: React.CSSProperties = {
+    width,
+    minWidth: width,
+    ...(isFrozen ? { left: stickyLeft } : undefined),
+  }
+
   return (
     <div
-      className={`${styles.headerCell} ${currentFilter ? styles.headerFiltered : ''}`}
-      style={{ width, minWidth: width }}
+      className={headerCellClassName}
+      style={headerCellStyle}
       onClick={handleColumnSelect}
       data-sort={currentSortDir ?? undefined}
     >

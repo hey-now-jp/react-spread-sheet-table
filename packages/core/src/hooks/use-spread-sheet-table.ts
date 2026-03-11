@@ -104,6 +104,9 @@ export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): 
 
     // Resize
     resizable: options.resizable ?? true,
+
+    // Frozen columns
+    frozenColumns: options.frozenColumns ?? 0,
   }
 
   // Attach store for internal component access

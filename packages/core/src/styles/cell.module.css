@@ -7,8 +7,26 @@
   background: var(--sst-row-bg);
 }
 
+.rowEven > .frozenCell {
+  background: var(--sst-row-bg);
+}
+
 .rowOdd {
   background: var(--sst-row-alt-bg);
+}
+
+.rowOdd > .frozenCell {
+  background: var(--sst-row-alt-bg);
+}
+
+.rowEven > .frozenCell.selected,
+.rowOdd > .frozenCell.selected {
+  background: var(--sst-selected-bg);
+}
+
+.rowEven > .frozenCell.readOnlyCell,
+.rowOdd > .frozenCell.readOnlyCell {
+  background: var(--sst-readonly-bg);
 }
 
 .cell {
@@ -65,6 +83,26 @@
   outline: 2px solid var(--sst-selected-border);
   outline-offset: -2px;
   z-index: 1;
+}
+
+.frozenCell {
+  position: sticky;
+  z-index: 3;
+}
+
+.frozenLastCell::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -4px;
+  bottom: 0;
+  width: 4px;
+  box-shadow: var(--sst-frozen-shadow);
+  pointer-events: none;
+}
+
+.frozenCell.activeCell {
+  z-index: 4;
 }
 
 .readOnlyCell {

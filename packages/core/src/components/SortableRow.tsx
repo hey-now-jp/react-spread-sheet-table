@@ -15,6 +15,7 @@ type SortableRowProps<T> = {
   readonly store: TableStore<T>
   readonly readOnly: boolean
   readonly onCellChange: (rowIndex: number, columnKey: keyof T, value: T[keyof T]) => void
+  readonly frozenLeftOffsets: ReadonlyArray<number>
 }
 
 function SortableRowInner<T>({
@@ -25,6 +26,7 @@ function SortableRowInner<T>({
   store,
   readOnly,
   onCellChange,
+  frozenLeftOffsets,
 }: SortableRowProps<T>) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
@@ -46,6 +48,7 @@ function SortableRowInner<T>({
         draggable
         listeners={listeners}
         attributes={attributes}
+        frozen={frozenLeftOffsets.length > 0}
       />
       <TableRow
         columns={columns}
@@ -54,6 +57,7 @@ function SortableRowInner<T>({
         store={store}
         readOnly={readOnly}
         onCellChange={onCellChange}
+        frozenLeftOffsets={frozenLeftOffsets}
       />
     </div>
   )

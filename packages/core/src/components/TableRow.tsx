@@ -13,6 +13,7 @@ type TableRowProps<T> = {
   readonly store: TableStore<T>
   readonly readOnly: boolean
   readonly onCellChange: (rowIndex: number, columnKey: keyof T, value: T[keyof T]) => void
+  readonly frozenLeftOffsets: ReadonlyArray<number>
 }
 
 function TableRowInner<T>({
@@ -22,6 +23,7 @@ function TableRowInner<T>({
   store,
   readOnly,
   onCellChange,
+  frozenLeftOffsets,
 }: TableRowProps<T>) {
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
   const row = store.getRows()[dataRowIndex]
@@ -33,6 +35,13 @@ function TableRowInner<T>({
       data-rowindex={displayRowIndex}
     >
       {columns.map((column, colIndex) => {
+        const stickyLeft =
+          colIndex < frozenLeftOffsets.length ? frozenLeftOffsets[colIndex] : undefined
+        const isFrozenLast =
+          frozenLeftOffsets.length > 0 &&
+          colIndex === frozenLeftOffsets.length - 1 &&
+          frozenLeftOffsets.length < columns.length
+
         if (isActionColumn(column)) {
           return (
             <ActionCell
@@ -42,6 +51,8 @@ function TableRowInner<T>({
               rowIndex={dataRowIndex}
               colIndex={colIndex}
               store={store}
+              stickyLeft={stickyLeft}
+              isFrozenLast={isFrozenLast}
             />
           )
         }
@@ -56,6 +67,8 @@ function TableRowInner<T>({
               store={store}
               readOnly={readOnly}
               onCellChange={onCellChange}
+              stickyLeft={stickyLeft}
+              isFrozenLast={isFrozenLast}
             />
           )
         }

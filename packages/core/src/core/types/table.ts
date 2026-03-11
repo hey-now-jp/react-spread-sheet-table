@@ -39,6 +39,7 @@ export type UseSpreadSheetTableOptions<T> = {
   readonly onReorder?: (newData: ReadonlyArray<T>) => void
   readonly resizable?: boolean
   readonly onColumnResize?: (columnKey: string, width: number) => void
+  readonly frozenColumns?: number
 }
 
 // ---------------------------------------------------------------------------
@@ -85,6 +86,9 @@ export type TableInstance<T> = {
 
   // Resize
   readonly resizable: boolean
+
+  // Frozen columns
+  readonly frozenColumns: number
 }
 
 // ---------------------------------------------------------------------------

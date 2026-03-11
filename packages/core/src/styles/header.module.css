@@ -5,7 +5,7 @@
   border-bottom: 2px solid var(--sst-border-color);
   position: sticky;
   top: 0;
-  z-index: 2;
+  z-index: 5;
   min-width: fit-content;
 }
 
@@ -93,6 +93,27 @@
   -webkit-mask-repeat: no-repeat;
   -webkit-mask-position: center;
   -webkit-mask-size: contain;
+}
+
+.frozenHeaderCell {
+  position: sticky;
+  z-index: 6;
+}
+
+.frozenHeaderCell,
+.frozenHeaderCell:hover {
+  background: var(--sst-header-bg);
+}
+
+.frozenLastHeaderCell::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -4px;
+  bottom: 0;
+  width: 4px;
+  box-shadow: var(--sst-frozen-shadow);
+  pointer-events: none;
 }
 
 .resizeHandle {

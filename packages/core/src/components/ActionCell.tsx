@@ -10,9 +10,19 @@ type ActionCellProps<T> = {
   readonly rowIndex: number
   readonly colIndex: number
   readonly store: TableStore<T>
+  readonly stickyLeft?: number
+  readonly isFrozenLast?: boolean
 }
 
-function ActionCellInner<T>({ column, row, rowIndex, colIndex, store }: ActionCellProps<T>) {
+function ActionCellInner<T>({
+  column,
+  row,
+  rowIndex,
+  colIndex,
+  store,
+  stickyLeft,
+  isFrozenLast,
+}: ActionCellProps<T>) {
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
   const defaultWidth = column.width ?? 150
   const dynamicWidth = store.getColumnWidth(String(column.key))
@@ -23,6 +33,8 @@ function ActionCellInner<T>({ column, row, rowIndex, colIndex, store }: ActionCe
   const isActive = isActiveCell(selection, rowIndex, colIndex)
   const edges = getSelectionEdges(selection, rowIndex, colIndex)
 
+  const isFrozen = stickyLeft !== undefined
+
   const cellClassName = [
     styles.cell,
     isSelected && !isActive ? styles.selected : '',
@@ -32,17 +44,20 @@ function ActionCellInner<T>({ column, row, rowIndex, colIndex, store }: ActionCe
     edges.left ? styles.selectionLeft : '',
     edges.right ? styles.selectionRight : '',
     styles.readOnlyCell,
+    isFrozen ? styles.frozenCell : '',
+    isFrozenLast ? styles.frozenLastCell : '',
   ]
     .filter(Boolean)
     .join(' ')
 
+  const cellStyle: React.CSSProperties = {
+    width,
+    minWidth: width,
+    ...(isFrozen ? { left: stickyLeft } : undefined),
+  }
+
   return (
-    <div
-      className={cellClassName}
-      style={{ width, minWidth: width }}
-      data-row={rowIndex}
-      data-col={colIndex}
-    >
+    <div className={cellClassName} style={cellStyle} data-row={rowIndex} data-col={colIndex}>
       {column.render(row, rowIndex)}
     </div>
   )

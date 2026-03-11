@@ -19,9 +19,20 @@ type CellProps<T> = {
   readonly store: TableStore<T>
   readonly readOnly: boolean
   readonly onCellChange: (rowIndex: number, columnKey: keyof T, value: T[keyof T]) => void
+  readonly stickyLeft?: number
+  readonly isFrozenLast?: boolean
 }
 
-function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChange }: CellProps<T>) {
+function CellInner<T>({
+  column,
+  rowIndex,
+  colIndex,
+  store,
+  readOnly,
+  onCellChange,
+  stickyLeft,
+  isFrozenLast,
+}: CellProps<T>) {
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
   const cellRef = useRef<HTMLDivElement>(null)
   const [showTooltip, setShowTooltip] = useState(false)
@@ -101,6 +112,8 @@ function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChang
   const marchGradientH = `repeating-linear-gradient(90deg, var(--sst-clipboard-border) 0 4px, transparent 4px 8px)`
   const marchGradientV = `repeating-linear-gradient(180deg, var(--sst-clipboard-border) 0 4px, transparent 4px 8px)`
 
+  const isFrozen = stickyLeft !== undefined
+
   const cellClassName = [
     styles.cell,
     isSelected && !isActive ? styles.selected : '',
@@ -115,6 +128,8 @@ function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChang
     column.type === 'number' ? styles.numberCell : '',
     column.type === 'boolean' ? styles.booleanCell : '',
     isReadOnly ? styles.readOnlyCell : '',
+    isFrozen ? styles.frozenCell : '',
+    isFrozenLast ? styles.frozenLastCell : '',
   ]
     .filter(Boolean)
     .join(' ')
@@ -122,6 +137,7 @@ function CellInner<T>({ column, rowIndex, colIndex, store, readOnly, onCellChang
   const cellStyle: React.CSSProperties = {
     width,
     minWidth: width,
+    ...(isFrozen ? { left: stickyLeft } : undefined),
     ...(hasClipboardEdge
       ? ({
           '--cb-top': cbEdges.top ? marchGradientH : 'none',
