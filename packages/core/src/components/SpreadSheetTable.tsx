@@ -654,7 +654,7 @@ function SpreadSheetTableInner<T>({
                       dataRowIndex={dataRowIndex}
                       colCount={columns.length}
                       store={store}
-                      frozen={frozenLeftOffsets.length > 0}
+                      frozen
                     />
                     <TableRow
                       columns={columns}

@@ -30,14 +30,7 @@ function HeaderRowInner<T>({
     store.extendSelection({ rowIndex: rows.length - 1, colIndex: columns.length - 1 })
   }, [store, columns])
 
-  const isFrozen = frozenLeftOffsets.length > 0
-
-  const selectAllClassName = [
-    rowHeaderStyles.selectAllCell,
-    isFrozen ? rowHeaderStyles.frozenSelectAllCell : '',
-  ]
-    .filter(Boolean)
-    .join(' ')
+  const selectAllClassName = `${rowHeaderStyles.selectAllCell} ${rowHeaderStyles.frozenSelectAllCell}`
 
   return (
     <div className={styles.headerRow}>

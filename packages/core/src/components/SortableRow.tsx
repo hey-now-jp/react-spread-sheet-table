@@ -48,7 +48,7 @@ function SortableRowInner<T>({
         draggable
         listeners={listeners}
         attributes={attributes}
-        frozen={frozenLeftOffsets.length > 0}
+        frozen
       />
       <TableRow
         columns={columns}
