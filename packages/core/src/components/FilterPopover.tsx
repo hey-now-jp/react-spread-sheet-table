@@ -2,7 +2,11 @@ import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useStat
 import { createPortal } from 'react-dom'
 import type { TableStore } from '../core/store/create-store'
 import type { DataColumnDef, FilterCondition, SortDirection } from '../core/types'
+import { useVirtualScroll } from '../hooks/use-virtual-scroll'
 import styles from '../styles/filter.module.css'
+
+const FILTER_ITEM_HEIGHT = 28
+const FILTER_LIST_HEIGHT = 200
 
 type FilterPopoverProps<T> = {
   readonly column: DataColumnDef<T>
@@ -207,6 +211,14 @@ function FilterPopoverInner<T>({
     onClose()
   }, [currentSortDir, onSort, onClose])
 
+  const {
+    containerRef: virtualContainerRef,
+    totalHeight,
+    offsetTop,
+    visibleStart,
+    visibleEnd,
+  } = useVirtualScroll(suggestions.length, FILTER_ITEM_HEIGHT, FILTER_LIST_HEIGHT)
+
   const allVisible = suggestions.length > 0 && suggestions.every((v) => selected.has(v))
 
   const popover = (
@@ -262,20 +274,36 @@ function FilterPopoverInner<T>({
             )}
           </div>
           {suggestions.length > 0 && (
-            <ul className={styles.suggestionList}>
-              {suggestions.map((value) => (
-                <li key={value}>
-                  <label className={styles.filterCheckItem}>
-                    <input
-                      type="checkbox"
-                      checked={selected.has(value)}
-                      onChange={() => handleToggle(value)}
-                    />
-                    <span>{highlightText(value, query)}</span>
-                  </label>
-                </li>
-              ))}
-            </ul>
+            <div
+              ref={virtualContainerRef as React.RefObject<HTMLDivElement>}
+              className={styles.suggestionList}
+            >
+              <div style={{ height: totalHeight, position: 'relative' }}>
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: offsetTop,
+                    left: 0,
+                    right: 0,
+                  }}
+                >
+                  {suggestions.slice(visibleStart, visibleEnd).map((value) => (
+                    <label
+                      key={value}
+                      className={styles.filterCheckItem}
+                      style={{ height: FILTER_ITEM_HEIGHT }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selected.has(value)}
+                        onChange={() => handleToggle(value)}
+                      />
+                      <span>{highlightText(value, query)}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
           )}
           {suggestions.length === 0 && query.trim() !== '' && (
             <div className={styles.noResults}>該当なし</div>
