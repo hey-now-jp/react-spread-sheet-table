@@ -1,35 +1,44 @@
 import { expect, test } from '@playwright/test'
-import { clickCell, getCell, goToBasicDemo, goToVirtualScrollDemo } from './helpers'
+import {
+  clickCell,
+  getCell,
+  getDemoContainer,
+  goToBasicDemo,
+  goToVirtualScrollDemo,
+} from './helpers'
 
 test.describe('セル編集', () => {
   test('ダブルクリックで編集モードに入り、Enter で確定', async ({ page }) => {
     await goToBasicDemo(page)
-    const nameCell = page.getByText('Tanaka Taro')
+    const demo = getDemoContainer(page)
+    const nameCell = demo.getByText('Tanaka Taro')
     await nameCell.dblclick()
 
-    const input = page.locator('input[type="text"]').first()
+    const input = demo.locator('input[type="text"]').first()
     await expect(input).toBeVisible()
     await input.fill('Test Name')
     await input.press('Enter')
 
-    await expect(page.getByText('Test Name')).toBeVisible()
+    await expect(demo.getByText('Test Name')).toBeVisible()
   })
 
   test('Enter キーで編集モード開始', async ({ page }) => {
     await goToBasicDemo(page)
+    const demo = getDemoContainer(page)
     await clickCell(page, 0, 0)
     await page.keyboard.press('Enter')
 
-    const input = page.locator('input[type="text"]').first()
+    const input = demo.locator('input[type="text"]').first()
     await expect(input).toBeVisible()
   })
 
   test('Escape で編集キャンセル (元の値に戻る)', async ({ page }) => {
     await goToBasicDemo(page)
+    const demo = getDemoContainer(page)
     const cell = getCell(page, 0, 0)
     await cell.dblclick()
 
-    const input = page.locator('input[type="text"]').first()
+    const input = demo.locator('input[type="text"]').first()
     await input.fill('Cancelled')
     await input.press('Escape')
 
@@ -38,38 +47,42 @@ test.describe('セル編集', () => {
 
   test('Tab で値が確定される', async ({ page }) => {
     await goToBasicDemo(page)
+    const demo = getDemoContainer(page)
     const cell = getCell(page, 0, 0)
     await cell.dblclick()
 
-    const input = page.locator('input[type="text"]').first()
+    const input = demo.locator('input[type="text"]').first()
     await expect(input).toBeVisible()
     await input.fill('Tab Test')
     await input.press('Tab')
 
     // 値が確定されている
-    await expect(page.getByText('Tab Test')).toBeVisible()
+    await expect(demo.getByText('Tab Test')).toBeVisible()
     // 編集モードが解除されている
     await expect(input).not.toBeVisible()
   })
 
   test('直接文字入力で編集開始 (既存値を置換)', async ({ page }) => {
     await goToBasicDemo(page)
+    const demo = getDemoContainer(page)
     await clickCell(page, 0, 0)
     await page.keyboard.type('A')
 
-    const input = page.locator('input[type="text"]').first()
+    const input = demo.locator('input[type="text"]').first()
     await expect(input).toBeVisible()
     await expect(input).toHaveValue('A')
   })
 
   test('read-only セルは編集不可', async ({ page }) => {
     await goToVirtualScrollDemo(page)
+    const demo = getDemoContainer(page)
     // index 列 (colIndex=0) は readOnly
     const cell = getCell(page, 0, 0)
     await cell.dblclick()
 
     // 編集用の input は表示されない (チェックボックスも除外)
-    await expect(page.locator('input:not([type="checkbox"]), select').first()).not.toBeVisible({
+    // デモコンテナ内でスコープして Starlight UI との衝突を避ける
+    await expect(demo.locator('input:not([type="checkbox"]), select').first()).not.toBeVisible({
       timeout: 500,
     })
   })
@@ -106,11 +119,12 @@ test.describe('セル編集', () => {
 
   test('list セルで Enter → 選択 → 自動確定', async ({ page }) => {
     await goToBasicDemo(page)
+    const demo = getDemoContainer(page)
     // department 列 = colIndex 5
     await clickCell(page, 0, 5)
     await page.keyboard.press('Enter')
 
-    const select = page.locator('select').first()
+    const select = demo.locator('select').first()
     await expect(select).toBeVisible()
   })
 

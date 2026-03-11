@@ -1,0 +1,132 @@
+---
+title: Column Types
+description: 利用可能なカラム型の一覧と設定オプション
+---
+
+## カラム型一覧
+
+| type | 値の型 | エディタ | 備考 |
+|------|--------|----------|------|
+| `text` | `string` | `<input type="text">` | maxLength, pattern バリデーション |
+| `number` | `number` | `<input type="number">` | min, max, step, precision |
+| `date` | `string` (YYYY-MM-DD) | `<input type="date">` | minDate, maxDate |
+| `time` | `string` (HH:MM) | `<input type="time">` | step (秒単位) |
+| `boolean` | `boolean` | `<input type="checkbox">` | 常時表示、Space/Enter でトグル |
+| `list` | `string` | `<select>` | options から単一選択 |
+| `multiList` | `string[]` | チェックボックス一覧 | options から複数選択 |
+| `action` | - | カスタム render 関数 | 読み取り専用、ソート/フィルタ対象外 |
+
+## text
+
+```tsx
+{
+  key: 'name',
+  header: '名前',
+  type: 'text',
+  maxLength: 50,       // 最大文字数
+  pattern: /^[A-Z]/,   // 正規表現パターン
+  required: true,       // 必須
+}
+```
+
+## number
+
+```tsx
+{
+  key: 'age',
+  header: '年齢',
+  type: 'number',
+  min: 0,           // 最小値
+  max: 150,         // 最大値
+  step: 1,          // ステップ
+  precision: 2,     // 表示精度 (小数点以下桁数)
+}
+```
+
+## date
+
+```tsx
+{
+  key: 'joinDate',
+  header: '入社日',
+  type: 'date',
+  minDate: '2020-01-01',  // 最小日付
+  maxDate: '2030-12-31',  // 最大日付
+}
+```
+
+## time
+
+```tsx
+{
+  key: 'startTime',
+  header: '開始時刻',
+  type: 'time',
+  step: 900,   // 15分刻み (秒単位)
+}
+```
+
+## boolean
+
+```tsx
+{
+  key: 'active',
+  header: '有効',
+  type: 'boolean',
+  width: 80,
+}
+```
+
+チェックボックスは常時表示され、クリックまたは Space/Enter キーでトグルします。
+
+## list
+
+```tsx
+{
+  key: 'department',
+  header: '部署',
+  type: 'list',
+  options: ['Engineering', 'Sales', 'HR', 'Finance'],
+}
+```
+
+## multiList
+
+```tsx
+{
+  key: 'skills',
+  header: 'スキル',
+  type: 'multiList',
+  options: ['React', 'TypeScript', 'Node.js', 'Python'],
+  width: 200,
+}
+```
+
+セル内ではカンマ区切りで表示されます。ダブルクリックでチェックボックス付きのポップアップが開きます。
+
+## action
+
+```tsx
+{
+  key: 'actions',
+  type: 'action',
+  header: '',
+  width: 80,
+  pin: 'right',
+  render: (row) => (
+    <button onClick={() => handleDetail(row)}>詳細</button>
+  ),
+}
+```
+
+action カラムは読み取り専用で、ソート・フィルターの対象外です。`render` 関数で任意の React 要素を返せます。
+
+## 共通オプション
+
+全てのカラムで使える共通オプション:
+
+| オプション | 型 | 説明 |
+|----------|------|------|
+| `width` | `number` | カラム幅 (デフォルト: 150px) |
+| `readOnly` | `boolean` | 読み取り専用 |
+| `header` | `string` | ヘッダーテキスト |

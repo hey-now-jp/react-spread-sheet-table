@@ -1,0 +1,68 @@
+---
+title: Sorting & Filtering
+description: ソートとフィルターの使い方
+---
+
+## ソート
+
+列ヘッダーのメニューボタンをクリックすると、ソートオプションが表示されます。
+
+- **昇順でソート** - 小さい値から大きい値へ
+- **降順でソート** - 大きい値から小さい値へ
+- もう一度クリックで解除
+
+### プログラムからのソート
+
+```tsx
+const table = useSpreadSheetTable<Row>({
+  columns,
+  initialData: data,
+  rowKey: 'id',
+  sortable: true, // デフォルト: true
+})
+```
+
+ソートはクライアントサイドで行われ、元のデータ配列は変更されません。
+
+## フィルター
+
+列ヘッダーのメニューボタンからフィルターを設定できます。
+
+1. メニューボタンをクリック
+2. 検索ボックスで候補を絞り込み
+3. チェックボックスで表示したい値を選択
+4. 「検索」ボタンで適用
+
+### フィルターの機能
+
+- **全選択/全解除** - 表示中の候補をまとめて選択・解除
+- **検索** - テキスト入力で候補を絞り込み (ハイライト表示)
+- **選択件数表示** - 現在選択中の件数を表示
+- **クリア** - フィルターを解除
+
+### プログラムからのフィルター
+
+```tsx
+const table = useSpreadSheetTable<Row>({
+  columns,
+  initialData: data,
+  rowKey: 'id',
+  filterable: true, // デフォルト: true
+})
+```
+
+### ヘッダーアイコン
+
+フィルター適用中の列はヘッダーにフィルターアイコンが表示されます。ソート適用中は方向に応じた矢印アイコンが表示されます。
+
+## 無効化
+
+```tsx
+const table = useSpreadSheetTable<Row>({
+  columns,
+  initialData: data,
+  rowKey: 'id',
+  sortable: false,    // ソート無効
+  filterable: false,   // フィルター無効
+})
+```

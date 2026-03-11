@@ -1,0 +1,14 @@
+---
+title: Editing & Validation
+description: 編集とバリデーションのデモ
+---
+
+import { EditingDemo } from '../../../components/EditingDemo'
+
+組み込みバリデーション (required, min/max, pattern) とカスタムバリデーション (高スコア警告) のデモです。
+
+- エラーセルは赤、警告セルはオレンジでハイライト
+- セルにホバーするとエラーメッセージがツールチップで表示
+- 「元に戻す」/「やり直し」で Undo / Redo
+
+<EditingDemo client:only="react" />

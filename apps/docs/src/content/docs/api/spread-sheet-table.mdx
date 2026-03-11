@@ -1,0 +1,52 @@
+---
+title: SpreadSheetTable
+description: テーブル描画コンポーネント
+---
+
+## 概要
+
+`SpreadSheetTable` はテーブルを描画するメインコンポーネントです。
+
+```tsx
+import { SpreadSheetTable } from '@heynow/react-spread-sheet-table'
+
+<SpreadSheetTable table={table} height={500} />
+```
+
+## Props
+
+| プロパティ | 型 | デフォルト | 説明 |
+|----------|------|---------|------|
+| `table` | `TableInstance<T>` | (必須) | `useSpreadSheetTable` で生成したインスタンス |
+| `height` | `number` | - | テーブルの高さ (px)。指定すると仮想スクロールが有効に |
+| `readOnly` | `boolean` | `false` | テーブル全体を読み取り専用に |
+
+## キーボードショートカット
+
+| キー | 動作 |
+|-----|------|
+| `Arrow keys` | セル移動 |
+| `Shift + Arrow` | 範囲選択の拡張 |
+| `Tab` | 右のセルへ移動 |
+| `Shift + Tab` | 左のセルへ移動 |
+| `Enter` | 編集開始 / 編集確定 |
+| `Escape` | 編集キャンセル |
+| `Delete` / `Backspace` | セル内容を削除 |
+| `Space` | boolean セルのトグル |
+| `Ctrl + C` | コピー |
+| `Ctrl + V` | ペースト |
+| `Ctrl + Z` | Undo |
+| `Ctrl + Shift + Z` | Redo |
+| `Ctrl + A` | 全選択 |
+
+## マウス操作
+
+| 操作 | 動作 |
+|-----|------|
+| クリック | セル選択 |
+| ダブルクリック | 編集開始 |
+| Shift + クリック | 範囲選択 |
+| ドラッグ | 範囲選択 |
+| 列ヘッダークリック | 列全体を選択 |
+| 行ヘッダークリック | 行全体を選択 |
+| 行ヘッダードラッグ | 行の並び替え (reorderable 有効時) |

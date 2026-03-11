@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { getCell, goToEditingDemo } from './helpers'
+import { getCell, getDemoContainer, goToEditingDemo } from './helpers'
 
 test.describe('バリデーション', () => {
   test('エラーセルの赤背景表示', async ({ page }) => {
@@ -22,36 +22,40 @@ test.describe('バリデーション', () => {
 
   test('エラーセルホバーでツールチップ表示', async ({ page }) => {
     await goToEditingDemo(page)
+    const demo = getDemoContainer(page)
 
-    const errorCell = page.locator('[class*="errorCell"]').first()
+    const errorCell = demo.locator('[class*="errorCell"]').first()
     await errorCell.hover()
 
-    const tooltip = page.locator('[class*="tooltip"]')
+    // デモコンテナ内の tooltip のみ対象にする
+    const tooltip = demo.locator('[class*="tooltip"]')
     await expect(tooltip).toBeVisible()
   })
 
   test('エラー/警告カウント表示確認', async ({ page }) => {
     await goToEditingDemo(page)
+    const demo = getDemoContainer(page)
 
-    await expect(page.getByText(/エラー: \d+/)).toBeVisible()
-    await expect(page.getByText(/警告: \d+/)).toBeVisible()
+    await expect(demo.getByText(/エラー: \d+/)).toBeVisible()
+    await expect(demo.getByText(/警告: \d+/)).toBeVisible()
   })
 
   test('無効な値を入力してバリデーション発火', async ({ page }) => {
     await goToEditingDemo(page)
+    const demo = getDemoContainer(page)
 
     // score 列 (colIndex=1) に -10 を入力 (min=0 なのでエラー)
     const cell = getCell(page, 0, 1)
     await cell.dblclick()
 
-    const input = page.locator('input[type="number"]').first()
+    const input = demo.locator('input[type="number"]').first()
     await input.fill('-10')
     await input.press('Enter')
 
     // トーストまたはエラー表示を確認
     // format エラーの場合は Toast が出る、validation エラーはセルに表示
     // -10 は number として valid だが min=0 に違反 → validation error
-    const errorCount = page.getByText(/エラー: \d+/)
+    const errorCount = demo.getByText(/エラー: \d+/)
     await expect(errorCount).toBeVisible()
   })
 })

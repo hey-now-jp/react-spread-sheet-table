@@ -1,9 +1,10 @@
 import { expect, test } from '@playwright/test'
-import { getCell, goToEditingDemo, modKey } from './helpers'
+import { getCell, getDemoContainer, goToEditingDemo, modKey } from './helpers'
 
 test.describe('Undo/Redo', () => {
   test('セル編集後に Ctrl+Z で元に戻す', async ({ page }) => {
     await goToEditingDemo(page)
+    const demo = getDemoContainer(page)
     const mod = modKey(page)
 
     // email 列 (colIndex=0) の row=0 を編集
@@ -11,7 +12,7 @@ test.describe('Undo/Redo', () => {
     const original = await cell.textContent()
 
     await cell.dblclick()
-    const input = page.locator('input[type="text"]').first()
+    const input = demo.locator('input[type="text"]').first()
     await input.fill('changed@example.com')
     await input.press('Enter')
     await expect(cell).toHaveText('changed@example.com')
@@ -23,11 +24,12 @@ test.describe('Undo/Redo', () => {
 
   test('Ctrl+Y でやり直し', async ({ page }) => {
     await goToEditingDemo(page)
+    const demo = getDemoContainer(page)
     const mod = modKey(page)
 
     const cell = getCell(page, 0, 0)
     await cell.dblclick()
-    const input = page.locator('input[type="text"]').first()
+    const input = demo.locator('input[type="text"]').first()
     await input.fill('redo@example.com')
     await input.press('Enter')
 
@@ -40,6 +42,7 @@ test.describe('Undo/Redo', () => {
 
   test('複数回の undo/redo サイクル', async ({ page }) => {
     await goToEditingDemo(page)
+    const demo = getDemoContainer(page)
     const mod = modKey(page)
 
     const cell = getCell(page, 0, 0)
@@ -47,12 +50,12 @@ test.describe('Undo/Redo', () => {
 
     // 2回編集
     await cell.dblclick()
-    await page.locator('input[type="text"]').first().fill('first@example.com')
-    await page.locator('input[type="text"]').first().press('Enter')
+    await demo.locator('input[type="text"]').first().fill('first@example.com')
+    await demo.locator('input[type="text"]').first().press('Enter')
 
     await cell.dblclick()
-    await page.locator('input[type="text"]').first().fill('second@example.com')
-    await page.locator('input[type="text"]').first().press('Enter')
+    await demo.locator('input[type="text"]').first().fill('second@example.com')
+    await demo.locator('input[type="text"]').first().press('Enter')
     await expect(cell).toHaveText('second@example.com')
 
     // Undo 2回
@@ -70,20 +73,21 @@ test.describe('Undo/Redo', () => {
 
   test('新しい編集で redo スタック消去', async ({ page }) => {
     await goToEditingDemo(page)
+    const demo = getDemoContainer(page)
     const mod = modKey(page)
 
     const cell = getCell(page, 0, 0)
     await cell.dblclick()
-    await page.locator('input[type="text"]').first().fill('edit1@example.com')
-    await page.locator('input[type="text"]').first().press('Enter')
+    await demo.locator('input[type="text"]').first().fill('edit1@example.com')
+    await demo.locator('input[type="text"]').first().press('Enter')
 
     // Undo
     await page.keyboard.press(`${mod}+KeyZ`)
 
     // 新しい編集 (redo スタック消去)
     await cell.dblclick()
-    await page.locator('input[type="text"]').first().fill('edit2@example.com')
-    await page.locator('input[type="text"]').first().press('Enter')
+    await demo.locator('input[type="text"]').first().fill('edit2@example.com')
+    await demo.locator('input[type="text"]').first().press('Enter')
 
     // Redo は効かない (スタック消去済み)
     await page.keyboard.press(`${mod}+KeyY`)
@@ -92,9 +96,10 @@ test.describe('Undo/Redo', () => {
 
   test('undo/redo ボタンの disabled 状態', async ({ page }) => {
     await goToEditingDemo(page)
+    const demo = getDemoContainer(page)
 
-    const undoButton = page.locator('button', { hasText: '元に戻す' })
-    const redoButton = page.locator('button', { hasText: 'やり直し' })
+    const undoButton = demo.locator('button', { hasText: '元に戻す' })
+    const redoButton = demo.locator('button', { hasText: 'やり直し' })
 
     // 初期状態: 両方 disabled
     await expect(undoButton).toBeDisabled()
@@ -103,8 +108,8 @@ test.describe('Undo/Redo', () => {
     // 編集後: undo 有効、redo 無効
     const cell = getCell(page, 0, 0)
     await cell.dblclick()
-    await page.locator('input[type="text"]').first().fill('test@example.com')
-    await page.locator('input[type="text"]').first().press('Enter')
+    await demo.locator('input[type="text"]').first().fill('test@example.com')
+    await demo.locator('input[type="text"]').first().press('Enter')
 
     await expect(undoButton).toBeEnabled()
     await expect(redoButton).toBeDisabled()

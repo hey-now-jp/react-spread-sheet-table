@@ -37,11 +37,7 @@ export function VirtualScrollDemo() {
   })
 
   return (
-    <div>
-      <h2>仮想スクロール (10,000行)</h2>
-      <p style={{ color: '#666', marginBottom: 16 }}>
-        表示中の行のみDOMに描画。スクロールして仮想レンダリングを確認できます。
-      </p>
+    <div className="demo-container">
       <SpreadSheetTable table={table} height={600} />
     </div>
   )

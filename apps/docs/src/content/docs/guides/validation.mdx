@@ -1,0 +1,87 @@
+---
+title: Validation
+description: 組み込みバリデーションとカスタムバリデーション
+---
+
+## 組み込みバリデーション
+
+カラム定義のオプションに基づいて自動的にバリデーションが行われます。
+
+| カラム型 | バリデーション項目 |
+|---------|----------------|
+| `text` | `required`, `maxLength`, `pattern` |
+| `number` | `required`, `min`, `max` |
+| `date` | `required`, `minDate`, `maxDate` |
+| `time` | `required` |
+| `list` | `required` |
+| `multiList` | `required` |
+
+### エラー表示
+
+バリデーションエラーのあるセルは赤くハイライトされ、ホバーするとエラーメッセージがツールチップで表示されます。警告レベルのセルはオレンジでハイライトされます。
+
+## カスタムバリデーション
+
+`validate` オプションでカスタムバリデーション関数を指定できます。
+
+```tsx
+import type { ValidationResult } from '@heynow/react-spread-sheet-table'
+
+function customValidate(
+  value: unknown,
+  row: MyRow,
+  columnKey: keyof MyRow,
+): ValidationResult | null {
+  // null を返すとバリデーション OK
+  if (columnKey === 'score' && typeof value === 'number' && value > 80) {
+    return {
+      level: 'warn',
+      message: '高スコアです - 再確認してください',
+    }
+  }
+  return null
+}
+
+const table = useSpreadSheetTable<MyRow>({
+  columns,
+  initialData: data,
+  rowKey: 'id',
+  validate: customValidate,
+})
+```
+
+### ValidationResult
+
+```tsx
+type ValidationResult = {
+  level: 'error' | 'warn'
+  message: string
+}
+```
+
+- `error` - セルが赤くハイライト、`isValid()` が false を返す
+- `warn` - セルがオレンジでハイライト、`isValid()` には影響しない
+
+## バリデーションエラーの取得
+
+```tsx
+const errors = table.getValidationErrors()
+// => Array<{ rowIndex: number, columnKey: string, result: ValidationResult }>
+
+const isValid = table.isValid()
+// => boolean (error レベルのエラーがなければ true)
+```
+
+## エラーコールバック
+
+```tsx
+const table = useSpreadSheetTable<MyRow>({
+  columns,
+  initialData: data,
+  rowKey: 'id',
+  validate: customValidate,
+  onValidationError: (errors) => {
+    console.log('Validation errors:', errors)
+  },
+})
+```

@@ -1,0 +1,109 @@
+---
+title: Column Definitions
+description: カラム定義の型とオプション
+---
+
+## ColumnDef
+
+`ColumnDef<T>` は判別共用体で、`type` フィールドによって利用可能なオプションが変わります。
+
+```tsx
+type ColumnDef<T> = DataColumnDef<T> | ActionColumnDef<T>
+```
+
+## DataColumnDef (共通)
+
+全てのデータカラムで共通のプロパティ:
+
+```tsx
+{
+  key: keyof T        // データのキー
+  header: string      // ヘッダーテキスト
+  type: ColumnType    // カラム型
+  width?: number      // カラム幅 (デフォルト: 150)
+  readOnly?: boolean  // 読み取り専用
+  required?: boolean  // 必須
+}
+```
+
+## TextColumnDef
+
+```tsx
+{
+  type: 'text'
+  maxLength?: number  // 最大文字数
+  pattern?: RegExp    // 正規表現パターン
+}
+```
+
+## NumberColumnDef
+
+```tsx
+{
+  type: 'number'
+  min?: number        // 最小値
+  max?: number        // 最大値
+  step?: number       // ステップ
+  precision?: number  // 表示精度 (小数点以下桁数)
+}
+```
+
+## DateColumnDef
+
+```tsx
+{
+  type: 'date'
+  minDate?: string    // 最小日付 (YYYY-MM-DD)
+  maxDate?: string    // 最大日付 (YYYY-MM-DD)
+}
+```
+
+## TimeColumnDef
+
+```tsx
+{
+  type: 'time'
+  step?: number       // ステップ (秒単位、例: 900 = 15分)
+}
+```
+
+## BooleanColumnDef
+
+```tsx
+{
+  type: 'boolean'
+}
+```
+
+## ListColumnDef
+
+```tsx
+{
+  type: 'list'
+  options: string[]   // 選択肢
+}
+```
+
+## MultiListColumnDef
+
+```tsx
+{
+  type: 'multiList'
+  options: string[]   // 選択肢
+}
+```
+
+## ActionColumnDef
+
+```tsx
+{
+  type: 'action'
+  key: string
+  header?: string
+  width?: number
+  pin?: 'right'
+  render: (row: T) => React.ReactNode
+}
+```
+
+action カラムはデータバインドなし。`render` 関数で任意の要素を描画します。ソート・フィルターの対象外です。

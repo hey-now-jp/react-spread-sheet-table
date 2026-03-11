@@ -1,0 +1,28 @@
+---
+title: Virtual Scroll
+description: 大量データの仮想スクロール
+---
+
+## 仮想スクロール
+
+`SpreadSheetTable` は自動的に仮想スクロールを適用します。`height` プロパティを指定すると、表示領域に収まる行のみを DOM に描画し、スクロールに応じて動的に行を入れ替えます。
+
+```tsx
+const table = useSpreadSheetTable<LargeRow>({
+  columns,
+  initialData: largeData, // 10,000 行でも OK
+  rowKey: 'id',
+})
+
+<SpreadSheetTable table={table} height={600} />
+```
+
+## パフォーマンス
+
+- 表示中の行 + バッファのみ DOM に描画
+- `memo()` による不要な再レンダリングの抑制
+- `useSyncExternalStore` による効率的な状態同期
+
+大量データでもソート、フィルター、選択、編集の全ての機能がスムーズに動作します。
+
+[Playground](/react-spread-sheet-table/playground/virtual-scroll/) で 10,000 行のデモを試せます。

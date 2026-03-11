@@ -1,4 +1,4 @@
-name: Deploy Playground to GitHub Pages
+name: Deploy Docs to GitHub Pages
 
 on:
   push:
@@ -31,14 +31,12 @@ jobs:
 
       - run: pnpm --filter @heynow/react-spread-sheet-table build
 
-      - name: Build playground
-        run: pnpm --filter playground build
-        env:
-          GITHUB_PAGES: 'true'
+      - name: Build docs
+        run: pnpm --filter docs build
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: apps/playground/dist
+          path: apps/docs/dist
 
   deploy:
     needs: build

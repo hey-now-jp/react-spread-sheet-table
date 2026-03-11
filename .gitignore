@@ -6,8 +6,11 @@ dist/
 coverage/
 
 # Playwright
-apps/playground/test-results/
-apps/playground/playwright-report/
+test-results/
+playwright-report/
+
+# Astro
+.astro/
 
 # OS
 .DS_Store

@@ -1,0 +1,51 @@
+---
+title: useSpreadSheetTable
+description: テーブルインスタンスを生成するフック
+---
+
+## 概要
+
+`useSpreadSheetTable` はテーブルの状態を管理する `TableInstance` を返すフックです。
+
+```tsx
+import { useSpreadSheetTable } from '@heynow/react-spread-sheet-table'
+
+const table = useSpreadSheetTable<Row>({
+  columns,
+  initialData: data,
+  rowKey: 'id',
+})
+```
+
+## Options
+
+| オプション | 型 | デフォルト | 説明 |
+|----------|------|---------|------|
+| `columns` | `ColumnDef<T>[]` | (必須) | カラム定義の配列 |
+| `initialData` | `T[]` | (必須) | 初期データ |
+| `rowKey` | `keyof T` | (必須) | 行のユニークキー |
+| `onChange` | `(rows: T[]) => void` | - | データ変更時のコールバック |
+| `onReorder` | `(rows: T[]) => void` | - | 行並び替え時のコールバック |
+| `validate` | `(value, row, key) => ValidationResult \| null` | - | カスタムバリデーション |
+| `onValidationError` | `(errors) => void` | - | バリデーションエラーのコールバック |
+| `readOnly` | `boolean` | `false` | テーブル全体を読み取り専用に |
+| `sortable` | `boolean` | `true` | ソート有効/無効 |
+| `filterable` | `boolean` | `true` | フィルター有効/無効 |
+| `reorderable` | `boolean` | `false` | 行の並び替え有効/無効 |
+| `resizable` | `boolean` | `true` | 列リサイズ有効/無効 |
+
+## Return: TableInstance
+
+| プロパティ/メソッド | 型 | 説明 |
+|-----------------|------|------|
+| `data` | `T[]` | 現在のデータ (フィルタ・ソート適用後) |
+| `isDirty` | `boolean` | 未保存の変更があるか |
+| `canUndo` | `boolean` | Undo 可能か |
+| `canRedo` | `boolean` | Redo 可能か |
+| `undo()` | `() => void` | 操作を元に戻す |
+| `redo()` | `() => void` | 操作をやり直す |
+| `resetToInitial()` | `() => void` | 初期データにリセット |
+| `markAsSaved()` | `() => void` | 現在のデータを保存済みとしてマーク |
+| `isValid()` | `() => boolean` | バリデーションエラーがないか |
+| `getValidationErrors()` | `() => ValidationError[]` | バリデーションエラー一覧 |
+| `getChangedRows()` | `() => ChangeSet<T>` | 変更された行の差分 |

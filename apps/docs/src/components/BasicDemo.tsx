@@ -1,8 +1,8 @@
 import type { ColumnDef } from '@heynow/react-spread-sheet-table'
 import { SpreadSheetTable, useSpreadSheetTable } from '@heynow/react-spread-sheet-table'
-import { toast } from 'sonner'
-import type { Employee } from '../sample-data'
-import { sampleData } from '../sample-data'
+import { useState } from 'react'
+import type { Employee } from './sample-data'
+import { sampleData } from './sample-data'
 
 const columns: ReadonlyArray<ColumnDef<Employee>> = [
   { key: 'name', header: '名前', type: 'text', maxLength: 50 },
@@ -30,14 +30,16 @@ const columns: ReadonlyArray<ColumnDef<Employee>> = [
     width: 80,
     pin: 'right',
     render: (row) => (
-      <button type="button" onClick={() => alert(`詳細: ${row.name}`)}>
-        詳細
+      <button type="button" onClick={() => alert(`Detail: ${row.name}`)}>
+        Detail
       </button>
     ),
   },
 ]
 
 export function BasicDemo() {
+  const [message, setMessage] = useState<string | null>(null)
+
   const table = useSpreadSheetTable<Employee>({
     columns,
     initialData: sampleData,
@@ -47,40 +49,35 @@ export function BasicDemo() {
       console.log('Changed rows:', changedRows)
     },
     onReorder: (newData) => {
-      toast('行を並び替えました', {
-        description: `${newData.length} 行`,
-      })
+      setMessage(`${newData.length} 行を並び替えました`)
+      setTimeout(() => setMessage(null), 2000)
     },
   })
 
   return (
-    <div>
-      <h2>基本テーブル</h2>
-      <p style={{ color: '#666', marginBottom: 16 }}>
-        全カラム型対応:
-        ソート、フィルター、選択、セル編集、クリップボード、キーボード操作、行の並び替え
-      </p>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-        <button
-          type="button"
-          onClick={() => table.resetToInitial()}
-          style={{ padding: '6px 12px' }}
-        >
+    <div className="demo-container">
+      <div className="demo-actions">
+        <button type="button" onClick={() => table.resetToInitial()}>
           リセット
         </button>
         <button
           type="button"
           onClick={() => {
             table.markAsSaved()
-            toast.success('保存しました')
+            setMessage('保存しました')
+            setTimeout(() => setMessage(null), 2000)
           }}
-          style={{ padding: '6px 12px' }}
         >
           保存
         </button>
-        <span style={{ padding: '6px 0', color: table.isDirty ? '#e53935' : '#4caf50' }}>
+        <span className="demo-status" style={{ color: table.isDirty ? '#e53935' : '#4caf50' }}>
           {table.isDirty ? '未保存の変更あり' : '変更なし'}
         </span>
+        {message && (
+          <span className="demo-status" style={{ color: '#2196f3' }}>
+            {message}
+          </span>
+        )}
       </div>
       <SpreadSheetTable table={table} height={500} />
     </div>

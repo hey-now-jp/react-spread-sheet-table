@@ -71,16 +71,13 @@ export function EditingDemo() {
   const warnCount = errors.filter((e) => e.result.level === 'warn').length
 
   return (
-    <div>
-      <h2>編集 & バリデーション</h2>
-      <p style={{ color: '#666', marginBottom: 16 }}>
-        組み込みバリデーション (必須、最小/最大、パターン) + カスタムバリデーション
-        (高スコア警告)。エラーセルにホバーでツールチップ表示。
-      </p>
-      <div style={{ marginBottom: 12, display: 'flex', gap: 16, alignItems: 'center' }}>
+    <div className="demo-container">
+      <div className="demo-stats">
         <span style={{ color: '#e53935' }}>エラー: {errorCount}</span>
         <span style={{ color: '#f9a825' }}>警告: {warnCount}</span>
         <span>有効: {table.isValid() ? 'はい' : 'いいえ'}</span>
+      </div>
+      <div className="demo-actions">
         <button type="button" onClick={() => table.undo()} disabled={!table.canUndo}>
           元に戻す
         </button>

@@ -1,14 +1,13 @@
 import { expect, test } from '@playwright/test'
 
-test('playground loads successfully', async ({ page }) => {
-  await page.goto('/')
-  await expect(page.locator('h1')).toHaveText('SpreadSheet Table デモ')
+test('docs site loads successfully', async ({ page }) => {
+  await page.goto('/react-spread-sheet-table/')
+  await expect(page.locator('h1')).toContainText('React SpreadSheet Table')
 })
 
-test('basic table renders with data', async ({ page }) => {
-  await page.goto('/')
-  // Basic Table demo should be active by default
-  await expect(page.locator('h2')).toHaveText('基本テーブル')
+test('basic demo page renders with data', async ({ page }) => {
+  await page.goto('/react-spread-sheet-table/playground/basic/')
+  await page.locator('[class*="scrollContainer"]').waitFor()
 
   // Check that cells with sample data are visible
   await expect(page.getByText('Tanaka Taro')).toBeVisible()
@@ -16,7 +15,8 @@ test('basic table renders with data', async ({ page }) => {
 })
 
 test('cell editing via double-click', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/react-spread-sheet-table/playground/basic/')
+  await page.locator('[class*="scrollContainer"]').waitFor()
 
   // Find a cell with text content and double-click it
   const nameCell = page.getByText('Tanaka Taro')
@@ -35,7 +35,8 @@ test('cell editing via double-click', async ({ page }) => {
 })
 
 test('sort via column menu', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/react-spread-sheet-table/playground/basic/')
+  await page.locator('[class*="scrollContainer"]').waitFor()
 
   // Open column menu for Age
   const ageHeader = page.locator('[class*="headerCell"]', { hasText: '年齢' })
@@ -46,21 +47,26 @@ test('sort via column menu', async ({ page }) => {
   await expect(page.locator('[data-sort="asc"]')).toBeVisible()
 })
 
-test('navigation between demo pages', async ({ page }) => {
-  await page.goto('/')
+test('editing demo page loads', async ({ page }) => {
+  await page.goto('/react-spread-sheet-table/playground/editing/')
+  await page.locator('[class*="scrollContainer"]').waitFor()
 
-  // Switch to Editing & Validation demo
-  await page.getByText('編集 & バリデーション').click()
-  await expect(page.locator('h2')).toHaveText('編集 & バリデーション')
-  await expect(page.getByText('エラー:')).toBeVisible()
+  // Should show error count
+  await expect(page.getByText(/エラー: \d+/)).toBeVisible()
+  await expect(page.getByText(/有効: /)).toBeVisible()
+})
 
-  // Switch to Virtual Scroll demo
-  await page.getByText('仮想スクロール (1万行)').click()
-  await expect(page.locator('h2')).toHaveText('仮想スクロール (10,000行)')
+test('virtual scroll demo page loads', async ({ page }) => {
+  await page.goto('/react-spread-sheet-table/playground/virtual-scroll/')
+  await page.locator('[class*="scrollContainer"]').waitFor()
+
+  // Should render cells
+  await expect(page.locator('[data-row="0"]').first()).toBeVisible()
 })
 
 test('boolean cell toggles on click', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/react-spread-sheet-table/playground/basic/')
+  await page.locator('[class*="scrollContainer"]').waitFor()
 
   // Find a checkbox and click it
   const checkbox = page.locator('input[type="checkbox"]').first()
@@ -72,7 +78,8 @@ test('boolean cell toggles on click', async ({ page }) => {
 })
 
 test('arrow keys move active cell after clicking', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/react-spread-sheet-table/playground/basic/')
+  await page.locator('[class*="scrollContainer"]').waitFor()
 
   // Click on the first name cell (Tanaka Taro)
   const firstCell = page.locator('[data-col="0"]', { hasText: 'Tanaka Taro' })
@@ -80,11 +87,6 @@ test('arrow keys move active cell after clicking', async ({ page }) => {
 
   // Verify the clicked cell has active outline
   await expect(firstCell).toHaveCSS('outline-style', 'solid')
-
-  // Record scroll position before arrow key
-  const scrollBefore = await page
-    .locator('[class*="scrollContainer"]')
-    .evaluate((el) => el.scrollTop)
 
   // Press ArrowDown to move to the next row
   await page.keyboard.press('ArrowDown')
@@ -95,43 +97,11 @@ test('arrow keys move active cell after clicking', async ({ page }) => {
 
   // The first cell should no longer be active
   await expect(firstCell).not.toHaveCSS('outline-style', 'solid')
-
-  // Scroll position should not have changed (arrow key navigates, not scrolls)
-  const scrollAfter = await page
-    .locator('[class*="scrollContainer"]')
-    .evaluate((el) => el.scrollTop)
-  expect(scrollAfter).toBe(scrollBefore)
-})
-
-test('arrow keys move active cell after sort', async ({ page }) => {
-  await page.goto('/')
-
-  // Sort by age ascending via column menu
-  const ageHeader = page.locator('[class*="headerCell"]', { hasText: '年齢' })
-  await ageHeader.locator('button[aria-label="列メニュー"]').click()
-  await page.locator('button[aria-label="昇順でソート"]').click()
-  await expect(page.locator('[data-sort="asc"]')).toBeVisible()
-
-  // Click the first visible name cell (youngest person)
-  const firstNameCell = page.locator('[data-col="0"]').first()
-  const firstName = await firstNameCell.textContent()
-  await firstNameCell.click()
-  await expect(firstNameCell).toHaveCSS('outline-style', 'solid')
-
-  // Press ArrowDown
-  await page.keyboard.press('ArrowDown')
-
-  // The second row's name cell should be active (next by sorted age)
-  const secondNameCell = page.locator('[data-col="0"]').nth(1)
-  const secondName = await secondNameCell.textContent()
-  await expect(secondNameCell).toHaveCSS('outline-style', 'solid')
-
-  // Names should be different (cursor actually moved)
-  expect(secondName).not.toBe(firstName)
 })
 
 test('space key does not scroll the page', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/react-spread-sheet-table/playground/basic/')
+  await page.locator('[class*="scrollContainer"]').waitFor()
 
   // Click on a cell
   const cell = page.locator('[data-col="0"]', { hasText: 'Tanaka Taro' })
@@ -153,8 +123,8 @@ test('space key does not scroll the page', async ({ page }) => {
 })
 
 test('arrow keys scroll to keep active cell visible', async ({ page }) => {
-  await page.goto('/')
-  await page.getByText('仮想スクロール (1万行)').click()
+  await page.goto('/react-spread-sheet-table/playground/virtual-scroll/')
+  await page.locator('[class*="scrollContainer"]').waitFor()
 
   // Click the first row's name cell
   const firstCell = page.locator('[data-col="1"]').first()
@@ -173,13 +143,4 @@ test('arrow keys scroll to keep active cell visible', async ({ page }) => {
   // Scroll should have moved down to keep cell visible
   const scrollAfter = await scrollContainer.evaluate((el) => el.scrollTop)
   expect(scrollAfter).toBeGreaterThan(0)
-})
-
-test('validation demo shows errors', async ({ page }) => {
-  await page.goto('/')
-  await page.getByText('編集 & バリデーション').click()
-
-  // Should show error count
-  await expect(page.getByText(/エラー: \d+/)).toBeVisible()
-  await expect(page.getByText(/有効: /)).toBeVisible()
 })

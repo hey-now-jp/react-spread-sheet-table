@@ -1,23 +1,33 @@
 import type { Page } from '@playwright/test'
 
-/** BasicDemo ページに遷移 (デフォルトページ) */
+/** BasicDemo ページに遷移 */
 export async function goToBasicDemo(page: Page) {
-  await page.goto('/')
-  await page.locator('h2', { hasText: '基本テーブル' }).waitFor()
+  await page.goto('/react-spread-sheet-table/playground/basic/')
+  const container = page.locator('[class*="scrollContainer"]')
+  await container.waitFor()
+  // Starlight ページのフォーカスをテーブルに移す
+  await container.click()
 }
 
 /** EditingDemo ページに遷移 */
 export async function goToEditingDemo(page: Page) {
-  await page.goto('/')
-  await page.getByRole('button', { name: '編集 & バリデーション' }).click()
-  await page.locator('h2', { hasText: '編集 & バリデーション' }).waitFor()
+  await page.goto('/react-spread-sheet-table/playground/editing/')
+  const container = page.locator('[class*="scrollContainer"]')
+  await container.waitFor()
+  await container.click()
 }
 
 /** VirtualScrollDemo ページに遷移 */
 export async function goToVirtualScrollDemo(page: Page) {
-  await page.goto('/')
-  await page.getByRole('button', { name: '仮想スクロール (1万行)' }).click()
-  await page.locator('h2', { hasText: '仮想スクロール' }).waitFor()
+  await page.goto('/react-spread-sheet-table/playground/virtual-scroll/')
+  const container = page.locator('[class*="scrollContainer"]')
+  await container.waitFor()
+  await container.click()
+}
+
+/** デモコンテナを取得 */
+export function getDemoContainer(page: Page) {
+  return page.locator('.demo-container')
 }
 
 /** data-row / data-col でセルを取得 */

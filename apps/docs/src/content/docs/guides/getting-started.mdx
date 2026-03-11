@@ -1,0 +1,65 @@
+---
+title: Getting Started
+description: React SpreadSheet Table のインストールと基本的な使い方
+---
+
+## インストール
+
+```bash
+npm install @heynow/react-spread-sheet-table
+```
+
+```bash
+pnpm add @heynow/react-spread-sheet-table
+```
+
+## 基本的な使い方
+
+```tsx
+import { SpreadSheetTable, useSpreadSheetTable } from '@heynow/react-spread-sheet-table'
+import type { ColumnDef } from '@heynow/react-spread-sheet-table'
+
+type Row = {
+  id: string
+  name: string
+  age: number
+  active: boolean
+}
+
+const columns: ColumnDef<Row>[] = [
+  { key: 'name', header: '名前', type: 'text' },
+  { key: 'age', header: '年齢', type: 'number', min: 0 },
+  { key: 'active', header: '有効', type: 'boolean' },
+]
+
+const data: Row[] = [
+  { id: '1', name: 'Alice', age: 28, active: true },
+  { id: '2', name: 'Bob', age: 32, active: false },
+]
+
+function MyTable() {
+  const table = useSpreadSheetTable<Row>({
+    columns,
+    initialData: data,
+    rowKey: 'id',
+  })
+
+  return <SpreadSheetTable table={table} height={400} />
+}
+```
+
+## 主な機能
+
+### セル編集
+セルをダブルクリック、または選択状態で入力を開始するとインライン編集が始まります。Enter で確定、Escape でキャンセルです。
+
+### 選択
+クリックでセルを選択し、Shift+クリックまたは Shift+矢印キーで範囲選択できます。列ヘッダーや行ヘッダーもクリックで列・行全体を選択できます。
+
+### クリップボード
+Ctrl+C でコピー、Ctrl+V でペースト、Ctrl+Z で Undo、Ctrl+Shift+Z で Redo が使えます。
+
+### ソートとフィルター
+列ヘッダーのメニューボタンからソートとフィルターを操作できます。
+
+詳しくは [Column Types](/react-spread-sheet-table/guides/column-types/) や [API Reference](/react-spread-sheet-table/api/use-spread-sheet-table/) を参照してください。
