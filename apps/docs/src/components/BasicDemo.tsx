@@ -44,6 +44,7 @@ export function BasicDemo() {
     columns,
     initialData: sampleData,
     rowKey: 'id',
+    frozenColumns: 1,
     reorderable: true,
     onChange: (changedRows) => {
       console.log('Changed rows:', changedRows)

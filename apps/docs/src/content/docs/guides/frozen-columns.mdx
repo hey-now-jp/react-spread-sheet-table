@@ -1,0 +1,47 @@
+---
+title: Frozen Columns
+description: 列の固定表示 (フリーズペイン)
+sidebar:
+  order: 6
+---
+
+## 列固定
+
+`frozenColumns` オプションを指定すると、左から指定した列数を固定表示できます。横スクロールしても固定列は常に表示されます。
+
+```tsx
+const table = useSpreadSheetTable<Row>({
+  columns,
+  initialData: data,
+  rowKey: 'id',
+  frozenColumns: 2, // 左2列を固定
+})
+
+<SpreadSheetTable table={table} height={500} />
+```
+
+## 動作
+
+- 行番号列は常に固定されます (`frozenColumns` の数に関係なく)
+- `frozenColumns: 1` なら行番号列 + 左1列が固定
+- `frozenColumns: 0` (デフォルト) なら行番号列のみ固定
+- 固定列と非固定列の境界には影が表示されます
+
+## 他の機能との組み合わせ
+
+列固定は以下の機能と併用できます:
+
+- **セル編集** - 固定列内のセルも通常通り編集可能
+- **ソート / フィルター** - 固定列もソート・フィルタ対象
+- **範囲選択** - 固定列をまたいだ範囲選択が可能
+- **クリップボード** - コピー / ペーストも通常通り動作
+- **行の並び替え** - ドラッグ&ドロップでの並び替えに対応
+- **列リサイズ** - 固定列のリサイズにも自動追従
+- **仮想スクロール** - 大量データでも問題なく動作
+
+## 注意点
+
+- `frozenColumns` の値が `columns.length` を超える場合は全列が固定されます (影は非表示)
+- 固定列は CSS `position: sticky` を使用しているため、テーブルのスクロールコンテナが正しく設定されている必要があります
+
+[Playground](/react-spread-sheet-table/playground/basic/) で列固定の動作を確認できます。
