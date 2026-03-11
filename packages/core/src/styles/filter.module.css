@@ -4,6 +4,7 @@
   max-height: calc(100vh - 8px);
   background: var(--sst-popup-bg);
   color: var(--sst-popup-color);
+  color-scheme: var(--sst-popup-color-scheme);
   border: 1px solid var(--sst-border-color);
   border-radius: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
