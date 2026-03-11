@@ -5,11 +5,13 @@
 }
 
 .demo-container {
-  border: 1px solid var(--sl-color-gray-5);
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
   padding: 24px;
   margin: 16px 0;
-  background: var(--sl-color-bg);
+  background: #fff;
+  color: #333;
+  color-scheme: light;
 }
 
 .demo-actions {
@@ -22,16 +24,16 @@
 
 .demo-actions button {
   padding: 6px 12px;
-  border: 1px solid var(--sl-color-gray-5);
+  border: 1px solid #e0e0e0;
   border-radius: 4px;
-  background: var(--sl-color-bg);
-  color: var(--sl-color-text);
+  background: #fff;
+  color: #333;
   cursor: pointer;
   font-size: 14px;
 }
 
 .demo-actions button:hover {
-  background: var(--sl-color-gray-6);
+  background: #f5f5f5;
 }
 
 .demo-actions button:disabled {
