@@ -29,7 +29,7 @@ importers:
       '@astrojs/starlight':
         specifier: ^0.33.0
         version: 0.33.2(astro@5.18.0(@types/node@25.3.0)(rollup@4.59.0)(typescript@5.9.3))
-      '@heynow/react-spread-sheet-table':
+      '@hey-now-jp/react-spread-sheet-table':
         specifier: workspace:*
         version: link:../../packages/core
       astro:

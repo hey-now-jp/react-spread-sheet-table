@@ -29,7 +29,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm --filter @heynow/react-spread-sheet-table build
+      - run: pnpm --filter @hey-now-jp/react-spread-sheet-table build
 
       - name: Build docs
         run: pnpm --filter docs build

@@ -1,4 +1,4 @@
-# @heynow/react-spread-sheet-table
+# @hey-now-jp/react-spread-sheet-table
 
 React 向けのスプレッドシート風テーブルコンポーネントライブラリ。
 
@@ -45,9 +45,29 @@ pnpm format
 
 ```
 packages/
-  core/           @heynow/react-spread-sheet-table 本体
+  core/           @hey-now-jp/react-spread-sheet-table 本体
 apps/
   playground/     デモアプリケーション（GitHub Pages で公開）
+```
+
+## インストール
+
+GitHub Packages で公開されています。プロジェクトの `.npmrc` にレジストリを設定してください。
+
+```ini
+# .npmrc
+@hey-now-jp:registry=https://npm.pkg.github.com
+```
+
+GitHub の Personal Access Token (`read:packages` 権限) を `~/.npmrc` に設定する必要があります。
+
+```ini
+# ~/.npmrc (グローバル設定)
+//npm.pkg.github.com/:_authToken=ghp_xxxxxxxxxxxx
+```
+
+```bash
+pnpm add @hey-now-jp/react-spread-sheet-table
 ```
 
 ## クイックスタート
@@ -57,7 +77,7 @@ import {
   SpreadSheetTable,
   useSpreadSheetTable,
   type ColumnDef,
-} from '@heynow/react-spread-sheet-table'
+} from '@hey-now-jp/react-spread-sheet-table'
 
 type Row = { id: string; name: string; age: number }
 

@@ -1,5 +1,5 @@
 {
-  "name": "@heynow/react-spread-sheet-table",
+  "name": "@hey-now-jp/react-spread-sheet-table",
   "version": "0.0.1",
   "type": "module",
   "main": "./src/index.ts",
@@ -12,7 +12,14 @@
       "default": "./src/index.ts"
     }
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hey-now-jp/react-spread-sheet-table.git",
+    "directory": "packages/core"
+  },
   "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted",
     "main": "./dist/index.cjs",
     "module": "./dist/index.js",
     "types": "./dist/index.d.ts",

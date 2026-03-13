@@ -1,5 +1,5 @@
-import type { ColumnDef } from '@heynow/react-spread-sheet-table'
-import { SpreadSheetTable, useSpreadSheetTable } from '@heynow/react-spread-sheet-table'
+import type { ColumnDef } from '@hey-now-jp/react-spread-sheet-table'
+import { SpreadSheetTable, useSpreadSheetTable } from '@hey-now-jp/react-spread-sheet-table'
 import { useMemo } from 'react'
 
 type LargeRow = {

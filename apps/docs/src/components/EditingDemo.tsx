@@ -1,5 +1,5 @@
-import type { ColumnDef, ValidationResult } from '@heynow/react-spread-sheet-table'
-import { SpreadSheetTable, useSpreadSheetTable } from '@heynow/react-spread-sheet-table'
+import type { ColumnDef, ValidationResult } from '@hey-now-jp/react-spread-sheet-table'
+import { SpreadSheetTable, useSpreadSheetTable } from '@hey-now-jp/react-spread-sheet-table'
 
 type FormRow = {
   id: string

@@ -35,7 +35,7 @@ export default defineConfig({
   ],
   vite: {
     ssr: {
-      noExternal: ['@heynow/react-spread-sheet-table'],
+      noExternal: ['@hey-now-jp/react-spread-sheet-table'],
     },
   },
 })

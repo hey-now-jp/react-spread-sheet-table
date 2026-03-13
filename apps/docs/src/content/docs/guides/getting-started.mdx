@@ -7,19 +7,28 @@ sidebar:
 
 ## インストール
 
+このパッケージは GitHub Packages で公開されています。まずプロジェクトの `.npmrc` にレジストリを設定してください。
+
+```ini
+# .npmrc
+@hey-now-jp:registry=https://npm.pkg.github.com
+```
+
+GitHub の Personal Access Token (`read:packages` 権限) がグローバルの `~/.npmrc` に設定されている必要があります。
+
 ```bash
-npm install @heynow/react-spread-sheet-table
+npm install @hey-now-jp/react-spread-sheet-table
 ```
 
 ```bash
-pnpm add @heynow/react-spread-sheet-table
+pnpm add @hey-now-jp/react-spread-sheet-table
 ```
 
 ## 基本的な使い方
 
 ```tsx
-import { SpreadSheetTable, useSpreadSheetTable } from '@heynow/react-spread-sheet-table'
-import type { ColumnDef } from '@heynow/react-spread-sheet-table'
+import { SpreadSheetTable, useSpreadSheetTable } from '@hey-now-jp/react-spread-sheet-table'
+import type { ColumnDef } from '@hey-now-jp/react-spread-sheet-table'
 
 type Row = {
   id: string
