@@ -40,10 +40,17 @@ import { SortableRow } from './SortableRow'
 import { TableRow } from './TableRow'
 import { Toast } from './Toast'
 
+type CellMetaFn<T> = (
+  row: T,
+  columnKey: keyof T,
+  rowIndex: number,
+) => import('../core/types').CellMeta | undefined
+
 type SpreadSheetTableComponentProps<T> = {
   readonly table: TableInstance<T>
   readonly readOnly?: boolean
   readonly height?: number
+  readonly cellMeta?: CellMetaFn<T>
 }
 
 const DEFAULT_HEIGHT = 400
@@ -178,6 +185,7 @@ function SpreadSheetTableInner<T>({
   table,
   readOnly = false,
   height = DEFAULT_HEIGHT,
+  cellMeta,
 }: SpreadSheetTableComponentProps<T>) {
   const store = (table as TableInstance<T> & { __store: TableStore<T> }).__store
   const handleCellChange = (
@@ -640,6 +648,7 @@ function SpreadSheetTableInner<T>({
                       readOnly={readOnly}
                       onCellChange={handleCellChange}
                       frozenLeftOffsets={frozenLeftOffsets}
+                      cellMeta={cellMeta}
                     />
                   ))}
                 </SortableContext>
@@ -664,6 +673,7 @@ function SpreadSheetTableInner<T>({
                       readOnly={readOnly}
                       onCellChange={handleCellChange}
                       frozenLeftOffsets={frozenLeftOffsets}
+                      cellMeta={cellMeta}
                     />
                   </div>
                 )

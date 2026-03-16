@@ -6,6 +6,7 @@ export type {
   ActionColumnDef,
   BooleanColumnDef,
   CellChange,
+  CellMeta,
   CellPosition,
   CellValidationError,
   ChangeInfo,

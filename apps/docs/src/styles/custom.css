@@ -53,3 +53,16 @@
   margin-bottom: 12px;
   font-size: 14px;
 }
+
+/* cellMeta demo styles */
+[data-row][data-col].cell-highlight {
+  background: #fff3e0;
+  outline: 1px solid #ff9800;
+  outline-offset: -1px;
+}
+
+[data-row][data-col].cell-low-score {
+  background: #e3f2fd;
+  outline: 1px solid #2196f3;
+  outline-offset: -1px;
+}

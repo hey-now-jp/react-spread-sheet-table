@@ -10,6 +10,10 @@ import { EditingDemo } from '../../../components/EditingDemo'
 - エラーセルは赤、警告セルはオレンジでハイライト
 - セルにホバーするとエラーメッセージがツールチップで表示
 - 「元に戻す」/「やり直し」で Undo / Redo
+- `cellMeta` によるセルごとのカスタムスタイル・ツールチップ:
+  - Category "C" のセルはオレンジでハイライト (ホバーで「要レビュー対象」と表示)
+  - Score が 50 未満のセルは青でハイライト (ホバーでスコアを表示)
+  - Approved が未承認のセルはホバーで注意メッセージを表示
 
 <div class="not-content">
   <EditingDemo client:only="react" />

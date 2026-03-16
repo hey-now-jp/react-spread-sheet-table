@@ -92,10 +92,20 @@ export type TableInstance<T> = {
 }
 
 // ---------------------------------------------------------------------------
+// Cell meta (external per-cell styling & tooltip)
+// ---------------------------------------------------------------------------
+
+export type CellMeta = {
+  readonly className?: string
+  readonly tooltip?: string
+}
+
+// ---------------------------------------------------------------------------
 // SpreadSheetTable component props
 // ---------------------------------------------------------------------------
 
 export type SpreadSheetTableProps<T> = {
   readonly table: TableInstance<T>
   readonly readOnly?: boolean
+  readonly cellMeta?: (row: T, columnKey: keyof T, rowIndex: number) => CellMeta | undefined
 }

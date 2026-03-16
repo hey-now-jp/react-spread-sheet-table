@@ -2,7 +2,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { memo } from 'react'
 import type { TableStore } from '../core/store/create-store'
-import type { ColumnDef } from '../core/types'
+import type { CellMeta, ColumnDef } from '../core/types'
 import dragStyles from '../styles/drag.module.css'
 import { RowHeader } from './RowHeader'
 import { TableRow } from './TableRow'
@@ -16,6 +16,7 @@ type SortableRowProps<T> = {
   readonly readOnly: boolean
   readonly onCellChange: (rowIndex: number, columnKey: keyof T, value: T[keyof T]) => void
   readonly frozenLeftOffsets: ReadonlyArray<number>
+  readonly cellMeta?: (row: T, columnKey: keyof T, rowIndex: number) => CellMeta | undefined
 }
 
 function SortableRowInner<T>({
@@ -27,6 +28,7 @@ function SortableRowInner<T>({
   readOnly,
   onCellChange,
   frozenLeftOffsets,
+  cellMeta,
 }: SortableRowProps<T>) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
@@ -58,6 +60,7 @@ function SortableRowInner<T>({
         readOnly={readOnly}
         onCellChange={onCellChange}
         frozenLeftOffsets={frozenLeftOffsets}
+        cellMeta={cellMeta}
       />
     </div>
   )

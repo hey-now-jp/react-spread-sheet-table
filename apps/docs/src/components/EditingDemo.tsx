@@ -1,5 +1,6 @@
-import type { ColumnDef, ValidationResult } from '@hey-now-jp/react-spread-sheet-table'
+import type { CellMeta, ColumnDef, ValidationResult } from '@hey-now-jp/react-spread-sheet-table'
 import { SpreadSheetTable, useSpreadSheetTable } from '@hey-now-jp/react-spread-sheet-table'
+import { useCallback } from 'react'
 
 type FormRow = {
   id: string
@@ -66,6 +67,28 @@ export function EditingDemo() {
     },
   })
 
+  const cellMeta = useCallback((row: FormRow, columnKey: keyof FormRow): CellMeta | undefined => {
+    // approved が false のセルにツールチップ表示
+    if (columnKey === 'approved' && !row.approved) {
+      return { tooltip: '未承認です - 確認してください' }
+    }
+    // category が "C" のセルを強調
+    if (columnKey === 'category' && row.category === 'C') {
+      return {
+        className: 'cell-highlight',
+        tooltip: 'カテゴリ C は要レビュー対象です',
+      }
+    }
+    // score が 50 未満のセルを強調
+    if (columnKey === 'score' && row.score < 50) {
+      return {
+        className: 'cell-low-score',
+        tooltip: `スコアが低いです (${row.score})`,
+      }
+    }
+    return undefined
+  }, [])
+
   const errors = table.getValidationErrors()
   const errorCount = errors.filter((e) => e.result.level === 'error').length
   const warnCount = errors.filter((e) => e.result.level === 'warn').length
@@ -85,7 +108,7 @@ export function EditingDemo() {
           やり直し
         </button>
       </div>
-      <SpreadSheetTable table={table} height={300} />
+      <SpreadSheetTable table={table} height={300} cellMeta={cellMeta} />
     </div>
   )
 }

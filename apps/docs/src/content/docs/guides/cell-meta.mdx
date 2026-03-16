@@ -1,0 +1,86 @@
+---
+title: Cell Meta
+description: セルごとのスタイリングとツールチップ
+sidebar:
+  order: 7
+---
+
+## セルごとのカスタマイズ
+
+`cellMeta` プロパティを使うと、セルごとに CSS クラスやツールチップを外部から注入できます。
+
+```tsx
+import type { CellMeta } from '@hey-now-jp/react-spread-sheet-table'
+
+const cellMeta = useCallback(
+  (row: MyRow, columnKey: keyof MyRow, rowIndex: number): CellMeta | undefined => {
+    if (columnKey === 'score' && row.score < 50) {
+      return {
+        className: 'low-score',
+        tooltip: `スコアが低いです (${row.score})`,
+      }
+    }
+    return undefined
+  },
+  [],
+)
+
+<SpreadSheetTable table={table} cellMeta={cellMeta} />
+```
+
+## CellMeta 型
+
+| プロパティ | 型 | 説明 |
+|----------|------|------|
+| `className` | `string` | セルに追加する CSS クラス名 |
+| `tooltip` | `string` | ホバー時に表示するツールチップテキスト |
+
+どちらも省略可能です。`undefined` を返すとそのセルには何も適用されません。
+
+## className の使い方
+
+`className` で指定したクラスはセルの既存クラスに追加されます。CSS Modules ではなくグローバル CSS を使ってスタイルを定義してください。
+
+セルの `data-row` / `data-col` 属性セレクタを併用すると、デフォルトスタイルより高い詳細度で上書きできます。
+
+```css
+[data-row][data-col].low-score {
+  background: #e3f2fd;
+  outline: 1px solid #2196f3;
+  outline-offset: -1px;
+}
+
+[data-row][data-col].highlight {
+  background: #fff3e0;
+  outline: 1px solid #ff9800;
+  outline-offset: -1px;
+}
+```
+
+## tooltip の使い方
+
+`tooltip` を指定するとホバー時にツールチップが表示されます。バリデーションエラーがあるセルではエラーメッセージが優先されます。
+
+```tsx
+const cellMeta = useCallback(
+  (row: MyRow, columnKey: keyof MyRow): CellMeta | undefined => {
+    // ツールチップのみ
+    if (columnKey === 'status' && !row.approved) {
+      return { tooltip: '未承認です' }
+    }
+    // className + ツールチップ
+    if (columnKey === 'category' && row.category === 'C') {
+      return {
+        className: 'highlight',
+        tooltip: '要レビュー対象です',
+      }
+    }
+    return undefined
+  },
+  [],
+)
+```
+
+## パフォーマンス
+
+`cellMeta` は表示中のセルごとに呼ばれますが、仮想スクロールにより画面外のセルでは呼ばれません。`useCallback` で関数参照を安定させるとより効率的です。

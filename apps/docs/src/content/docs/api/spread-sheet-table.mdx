@@ -20,6 +20,20 @@ import { SpreadSheetTable } from '@hey-now-jp/react-spread-sheet-table'
 | `table` | `TableInstance<T>` | (必須) | `useSpreadSheetTable` で生成したインスタンス |
 | `height` | `number` | - | テーブルの高さ (px)。指定すると仮想スクロールが有効に |
 | `readOnly` | `boolean` | `false` | テーブル全体を読み取り専用に |
+| `cellMeta` | `(row: T, columnKey: keyof T, rowIndex: number) => CellMeta \| undefined` | - | セルごとの追加スタイル・ツールチップを返すコールバック |
+
+### CellMeta
+
+`cellMeta` コールバックが返すオブジェクトの型です。
+
+```tsx
+type CellMeta = {
+  className?: string  // セルに追加する CSS クラス
+  tooltip?: string    // ホバー時のツールチップテキスト
+}
+```
+
+バリデーションエラーのツールチップが存在する場合はそちらが優先されます。
 
 ## キーボードショートカット
 

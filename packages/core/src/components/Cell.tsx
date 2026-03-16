@@ -1,7 +1,7 @@
 import { memo, useCallback, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { parseAndValidateValue } from '../core/format/format-utils'
 import type { TableStore } from '../core/store/create-store'
-import type { CellValidationError, DataColumnDef } from '../core/types'
+import type { CellMeta, CellValidationError, DataColumnDef } from '../core/types'
 import { getRangeEdges, getSelectionEdges, isActiveCell, isInSelection } from '../core/types'
 import styles from '../styles/cell.module.css'
 import { BooleanEditor } from './editors/BooleanEditor'
@@ -21,6 +21,7 @@ type CellProps<T> = {
   readonly onCellChange: (rowIndex: number, columnKey: keyof T, value: T[keyof T]) => void
   readonly stickyLeft?: number
   readonly isFrozenLast?: boolean
+  readonly cellMeta?: (row: T, columnKey: keyof T, rowIndex: number) => CellMeta | undefined
 }
 
 function CellInner<T>({
@@ -32,6 +33,7 @@ function CellInner<T>({
   onCellChange,
   stickyLeft,
   isFrozenLast,
+  cellMeta,
 }: CellProps<T>) {
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
   const cellRef = useRef<HTMLDivElement>(null)
@@ -56,6 +58,12 @@ function CellInner<T>({
         (e: CellValidationError) => e.rowIndex === rowIndex && e.columnKey === String(column.key),
       ),
     [validationErrors, rowIndex, column.key],
+  )
+
+  const row = store.getRows()[rowIndex]
+  const meta = useMemo(
+    () => cellMeta?.(row, column.key as keyof T, rowIndex),
+    [cellMeta, row, column.key, rowIndex],
   )
 
   const clipboardRange = store.getClipboardRange()
@@ -130,6 +138,7 @@ function CellInner<T>({
     isReadOnly ? styles.readOnlyCell : '',
     isFrozen ? styles.frozenCell : '',
     isFrozenLast ? styles.frozenLastCell : '',
+    meta?.className ?? '',
   ]
     .filter(Boolean)
     .join(' ')
@@ -156,7 +165,7 @@ function CellInner<T>({
       className={cellClassName}
       style={cellStyle}
       onDoubleClick={handleDoubleClick}
-      onMouseEnter={() => cellError && setShowTooltip(true)}
+      onMouseEnter={() => (cellError || meta?.tooltip) && setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
       data-row={rowIndex}
       data-col={colIndex}
@@ -179,7 +188,9 @@ function CellInner<T>({
           )}
         </>
       )}
-      {showTooltip && cellError && <div className={styles.tooltip}>{cellError.result.message}</div>}
+      {showTooltip && (cellError || meta?.tooltip) && (
+        <div className={styles.tooltip}>{cellError ? cellError.result.message : meta?.tooltip}</div>
+      )}
     </div>
   )
 }

@@ -32,6 +32,7 @@ export type {
 } from './sort'
 export type {
   CellChange,
+  CellMeta,
   ChangeInfo,
   SpreadSheetTableProps,
   TableInstance,

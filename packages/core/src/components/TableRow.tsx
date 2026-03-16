@@ -1,6 +1,6 @@
 import { memo, useSyncExternalStore } from 'react'
 import type { TableStore } from '../core/store/create-store'
-import type { ColumnDef } from '../core/types'
+import type { CellMeta, ColumnDef } from '../core/types'
 import { isActionColumn, isDataColumn } from '../core/types'
 import styles from '../styles/cell.module.css'
 import { ActionCell } from './ActionCell'
@@ -14,6 +14,7 @@ type TableRowProps<T> = {
   readonly readOnly: boolean
   readonly onCellChange: (rowIndex: number, columnKey: keyof T, value: T[keyof T]) => void
   readonly frozenLeftOffsets: ReadonlyArray<number>
+  readonly cellMeta?: (row: T, columnKey: keyof T, rowIndex: number) => CellMeta | undefined
 }
 
 function TableRowInner<T>({
@@ -24,6 +25,7 @@ function TableRowInner<T>({
   readOnly,
   onCellChange,
   frozenLeftOffsets,
+  cellMeta,
 }: TableRowProps<T>) {
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
   const row = store.getRows()[dataRowIndex]
@@ -69,6 +71,7 @@ function TableRowInner<T>({
               onCellChange={onCellChange}
               stickyLeft={stickyLeft}
               isFrozenLast={isFrozenLast}
+              cellMeta={cellMeta}
             />
           )
         }
