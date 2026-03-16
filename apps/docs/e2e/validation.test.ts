@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { getCell, getDemoContainer, goToEditingDemo } from './helpers'
+import { getCell, getDemoContainer, getTooltip, goToEditingDemo } from './helpers'
 
 test.describe('バリデーション', () => {
   test('エラーセルの赤背景表示', async ({ page }) => {
@@ -27,8 +27,7 @@ test.describe('バリデーション', () => {
     const errorCell = demo.locator('[class*="errorCell"]').first()
     await errorCell.hover()
 
-    // デモコンテナ内の tooltip のみ対象にする
-    const tooltip = demo.locator('[class*="tooltip"]')
+    const tooltip = getTooltip(page)
     await expect(tooltip).toBeVisible()
   })
 

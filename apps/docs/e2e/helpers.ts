@@ -64,6 +64,11 @@ export async function openFilter(page: Page, headerText: string) {
   await openColumnMenu(page, headerText)
 }
 
+/** ツールチップ (Portal) を取得 */
+export function getTooltip(page: Page) {
+  return page.locator('[data-testid="sst-tooltip"]')
+}
+
 /** 列メニューからソートを適用 */
 export async function sortColumn(page: Page, headerText: string, direction: 'asc' | 'desc') {
   await openColumnMenu(page, headerText)

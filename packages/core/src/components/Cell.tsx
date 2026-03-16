@@ -11,6 +11,7 @@ import { MultiListEditor } from './editors/MultiListEditor'
 import { NumberEditor } from './editors/NumberEditor'
 import { TextEditor } from './editors/TextEditor'
 import { TimeEditor } from './editors/TimeEditor'
+import { Tooltip } from './Tooltip'
 
 type CellProps<T> = {
   readonly column: DataColumnDef<T>
@@ -189,7 +190,9 @@ function CellInner<T>({
         </>
       )}
       {showTooltip && (cellError || meta?.tooltip) && (
-        <div className={styles.tooltip}>{cellError ? cellError.result.message : meta?.tooltip}</div>
+        <Tooltip anchorRef={cellRef}>
+          {cellError ? cellError.result.message : meta?.tooltip}
+        </Tooltip>
       )}
     </div>
   )

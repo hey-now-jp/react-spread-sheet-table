@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { getCell, getDemoContainer, goToEditingDemo } from './helpers'
+import { getCell, getTooltip, goToEditingDemo } from './helpers'
 
 test.describe('cellMeta', () => {
   test('Category "C" のセルに cell-highlight クラスが付与される', async ({ page }) => {
@@ -20,20 +20,18 @@ test.describe('cellMeta', () => {
 
   test('cellMeta のツールチップがホバーで表示される', async ({ page }) => {
     await goToEditingDemo(page)
-    const demo = getDemoContainer(page)
 
     // Category "C" のセルにホバー
     const cell = getCell(page, 2, 4)
     await cell.hover()
 
-    const tooltip = demo.locator('[class*="tooltip"]')
+    const tooltip = getTooltip(page)
     await expect(tooltip).toBeVisible()
     await expect(tooltip).toContainText('カテゴリ C は要レビュー対象です')
   })
 
   test('バリデーションエラーがある場合はエラーメッセージが優先される', async ({ page }) => {
     await goToEditingDemo(page)
-    const demo = getDemoContainer(page)
 
     // 行2 (rowIndex=1), Score 列 (colIndex=1) は score=-5
     // バリデーションエラー (min=0) と cellMeta (score < 50) の両方が該当
@@ -41,7 +39,7 @@ test.describe('cellMeta', () => {
     const cell = getCell(page, 1, 1)
     await cell.hover()
 
-    const tooltip = demo.locator('[class*="tooltip"]')
+    const tooltip = getTooltip(page)
     await expect(tooltip).toBeVisible()
     await expect(tooltip).toContainText('最小値は0です')
   })
@@ -57,13 +55,12 @@ test.describe('cellMeta', () => {
 
   test('Approved 未承認セルのホバーでツールチップが表示される', async ({ page }) => {
     await goToEditingDemo(page)
-    const demo = getDemoContainer(page)
 
     // 行2 (rowIndex=1), Approved 列 (colIndex=3), approved=false
     const cell = getCell(page, 1, 3)
     await cell.hover()
 
-    const tooltip = demo.locator('[class*="tooltip"]')
+    const tooltip = getTooltip(page)
     await expect(tooltip).toBeVisible()
     await expect(tooltip).toContainText('未承認です')
   })
