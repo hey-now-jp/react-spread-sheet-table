@@ -1,0 +1,16 @@
+---
+title: Multi Table
+description: 1画面に複数テーブルを配置するデモ
+---
+
+import { MultiTableDemo } from '../../../components/MultiTableDemo'
+
+1つのページに複数の独立したテーブルを配置するデモです。
+
+- 各テーブルは独立した `useSpreadSheetTable` インスタンスを持つ
+- セル選択、ソート、フィルタは各テーブルで独立して動作する
+- キーボードフォーカスはクリックしたテーブルに移る
+
+<div class="not-content">
+  <MultiTableDemo client:only="react" />
+</div>

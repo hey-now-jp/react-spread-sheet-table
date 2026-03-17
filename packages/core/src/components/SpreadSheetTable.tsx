@@ -52,8 +52,6 @@ type SpreadSheetTableComponentProps<T> = {
   readonly height?: number
   readonly cellMeta?: CellMetaFn<T>
 }
-
-const DEFAULT_HEIGHT = 400
 const ROW_HEIGHT = 32
 const ROW_HEADER_WIDTH = 40
 
@@ -168,8 +166,9 @@ function scrollRowIntoView(
   containerRef: React.RefObject<HTMLDivElement | null>,
   visualIndex: number,
   rowHeight: number,
-  containerHeight: number,
+  containerHeight: number | undefined,
 ): void {
+  if (containerHeight === undefined) return
   const container = containerRef.current
   if (!container) return
   const rowTop = visualIndex * rowHeight
@@ -184,7 +183,7 @@ function scrollRowIntoView(
 function SpreadSheetTableInner<T>({
   table,
   readOnly = false,
-  height = DEFAULT_HEIGHT,
+  height,
   cellMeta,
 }: SpreadSheetTableComponentProps<T>) {
   const store = (table as TableInstance<T> & { __store: TableStore<T> }).__store
@@ -403,7 +402,10 @@ function SpreadSheetTableInner<T>({
           const visualIndex = sortedFilteredIndices.indexOf(currentPos.rowIndex)
           if (visualIndex === -1) break
 
-          const pageSize = Math.max(1, Math.floor(height / ROW_HEIGHT) - 1)
+          const pageSize = Math.max(
+            1,
+            Math.floor((height ?? sortedFilteredIndices.length * ROW_HEIGHT) / ROW_HEIGHT) - 1,
+          )
           const newVisualIndex =
             e.key === 'PageUp'
               ? Math.max(0, visualIndex - pageSize)
@@ -613,7 +615,7 @@ function SpreadSheetTableInner<T>({
       <div
         ref={virtualScroll.containerRef}
         className={scrollStyles.scrollContainer}
-        style={{ height }}
+        style={height !== undefined ? { height } : undefined}
       >
         <HeaderRow
           columns={columns}
@@ -624,10 +626,17 @@ function SpreadSheetTableInner<T>({
           resizable={table.resizable}
           frozenLeftOffsets={frozenLeftOffsets}
         />
-        <div className={scrollStyles.spacer} style={{ height: virtualScroll.totalHeight }}>
+        <div
+          className={height !== undefined ? scrollStyles.spacer : undefined}
+          style={height !== undefined ? { height: virtualScroll.totalHeight } : undefined}
+        >
           <div
-            className={scrollStyles.visibleRows}
-            style={{ transform: `translateY(${virtualScroll.offsetTop}px)` }}
+            className={height !== undefined ? scrollStyles.visibleRows : undefined}
+            style={
+              height !== undefined
+                ? { transform: `translateY(${virtualScroll.offsetTop}px)` }
+                : undefined
+            }
           >
             {canReorder ? (
               <DndContext

@@ -54,6 +54,14 @@
   font-size: 14px;
 }
 
+/* multi-table demo styles */
+.multi-table-heading {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
 /* cellMeta demo styles */
 [data-row][data-col].cell-highlight {
   background: #fff3e0;
