@@ -108,4 +108,5 @@ export type SpreadSheetTableProps<T> = {
   readonly table: TableInstance<T>
   readonly readOnly?: boolean
   readonly cellMeta?: (row: T, columnKey: keyof T, rowIndex: number) => CellMeta | undefined
+  readonly autoWidth?: boolean
 }

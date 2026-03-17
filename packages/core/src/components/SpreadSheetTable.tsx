@@ -51,6 +51,7 @@ type SpreadSheetTableComponentProps<T> = {
   readonly readOnly?: boolean
   readonly height?: number
   readonly cellMeta?: CellMetaFn<T>
+  readonly autoWidth?: boolean
 }
 const ROW_HEIGHT = 32
 const ROW_HEADER_WIDTH = 40
@@ -185,6 +186,7 @@ function SpreadSheetTableInner<T>({
   readOnly = false,
   height,
   cellMeta,
+  autoWidth = false,
 }: SpreadSheetTableComponentProps<T>) {
   const store = (table as TableInstance<T> & { __store: TableStore<T> }).__store
   const handleCellChange = (
@@ -603,7 +605,7 @@ function SpreadSheetTableInner<T>({
   return (
     <div
       ref={wrapperRef}
-      className={tableStyles.wrapper}
+      className={`${tableStyles.wrapper}${autoWidth ? ` ${tableStyles.autoWidth}` : ''}`}
       onKeyDown={handleKeyDown}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}

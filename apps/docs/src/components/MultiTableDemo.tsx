@@ -118,7 +118,7 @@ function StaffTable() {
   return (
     <div>
       <h3 className="multi-table-heading">社員一覧</h3>
-      <SpreadSheetTable table={table} />
+      <SpreadSheetTable table={table} autoWidth />
     </div>
   )
 }
@@ -135,7 +135,7 @@ function TaskTable() {
   return (
     <div>
       <h3 className="multi-table-heading">タスク一覧</h3>
-      <SpreadSheetTable table={table} />
+      <SpreadSheetTable table={table} autoWidth />
     </div>
   )
 }

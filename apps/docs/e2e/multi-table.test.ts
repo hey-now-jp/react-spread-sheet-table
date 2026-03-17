@@ -51,6 +51,22 @@ test.describe('複数テーブル', () => {
     await expect(headers).toHaveCount(2)
   })
 
+  test('autoWidth でテーブル幅がカラム幅の合計に収まる', async ({ page }) => {
+    await goToMultiTableDemo(page)
+    const demo = getDemoContainer(page)
+
+    const wrappers = demo.locator('[class*="wrapper"]')
+    const firstWidth = await wrappers.nth(0).evaluate((el) => el.offsetWidth)
+    const secondWidth = await wrappers.nth(1).evaluate((el) => el.offsetWidth)
+
+    // カラム数が違うのでテーブル幅も違うはず
+    expect(firstWidth).toBeLessThan(secondWidth)
+
+    // 親コンテナより小さい (余白がない)
+    const demoWidth = await demo.evaluate((el) => el.offsetWidth)
+    expect(firstWidth).toBeLessThan(demoWidth)
+  })
+
   test('各テーブルのセルを編集できる', async ({ page }) => {
     await goToMultiTableDemo(page)
     const demo = getDemoContainer(page)
