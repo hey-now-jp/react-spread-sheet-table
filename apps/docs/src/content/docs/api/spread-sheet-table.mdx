@@ -10,7 +10,11 @@ description: テーブル描画コンポーネント
 ```tsx
 import { SpreadSheetTable } from '@hey-now-jp/react-spread-sheet-table'
 
+// 仮想スクロールあり (固定高さ)
 <SpreadSheetTable table={table} height={500} />
+
+// 仮想スクロールなし (行数に合った自然な高さ)
+<SpreadSheetTable table={table} />
 ```
 
 ## Props
@@ -18,7 +22,7 @@ import { SpreadSheetTable } from '@hey-now-jp/react-spread-sheet-table'
 | プロパティ | 型 | デフォルト | 説明 |
 |----------|------|---------|------|
 | `table` | `TableInstance<T>` | (必須) | `useSpreadSheetTable` で生成したインスタンス |
-| `height` | `number` | - | テーブルの高さ (px)。指定すると仮想スクロールが有効に |
+| `height` | `number` | - | テーブルの高さ (px)。指定すると仮想スクロールが有効に。省略すると全行表示 |
 | `readOnly` | `boolean` | `false` | テーブル全体を読み取り専用に |
 | `cellMeta` | `(row: T, columnKey: keyof T, rowIndex: number) => CellMeta \| undefined` | - | セルごとの追加スタイル・ツールチップを返すコールバック |
 

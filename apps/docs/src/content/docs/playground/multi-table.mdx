@@ -5,11 +5,12 @@ description: 1画面に複数テーブルを配置するデモ
 
 import { MultiTableDemo } from '../../../components/MultiTableDemo'
 
-1つのページに複数の独立したテーブルを配置するデモです。
+1つのページに複数の独立したテーブルを配置するデモです。`height` を省略しているため、各テーブルは行数に合った自然な高さで表示されます。
 
 - 各テーブルは独立した `useSpreadSheetTable` インスタンスを持つ
+- `height` 省略で仮想スクロール無効、テーブル内部のスクロールなし
 - セル選択、ソート、フィルタは各テーブルで独立して動作する
-- キーボードフォーカスはクリックしたテーブルに移る
+- 両テーブルに同じ「優先度」(list) カラムを配置
 
 <div class="not-content">
   <MultiTableDemo client:only="react" />

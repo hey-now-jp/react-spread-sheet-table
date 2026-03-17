@@ -64,6 +64,13 @@ export async function openFilter(page: Page, headerText: string) {
   await openColumnMenu(page, headerText)
 }
 
+/** MultiTableDemo ページに遷移 */
+export async function goToMultiTableDemo(page: Page) {
+  await page.goto('/react-spread-sheet-table/playground/multi-table/')
+  const container = page.locator('[class*="scrollContainer"]').first()
+  await container.waitFor()
+}
+
 /** ツールチップ (Portal) を取得 */
 export function getTooltip(page: Page) {
   return page.locator('[data-testid="sst-tooltip"]')

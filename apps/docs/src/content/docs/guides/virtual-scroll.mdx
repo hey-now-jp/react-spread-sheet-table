@@ -7,7 +7,7 @@ sidebar:
 
 ## 仮想スクロール
 
-`SpreadSheetTable` は自動的に仮想スクロールを適用します。`height` プロパティを指定すると、表示領域に収まる行のみを DOM に描画し、スクロールに応じて動的に行を入れ替えます。
+`height` プロパティを指定すると、仮想スクロールが有効になります。表示領域に収まる行のみを DOM に描画し、スクロールに応じて動的に行を入れ替えます。
 
 ```tsx
 const table = useSpreadSheetTable<LargeRow>({
@@ -17,6 +17,17 @@ const table = useSpreadSheetTable<LargeRow>({
 })
 
 <SpreadSheetTable table={table} height={600} />
+```
+
+## height 省略時 (仮想スクロール無効)
+
+`height` を省略すると仮想スクロールが無効になり、全行を DOM に描画します。テーブルの高さは行数に応じて自動的に決まります。
+
+少量のデータや、1画面に複数テーブルを配置する場合に便利です。
+
+```tsx
+// 行数に合った自然な高さで描画
+<SpreadSheetTable table={table} />
 ```
 
 ## パフォーマンス
