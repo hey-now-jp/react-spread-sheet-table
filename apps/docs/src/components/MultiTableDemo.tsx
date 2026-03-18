@@ -1,5 +1,9 @@
 import type { ColumnDef } from '@hey-now-jp/react-spread-sheet-table'
-import { SpreadSheetTable, useSpreadSheetTable } from '@hey-now-jp/react-spread-sheet-table'
+import {
+  ReactSpreadSheetTableProvider,
+  SpreadSheetTable,
+  useSpreadSheetTable,
+} from '@hey-now-jp/react-spread-sheet-table'
 
 const priorityOptions = ['High', 'Medium', 'Low'] as const
 
@@ -146,10 +150,12 @@ function TaskTable() {
 
 export function MultiTableDemo() {
   return (
-    <div className="demo-container">
-      <StaffTable />
-      <div style={{ marginTop: 24 }} />
-      <TaskTable />
-    </div>
+    <ReactSpreadSheetTableProvider>
+      <div className="demo-container">
+        <StaffTable />
+        <div style={{ marginTop: 24 }} />
+        <TaskTable />
+      </div>
+    </ReactSpreadSheetTableProvider>
   )
 }

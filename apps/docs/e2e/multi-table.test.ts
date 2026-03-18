@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { getDemoContainer, goToMultiTableDemo } from './helpers'
+import { getDemoContainer, goToMultiTableDemo, modKey } from './helpers'
 
 test.describe('複数テーブル', () => {
   test('2つのテーブルが表示される', async ({ page }) => {
@@ -67,12 +67,47 @@ test.describe('複数テーブル', () => {
     expect(firstWidth).toBeLessThan(demoWidth)
   })
 
+  test('テーブルAでコピー後にテーブルBでコピーするとテーブルAのマーチングアンツが消える', async ({
+    page,
+    context,
+  }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+    await goToMultiTableDemo(page)
+    const demo = getDemoContainer(page)
+    const wrappers = demo.locator('[class*="wrapper"]')
+    const mod = modKey(page)
+
+    // テーブルAのセルを選択してコピー
+    const cellA = wrappers.nth(0).locator('[data-row="0"][data-col="0"]')
+    await cellA.click()
+    await page.keyboard.press(`${mod}+c`)
+
+    // テーブルAにマーチングアンツが表示されている
+    await expect(wrappers.nth(0).locator('[class*="clipboardCell"]')).toHaveCount(1)
+
+    // テーブルBのセルを選択してコピー
+    const cellB = wrappers.nth(1).locator('[data-row="0"][data-col="0"]')
+    await cellB.click()
+    await page.keyboard.press(`${mod}+c`)
+
+    // テーブルBにマーチングアンツが表示されている
+    await expect(wrappers.nth(1).locator('[class*="clipboardCell"]')).toHaveCount(1)
+
+    // テーブルAのマーチングアンツが消えている
+    await expect(wrappers.nth(0).locator('[class*="clipboardCell"]')).toHaveCount(0)
+  })
+
   test('各テーブルのセルを編集できる', async ({ page }) => {
     await goToMultiTableDemo(page)
     const demo = getDemoContainer(page)
 
     const firstWrapper = demo.locator('[class*="wrapper"]').nth(0)
     const cell = firstWrapper.locator('[data-row="0"][data-col="0"]')
+
+    // セルをクリックしてアクティブにし、React ハイドレーション完了を確認
+    await cell.click()
+    await expect(cell).toHaveClass(/activeCell/)
+
     await cell.dblclick()
 
     const input = firstWrapper.locator('input[type="text"]')

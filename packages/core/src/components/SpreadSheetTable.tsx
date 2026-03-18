@@ -9,7 +9,17 @@ import {
 } from '@dnd-kit/core'
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { memo, useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
+import {
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useSyncExternalStore,
+} from 'react'
+import type { SpreadSheetTableContextValue } from '../context/SpreadSheetTableContext'
+import { SpreadSheetTableContext } from '../context/SpreadSheetTableContext'
 import {
   deserializeTsv,
   expandClipboardData,
@@ -200,6 +210,8 @@ function SpreadSheetTableInner<T>({
     }
   ).__onReorder
 
+  const clipboardCtx = useContext(SpreadSheetTableContext)
+
   const wrapperRef = useRef<HTMLDivElement>(null)
 
   // Subscribe to store
@@ -301,17 +313,17 @@ function SpreadSheetTableInner<T>({
           return
         }
         if (e.key === 'c' || e.key === 'C') {
-          handleCopy(store)
+          handleCopy(store, clipboardCtx)
           e.preventDefault()
           return
         }
         if (e.key === 'v' || e.key === 'V') {
-          handlePaste(store, columns, readOnly, handleCellChange)
+          handlePaste(store, columns, readOnly, handleCellChange, clipboardCtx)
           e.preventDefault()
           return
         }
         if (e.key === 'x' || e.key === 'X') {
-          handleCut(store, columns, readOnly, handleCellChange)
+          handleCut(store, columns, readOnly, handleCellChange, clipboardCtx)
           e.preventDefault()
           return
         }
@@ -467,6 +479,7 @@ function SpreadSheetTableInner<T>({
         case 'Escape': {
           if (store.getClipboardRange()) {
             store.clearClipboardRange()
+            clipboardCtx?.notifyClipboardClear(store)
           } else {
             store.clearSelection()
           }
@@ -525,6 +538,7 @@ function SpreadSheetTableInner<T>({
       sortedFilteredIndices,
       readOnly,
       handleCellChange,
+      clipboardCtx,
       height,
       virtualScroll.containerRef,
     ],
@@ -697,7 +711,7 @@ function SpreadSheetTableInner<T>({
   )
 }
 
-function handleCopy<T>(store: TableStore<T>): void {
+function handleCopy<T>(store: TableStore<T>, ctx: SpreadSheetTableContextValue | null): void {
   const selection = store.getSelection()
   const columns = store.getColumns()
 
@@ -727,6 +741,7 @@ function handleCopy<T>(store: TableStore<T>): void {
   navigator.clipboard.writeText(tsv)
 
   store.setClipboardRange(clipRange)
+  ctx?.notifyClipboardCopy(store)
 }
 
 function countDataColsInRange<T>(
@@ -746,6 +761,7 @@ function handlePaste<T>(
   columns: ReadonlyArray<import('../core/types/column').ColumnDef<T>>,
   readOnlyTable: boolean,
   onCellChange: (rowIndex: number, columnKey: keyof T, value: T[keyof T]) => void,
+  ctx: SpreadSheetTableContextValue | null,
 ): void {
   if (readOnlyTable) return
 
@@ -827,6 +843,7 @@ function handlePaste<T>(
 
       // Clear clipboard marching ants
       store.clearClipboardRange()
+      ctx?.notifyClipboardClear(store)
 
       // Show format errors as toast
       if (formatErrors.length > 0) {
@@ -843,8 +860,9 @@ function handleCut<T>(
   columns: ReadonlyArray<import('../core/types/column').ColumnDef<T>>,
   readOnlyTable: boolean,
   onCellChange: (rowIndex: number, columnKey: keyof T, value: T[keyof T]) => void,
+  ctx: SpreadSheetTableContextValue | null,
 ): void {
-  handleCopy(store)
+  handleCopy(store, ctx)
   if (!readOnlyTable) {
     clearSelectedCells(store, columns, onCellChange)
   }

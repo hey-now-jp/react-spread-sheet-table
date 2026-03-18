@@ -8,6 +8,7 @@ import { MultiTableDemo } from '../../../components/MultiTableDemo'
 1つのページに複数の独立したテーブルを配置するデモです。`height` を省略しているため、各テーブルは行数に合った自然な高さで表示されます。
 
 - 各テーブルは独立した `useSpreadSheetTable` インスタンスを持つ
+- `ReactSpreadSheetTableProvider` でラップすることで、テーブル間のクリップボード範囲 (マーチングアンツ) が排他制御される
 - `height` 省略で仮想スクロール無効、テーブル内部のスクロールなし
 - `autoWidth` でテーブル幅をカラム幅の合計に合わせている
 - セル選択、ソート、フィルタは各テーブルで独立して動作する

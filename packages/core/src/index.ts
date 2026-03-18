@@ -2,6 +2,8 @@
 
 // Component
 export { SpreadSheetTable } from './components/SpreadSheetTable'
+// Provider
+export { ReactSpreadSheetTableProvider } from './context/SpreadSheetTableProvider'
 export type {
   ActionColumnDef,
   BooleanColumnDef,
@@ -37,6 +39,7 @@ export {
   isDataColumn,
   isInSelection,
 } from './core/types'
+
 // Hook
 export { useSpreadSheetTable } from './hooks/use-spread-sheet-table'
 

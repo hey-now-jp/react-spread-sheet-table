@@ -27,6 +27,32 @@ import { SpreadSheetTable } from '@hey-now-jp/react-spread-sheet-table'
 | `cellMeta` | `(row: T, columnKey: keyof T, rowIndex: number) => CellMeta \| undefined` | - | セルごとの追加スタイル・ツールチップを返すコールバック |
 | `autoWidth` | `boolean` | `false` | テーブル幅をカラム幅の合計に合わせる |
 
+## ReactSpreadSheetTableProvider
+
+複数の `SpreadSheetTable` を同一画面で使用するとき、クリップボード範囲 (マーチングアンツ) の排他制御を行う Provider です。
+
+あるテーブルでコピー/カットを実行すると、別テーブルのクリップボード範囲が自動的にクリアされます。Provider なしでも各テーブルは独立して動作しますが、マーチングアンツが複数テーブルに残る場合があります。
+
+```tsx
+import {
+  ReactSpreadSheetTableProvider,
+  SpreadSheetTable,
+  useSpreadSheetTable,
+} from '@hey-now-jp/react-spread-sheet-table'
+
+function App() {
+  const tableA = useSpreadSheetTable({ ... })
+  const tableB = useSpreadSheetTable({ ... })
+
+  return (
+    <ReactSpreadSheetTableProvider>
+      <SpreadSheetTable table={tableA} />
+      <SpreadSheetTable table={tableB} />
+    </ReactSpreadSheetTableProvider>
+  )
+}
+```
+
 ### CellMeta
 
 `cellMeta` コールバックが返すオブジェクトの型です。
