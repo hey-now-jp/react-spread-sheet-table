@@ -334,7 +334,7 @@ function SpreadSheetTableInner<T>({
           return
         }
         if (e.key === 'v' || e.key === 'V') {
-          handlePaste(store, columns, readOnly, handleCellChange, clipboardCtx)
+          handlePaste(store, columns, readOnly, handleCellChange)
           e.preventDefault()
           return
         }
@@ -777,7 +777,6 @@ function handlePaste<T>(
   columns: ReadonlyArray<import('../core/types/column').ColumnDef<T>>,
   readOnlyTable: boolean,
   onCellChange: (rowIndex: number, columnKey: keyof T, value: T[keyof T]) => void,
-  ctx: SpreadSheetTableContextValue | null,
 ): void {
   if (readOnlyTable) return
 
