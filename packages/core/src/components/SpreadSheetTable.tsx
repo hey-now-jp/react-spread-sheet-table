@@ -229,6 +229,22 @@ function SpreadSheetTableInner<T>({
     wasEditing.current = editingCell !== null
   }, [editingCell])
 
+  // Clear marching ants when clipboard is overwritten outside the table
+  const clipboardRange = store.getClipboardRange()
+  useEffect(() => {
+    if (clipboardRange === null) return
+    const handleDocumentCopy = () => {
+      store.clearClipboardRange()
+      clipboardCtx?.notifyClipboardClear(store)
+    }
+    document.addEventListener('copy', handleDocumentCopy)
+    document.addEventListener('cut', handleDocumentCopy)
+    return () => {
+      document.removeEventListener('copy', handleDocumentCopy)
+      document.removeEventListener('cut', handleDocumentCopy)
+    }
+  }, [clipboardRange, store, clipboardCtx])
+
   const columns = store.getColumns()
   const sortedFilteredIndices = store.getSortedFilteredIndices()
 
@@ -840,10 +856,6 @@ function handlePaste<T>(
       if (maxPastedRow !== startRow || maxPastedCol !== startCol) {
         store.extendSelection({ rowIndex: maxPastedRow, colIndex: maxPastedCol })
       }
-
-      // Clear clipboard marching ants
-      store.clearClipboardRange()
-      ctx?.notifyClipboardClear(store)
 
       // Show format errors as toast
       if (formatErrors.length > 0) {
