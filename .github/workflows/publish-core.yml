@@ -1,0 +1,58 @@
+name: Publish core to GitHub Packages
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'publish せずに pack 内容だけ確認する'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          registry-url: https://npm.pkg.github.com
+          scope: '@hey-now-jp'
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter @hey-now-jp/react-spread-sheet-table build
+
+      - name: Verify tag matches package version
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          TAG_VERSION="${REF_NAME#v}"
+          PKG_VERSION=$(node -p "require('./packages/core/package.json').version")
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "::error::Tag $REF_NAME does not match package version $PKG_VERSION"
+            exit 1
+          fi
+          echo "Publishing version $PKG_VERSION"
+
+      - name: Pack (dry run)
+        if: inputs.dry_run == true
+        run: pnpm --filter @hey-now-jp/react-spread-sheet-table exec npm pack --dry-run
+
+      - name: Publish
+        if: inputs.dry_run != true
+        run: pnpm --filter @hey-now-jp/react-spread-sheet-table publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
