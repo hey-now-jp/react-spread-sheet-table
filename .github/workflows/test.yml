@@ -21,7 +21,7 @@ jobs:
       - uses: pnpm/action-setup@v5
       - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version-file: '.node-version'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
@@ -33,7 +33,7 @@ jobs:
       - uses: pnpm/action-setup@v5
       - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version-file: '.node-version'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @hey-now-jp/react-spread-sheet-table typecheck
@@ -45,7 +45,7 @@ jobs:
       - uses: pnpm/action-setup@v5
       - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version-file: '.node-version'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
@@ -57,7 +57,7 @@ jobs:
       - uses: pnpm/action-setup@v5
       - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version-file: '.node-version'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Cache Playwright browsers
