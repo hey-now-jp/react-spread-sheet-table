@@ -270,6 +270,15 @@ function SpreadSheetTableInner<T>({
   const canReorder =
     table.reorderable && store.getSortState() === null && store.getFilterState().size === 0
 
+  const sensors = useMemo(
+    () => [
+      PointerSensor.configure({
+        activationConstraints: [new PointerActivationConstraints.Distance({ value: 5 })],
+      }),
+    ],
+    [],
+  )
+
   const rowKey = store.getRowKey()
   const rows = store.getRows()
 
@@ -660,13 +669,7 @@ function SpreadSheetTableInner<T>({
           >
             {canReorder ? (
               <DragDropProvider
-                sensors={[
-                  PointerSensor.configure({
-                    activationConstraints: [
-                      new PointerActivationConstraints.Distance({ value: 5 }),
-                    ],
-                  }),
-                ]}
+                sensors={sensors}
                 modifiers={[RestrictToVerticalAxis]}
                 onDragEnd={handleDragEnd}
               >
