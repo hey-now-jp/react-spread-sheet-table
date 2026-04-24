@@ -1,5 +1,3 @@
-import type { DraggableAttributes } from '@dnd-kit/core'
-import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities'
 import { memo, useCallback } from 'react'
 import type { TableStore } from '../core/store/create-store'
 import styles from '../styles/row-header.module.css'
@@ -10,8 +8,7 @@ type RowHeaderProps<T> = {
   readonly colCount: number
   readonly store: TableStore<T>
   readonly draggable?: boolean
-  readonly listeners?: SyntheticListenerMap
-  readonly attributes?: DraggableAttributes
+  readonly handleRef?: (element: Element | null) => void
   readonly frozen?: boolean
 }
 
@@ -21,8 +18,7 @@ function RowHeaderInner<T>({
   colCount,
   store,
   draggable,
-  listeners,
-  attributes,
+  handleRef,
   frozen,
 }: RowHeaderProps<T>) {
   const selectRow = useCallback(
@@ -48,11 +44,10 @@ function RowHeaderInner<T>({
 
   return (
     <div
+      ref={draggable ? handleRef : undefined}
       className={`${styles.rowHeader} ${draggable ? styles.draggable : ''} ${frozen ? styles.frozenRowHeader : ''}`}
       onMouseDown={draggable ? undefined : selectRow}
       onClick={draggable ? selectRow : undefined}
-      {...(draggable ? listeners : undefined)}
-      {...(draggable ? attributes : undefined)}
     >
       {displayRowIndex + 1}
     </div>

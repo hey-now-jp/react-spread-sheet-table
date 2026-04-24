@@ -1,5 +1,4 @@
-import { useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
+import { useSortable } from '@dnd-kit/react/sortable'
 import { memo } from 'react'
 import type { TableStore } from '../core/store/create-store'
 import type { CellMeta, ColumnDef } from '../core/types'
@@ -9,6 +8,7 @@ import { TableRow } from './TableRow'
 
 type SortableRowProps<T> = {
   readonly id: string
+  readonly index: number
   readonly columns: ReadonlyArray<ColumnDef<T>>
   readonly dataRowIndex: number
   readonly displayRowIndex: number
@@ -21,6 +21,7 @@ type SortableRowProps<T> = {
 
 function SortableRowInner<T>({
   id,
+  index,
   columns,
   dataRowIndex,
   displayRowIndex,
@@ -30,26 +31,24 @@ function SortableRowInner<T>({
   frozenLeftOffsets,
   cellMeta,
 }: SortableRowProps<T>) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const { ref, handleRef, isDragging } = useSortable({
     id,
+    index,
   })
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  }
-
   return (
-    <div ref={setNodeRef} style={style} className={dragStyles.sortableRow}>
+    <div
+      ref={ref}
+      style={isDragging ? { opacity: 0.5 } : undefined}
+      className={dragStyles.sortableRow}
+    >
       <RowHeader
         displayRowIndex={displayRowIndex}
         dataRowIndex={dataRowIndex}
         colCount={columns.length}
         store={store}
         draggable
-        listeners={listeners}
-        attributes={attributes}
+        handleRef={handleRef}
         frozen
       />
       <TableRow

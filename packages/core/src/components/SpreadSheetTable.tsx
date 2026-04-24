@@ -1,14 +1,8 @@
-import {
-  closestCenter,
-  DndContext,
-  type DragEndEvent,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core'
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { RestrictToVerticalAxis } from '@dnd-kit/abstract/modifiers'
+import { PointerActivationConstraints } from '@dnd-kit/dom'
+import type { DragEndEvent } from '@dnd-kit/react'
+import { DragDropProvider, PointerSensor } from '@dnd-kit/react'
+import { isSortable } from '@dnd-kit/react/sortable'
 import {
   memo,
   useCallback,
@@ -279,31 +273,25 @@ function SpreadSheetTableInner<T>({
   const rowKey = store.getRowKey()
   const rows = store.getRows()
 
-  const sortableItems = useMemo(() => {
-    if (!canReorder) return []
-    return sortedFilteredIndices.map((idx) => String(rows[idx][rowKey]))
-  }, [canReorder, sortedFilteredIndices, rows, rowKey])
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor),
-  )
-
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
-      const { active, over } = event
-      if (!over || active.id === over.id) return
-      const fromIndex = sortedFilteredIndices.findIndex(
-        (idx) => String(rows[idx][rowKey]) === String(active.id),
+      if (event.canceled) return
+      const { source } = event.operation
+      if (!source || !isSortable(source)) return
+      const fromVisual = source.initialIndex
+      const toVisual = source.index
+      if (fromVisual === toVisual) return
+      if (
+        fromVisual < 0 ||
+        toVisual < 0 ||
+        fromVisual >= sortedFilteredIndices.length ||
+        toVisual >= sortedFilteredIndices.length
       )
-      const toIndex = sortedFilteredIndices.findIndex(
-        (idx) => String(rows[idx][rowKey]) === String(over.id),
-      )
-      if (fromIndex === -1 || toIndex === -1) return
-      store.reorderRows(sortedFilteredIndices[fromIndex], sortedFilteredIndices[toIndex])
+        return
+      store.reorderRows(sortedFilteredIndices[fromVisual], sortedFilteredIndices[toVisual])
       onReorder?.(store.getRows())
     },
-    [store, sortedFilteredIndices, rows, rowKey, onReorder],
+    [store, sortedFilteredIndices, onReorder],
   )
 
   // Keyboard navigation
@@ -671,29 +659,33 @@ function SpreadSheetTableInner<T>({
             }
           >
             {canReorder ? (
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                modifiers={[restrictToVerticalAxis]}
+              <DragDropProvider
+                sensors={[
+                  PointerSensor.configure({
+                    activationConstraints: [
+                      new PointerActivationConstraints.Distance({ value: 5 }),
+                    ],
+                  }),
+                ]}
+                modifiers={[RestrictToVerticalAxis]}
                 onDragEnd={handleDragEnd}
               >
-                <SortableContext items={sortableItems} strategy={verticalListSortingStrategy}>
-                  {visibleIndices.map((dataRowIndex, displayOffset) => (
-                    <SortableRow
-                      key={String(rows[dataRowIndex][rowKey])}
-                      id={String(rows[dataRowIndex][rowKey])}
-                      columns={columns}
-                      dataRowIndex={dataRowIndex}
-                      displayRowIndex={virtualScroll.visibleStart + displayOffset}
-                      store={store}
-                      readOnly={readOnly}
-                      onCellChange={handleCellChange}
-                      frozenLeftOffsets={frozenLeftOffsets}
-                      cellMeta={cellMeta}
-                    />
-                  ))}
-                </SortableContext>
-              </DndContext>
+                {visibleIndices.map((dataRowIndex, displayOffset) => (
+                  <SortableRow
+                    key={String(rows[dataRowIndex][rowKey])}
+                    id={String(rows[dataRowIndex][rowKey])}
+                    index={virtualScroll.visibleStart + displayOffset}
+                    columns={columns}
+                    dataRowIndex={dataRowIndex}
+                    displayRowIndex={virtualScroll.visibleStart + displayOffset}
+                    store={store}
+                    readOnly={readOnly}
+                    onCellChange={handleCellChange}
+                    frozenLeftOffsets={frozenLeftOffsets}
+                    cellMeta={cellMeta}
+                  />
+                ))}
+              </DragDropProvider>
             ) : (
               visibleIndices.map((dataRowIndex, displayOffset) => {
                 const dispIdx = virtualScroll.visibleStart + displayOffset
