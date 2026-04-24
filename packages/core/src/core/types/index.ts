@@ -6,13 +6,20 @@ export type {
   DataColumnType,
   DateColumnDef,
   ListColumnDef,
+  ListOptionItem,
   MultiListColumnDef,
   NumberColumnDef,
   TextColumnDef,
   TimeColumnDef,
 } from './column'
 
-export { isActionColumn, isDataColumn } from './column'
+export {
+  findOptionLabel,
+  getOptionLabel,
+  getOptionValue,
+  isActionColumn,
+  isDataColumn,
+} from './column'
 export type {
   FilterCondition,
   FilterState,

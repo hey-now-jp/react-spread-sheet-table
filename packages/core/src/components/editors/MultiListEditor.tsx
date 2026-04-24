@@ -1,10 +1,12 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import type { ListOptionItem } from '../../core/types'
+import { getOptionLabel, getOptionValue } from '../../core/types'
 import styles from '../../styles/editor.module.css'
 
 type MultiListEditorProps = {
   readonly value: string
-  readonly options: readonly string[]
+  readonly options: readonly ListOptionItem[]
   readonly onChange: (value: string) => void
   readonly onCommit: () => void
   readonly onCancel: () => void
@@ -94,11 +96,11 @@ export const MultiListEditor = memo(function MultiListEditor({
   const selected = parseSelected(value)
 
   const handleToggle = useCallback(
-    (option: string) => {
+    (optionValue: string) => {
       const current = parseSelected(value)
-      const next = current.includes(option)
-        ? current.filter((v) => v !== option)
-        : [...current, option]
+      const next = current.includes(optionValue)
+        ? current.filter((v) => v !== optionValue)
+        : [...current, optionValue]
       onChange(JSON.stringify(next))
     },
     [value, onChange],
@@ -132,8 +134,9 @@ export const MultiListEditor = memo(function MultiListEditor({
         }
         case ' ': {
           e.preventDefault()
-          if (options[focusIndex]) {
-            handleToggle(options[focusIndex])
+          const opt = options[focusIndex]
+          if (opt) {
+            handleToggle(getOptionValue(opt))
           }
           break
         }
@@ -151,20 +154,24 @@ export const MultiListEditor = memo(function MultiListEditor({
       tabIndex={0}
     >
       <div className={styles.multiListOptions}>
-        {options.map((opt, i) => (
-          <label
-            key={opt}
-            className={`${styles.multiListOption} ${i === focusIndex ? styles.multiListOptionFocused : ''}`}
-          >
-            <input
-              type="checkbox"
-              checked={selected.includes(opt)}
-              onChange={() => handleToggle(opt)}
-              tabIndex={-1}
-            />
-            <span>{opt}</span>
-          </label>
-        ))}
+        {options.map((opt, i) => {
+          const v = getOptionValue(opt)
+          const label = getOptionLabel(opt)
+          return (
+            <label
+              key={v}
+              className={`${styles.multiListOption} ${i === focusIndex ? styles.multiListOptionFocused : ''}`}
+            >
+              <input
+                type="checkbox"
+                checked={selected.includes(v)}
+                onChange={() => handleToggle(v)}
+                tabIndex={-1}
+              />
+              <span>{label}</span>
+            </label>
+          )
+        })}
       </div>
       <div className={styles.multiListActions}>
         <span className={styles.multiListCount}>
