@@ -287,8 +287,8 @@ function SpreadSheetTableInner<T>({
       if (event.canceled) return
       const { source } = event.operation
       if (!source || !isSortable(source)) return
-      const fromVisual = source.initialIndex
-      const toVisual = source.index
+      const fromVisual = virtualScroll.visibleStart + source.initialIndex
+      const toVisual = virtualScroll.visibleStart + source.index
       if (fromVisual === toVisual) return
       if (
         fromVisual < 0 ||
@@ -300,7 +300,7 @@ function SpreadSheetTableInner<T>({
       store.reorderRows(sortedFilteredIndices[fromVisual], sortedFilteredIndices[toVisual])
       onReorder?.(store.getRows())
     },
-    [store, sortedFilteredIndices, onReorder],
+    [store, sortedFilteredIndices, onReorder, virtualScroll.visibleStart],
   )
 
   // Keyboard navigation
@@ -677,7 +677,7 @@ function SpreadSheetTableInner<T>({
                   <SortableRow
                     key={String(rows[dataRowIndex][rowKey])}
                     id={String(rows[dataRowIndex][rowKey])}
-                    index={virtualScroll.visibleStart + displayOffset}
+                    index={displayOffset}
                     columns={columns}
                     dataRowIndex={dataRowIndex}
                     displayRowIndex={virtualScroll.visibleStart + displayOffset}
