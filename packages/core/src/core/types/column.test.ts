@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import type { ActionColumnDef, ColumnDef, DataColumnDef } from './column'
-import { isActionColumn, isDataColumn } from './column'
+import type { ActionColumnDef, ColumnDef, DataColumnDef, ListOptionItem } from './column'
+import {
+  findOptionLabel,
+  getOptionLabel,
+  getOptionValue,
+  isActionColumn,
+  isDataColumn,
+} from './column'
 
 type Employee = {
   id: string
@@ -132,5 +138,70 @@ describe('type safety', () => {
 
     expect(dataColumns).toHaveLength(2)
     expect(actionColumns).toHaveLength(1)
+  })
+})
+
+describe('getOptionValue', () => {
+  it('returns the string itself when item is a string', () => {
+    expect(getOptionValue('Engineering')).toBe('Engineering')
+  })
+
+  it('returns value field when item is an object', () => {
+    expect(getOptionValue({ value: 'eng', label: 'Engineering' })).toBe('eng')
+  })
+
+  it('returns empty string when value is empty string', () => {
+    expect(getOptionValue({ value: '', label: 'None' })).toBe('')
+  })
+})
+
+describe('getOptionLabel', () => {
+  it('returns the string itself when item is a string', () => {
+    expect(getOptionLabel('Engineering')).toBe('Engineering')
+  })
+
+  it('returns label field when item is an object', () => {
+    expect(getOptionLabel({ value: 'eng', label: 'Engineering' })).toBe('Engineering')
+  })
+
+  it('can return a label different from the value', () => {
+    expect(getOptionLabel({ value: '1', label: '営業部' })).toBe('営業部')
+  })
+})
+
+describe('findOptionLabel', () => {
+  it('finds label from string options', () => {
+    const options: readonly ListOptionItem[] = ['Engineering', 'Sales']
+    expect(findOptionLabel(options, 'Engineering')).toBe('Engineering')
+  })
+
+  it('finds label from object options', () => {
+    const options: readonly ListOptionItem[] = [
+      { value: 'eng', label: 'Engineering' },
+      { value: 'sales', label: 'Sales' },
+    ]
+    expect(findOptionLabel(options, 'eng')).toBe('Engineering')
+    expect(findOptionLabel(options, 'sales')).toBe('Sales')
+  })
+
+  it('finds label from mixed string and object options', () => {
+    const options: readonly ListOptionItem[] = ['Engineering', { value: 'sales', label: '営業部' }]
+    expect(findOptionLabel(options, 'Engineering')).toBe('Engineering')
+    expect(findOptionLabel(options, 'sales')).toBe('営業部')
+  })
+
+  it('falls back to the value itself when not found', () => {
+    const options: readonly ListOptionItem[] = [{ value: 'eng', label: 'Engineering' }]
+    expect(findOptionLabel(options, 'unknown')).toBe('unknown')
+  })
+
+  it('returns the value when options is empty', () => {
+    expect(findOptionLabel([], 'anything')).toBe('anything')
+  })
+
+  it('matches object option by value, not by label', () => {
+    const options: readonly ListOptionItem[] = [{ value: 'eng', label: '技術部' }]
+    expect(findOptionLabel(options, 'eng')).toBe('技術部')
+    expect(findOptionLabel(options, '技術部')).toBe('技術部')
   })
 })
