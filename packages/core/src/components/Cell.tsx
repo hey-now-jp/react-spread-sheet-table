@@ -291,7 +291,7 @@ function formatDisplayValue<T>(value: unknown, column: DataColumnDef<T>): string
     return findOptionLabel(column.options, String(value))
   }
   if (column.type === 'multiList') {
-    let values: readonly string[]
+    let values: readonly unknown[]
     if (Array.isArray(value)) {
       values = value
     } else {
@@ -306,7 +306,7 @@ function formatDisplayValue<T>(value: unknown, column: DataColumnDef<T>): string
           .filter((v) => v !== '')
       }
     }
-    return values.map((v) => findOptionLabel(column.options, v)).join(', ')
+    return values.map((v) => findOptionLabel(column.options, String(v))).join(', ')
   }
   return String(value)
 }
