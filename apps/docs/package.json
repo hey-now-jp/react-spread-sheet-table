@@ -11,7 +11,6 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.8",
     "@astrojs/react": "^4.4.2",
     "@astrojs/starlight": "^0.35.3",
     "@hey-now-jp/react-spread-sheet-table": "workspace:*",
@@ -22,6 +21,7 @@
     "sonner": "^2.0.7"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.8",
     "@playwright/test": "^1.59.1",
     "@types/react": "^18.3.28",
     "@types/react-dom": "^18.3.7"
