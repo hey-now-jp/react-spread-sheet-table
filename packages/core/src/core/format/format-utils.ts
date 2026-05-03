@@ -98,16 +98,11 @@ function parseBoolean(raw: string): ParseResult {
   return { ok: false, message: `"${raw}" は有効な真偽値ではありません (true/false)` }
 }
 
-function getOptionValues(options: readonly ListOptionItem[]): readonly string[] {
-  return options.map(getOptionValue)
-}
-
 function parseList(raw: string, options: readonly ListOptionItem[] | undefined): ParseResult {
   if (!options || options.length === 0) {
     return { ok: false, message: 'この列に有効な選択肢が定義されていません' }
   }
-  const values = getOptionValues(options)
-  if (values.includes(raw)) {
+  if (options.some((opt) => getOptionValue(opt) === raw)) {
     return { ok: true, value: raw }
   }
   return { ok: false, message: `"${raw}" は有効な選択肢ではありません` }
@@ -118,15 +113,16 @@ function parseMultiList(raw: string, options: readonly ListOptionItem[] | undefi
     return { ok: false, message: 'この列に有効な選択肢が定義されていません' }
   }
 
-  const validValues = getOptionValues(options)
+  const validValues = new Set<string>()
+  for (const opt of options) {
+    validValues.add(getOptionValue(opt))
+  }
 
   // Try JSON parse first (internal format from editor)
   try {
     const parsed = JSON.parse(raw)
     if (Array.isArray(parsed)) {
-      const invalid = parsed.filter(
-        (v: unknown) => typeof v !== 'string' || !validValues.includes(v),
-      )
+      const invalid = parsed.filter((v: unknown) => typeof v !== 'string' || !validValues.has(v))
       if (invalid.length > 0) {
         return { ok: false, message: `"${invalid.join(', ')}" は有効な選択肢ではありません` }
       }
@@ -141,7 +137,7 @@ function parseMultiList(raw: string, options: readonly ListOptionItem[] | undefi
     .split(',')
     .map((v) => v.trim())
     .filter((v) => v !== '')
-  const invalid = values.filter((v) => !validValues.includes(v))
+  const invalid = values.filter((v) => !validValues.has(v))
   if (invalid.length > 0) {
     return { ok: false, message: `"${invalid.join(', ')}" は有効な選択肢ではありません` }
   }
