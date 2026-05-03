@@ -290,17 +290,12 @@ function SpreadSheetTableInner<T>({
       const fromVisual = virtualScroll.visibleStart + source.initialIndex
       const toVisual = virtualScroll.visibleStart + source.index
       if (fromVisual === toVisual) return
-      if (
-        fromVisual < 0 ||
-        toVisual < 0 ||
-        fromVisual >= sortedFilteredIndices.length ||
-        toVisual >= sortedFilteredIndices.length
-      )
-        return
-      store.reorderRows(sortedFilteredIndices[fromVisual], sortedFilteredIndices[toVisual])
+      const rowCount = store.getRows().length
+      if (fromVisual < 0 || toVisual < 0 || fromVisual >= rowCount || toVisual >= rowCount) return
+      store.reorderRows(fromVisual, toVisual)
       onReorder?.(store.getRows())
     },
-    [store, sortedFilteredIndices, onReorder, virtualScroll.visibleStart],
+    [store, onReorder, virtualScroll.visibleStart],
   )
 
   // Keyboard navigation
