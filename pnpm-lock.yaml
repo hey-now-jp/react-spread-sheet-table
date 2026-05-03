@@ -23,9 +23,6 @@ importers:
 
   apps/docs:
     dependencies:
-      '@astrojs/check':
-        specifier: ^0.9.8
-        version: 0.9.9(prettier@3.8.3)(typescript@5.9.3)
       '@astrojs/react':
         specifier: ^4.4.2
         version: 4.4.2(@types/node@25.6.0)(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(lightningcss@1.32.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(yaml@2.8.4)
@@ -51,6 +48,9 @@ importers:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
+      '@astrojs/check':
+        specifier: ^0.9.8
+        version: 0.9.9(prettier@3.8.3)(typescript@5.9.3)
       '@playwright/test':
         specifier: ^1.59.1
         version: 1.59.1
