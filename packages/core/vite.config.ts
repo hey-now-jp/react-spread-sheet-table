@@ -24,7 +24,7 @@ export default defineConfig({
       fileName: (format) => `index.${format === 'es' ? 'js' : 'cjs'}`,
       cssFileName: 'styles',
     },
-    rollupOptions: {
+    rolldownOptions: {
       external: ['react', 'react-dom', 'react/jsx-runtime'],
       output: {
         globals: {
