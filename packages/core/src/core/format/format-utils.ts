@@ -1,5 +1,4 @@
 import type { DataColumnDef, ListOptionItem } from '../types'
-import { getOptionValue } from '../types'
 
 export type ParseSuccess = {
   readonly ok: true
@@ -102,7 +101,7 @@ function parseList(raw: string, options: readonly ListOptionItem[] | undefined):
   if (!options || options.length === 0) {
     return { ok: false, message: 'この列に有効な選択肢が定義されていません' }
   }
-  if (options.some((opt) => getOptionValue(opt) === raw)) {
+  if (options.some((opt) => opt.value === raw)) {
     return { ok: true, value: raw }
   }
   return { ok: false, message: `"${raw}" は有効な選択肢ではありません` }
@@ -115,7 +114,7 @@ function parseMultiList(raw: string, options: readonly ListOptionItem[] | undefi
 
   const validValues = new Set<string>()
   for (const opt of options) {
-    validValues.add(getOptionValue(opt))
+    validValues.add(opt.value)
   }
 
   // Try JSON parse first (internal format from editor)

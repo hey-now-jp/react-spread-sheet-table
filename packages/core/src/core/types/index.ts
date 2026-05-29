@@ -13,13 +13,7 @@ export type {
   TimeColumnDef,
 } from './column'
 
-export {
-  findOptionLabel,
-  getOptionLabel,
-  getOptionValue,
-  isActionColumn,
-  isDataColumn,
-} from './column'
+export { findOptionLabel, isActionColumn, isDataColumn } from './column'
 export type {
   FilterCondition,
   FilterState,

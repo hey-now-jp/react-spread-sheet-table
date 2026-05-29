@@ -1,6 +1,5 @@
 import { memo, useCallback, useEffect, useRef } from 'react'
 import type { ListOptionItem } from '../../core/types'
-import { getOptionLabel, getOptionValue } from '../../core/types'
 import styles from '../../styles/editor.module.css'
 
 type ListEditorProps = {
@@ -64,15 +63,11 @@ export const ListEditor = memo(function ListEditor({
       onKeyDown={handleKeyDown}
       onBlur={onCommit}
     >
-      {options.map((opt) => {
-        const v = getOptionValue(opt)
-        const label = getOptionLabel(opt)
-        return (
-          <option key={v} value={v}>
-            {label}
-          </option>
-        )
-      })}
+      {options.map((opt) => (
+        <option key={opt.value} value={opt.value}>
+          {opt.label}
+        </option>
+      ))}
     </select>
   )
 })

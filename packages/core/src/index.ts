@@ -36,8 +36,6 @@ export type {
 // Type guards & utilities
 export {
   findOptionLabel,
-  getOptionLabel,
-  getOptionValue,
   isActionColumn,
   isActiveCell,
   isDataColumn,

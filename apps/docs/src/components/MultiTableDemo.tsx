@@ -5,7 +5,11 @@ import {
   useSpreadSheetTable,
 } from '@hey-now-jp/react-spread-sheet-table'
 
-const priorityOptions = ['High', 'Medium', 'Low'] as const
+const priorityOptions = [
+  { value: 'High', label: 'High' },
+  { value: 'Medium', label: 'Medium' },
+  { value: 'Low', label: 'Low' },
+] as const
 
 // ---------------------------------------------------------------------------
 // Table A: 社員一覧 (3 columns)

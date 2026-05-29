@@ -52,27 +52,13 @@ export type BooleanColumnDef<T, K extends keyof T = keyof T> = ColumnDefBase<T, 
 // List option item
 // ---------------------------------------------------------------------------
 
-/** 選択肢の定義。文字列または { value, label } ペア */
-export type ListOptionItem = string | { readonly value: string; readonly label: string }
-
-/** ListOptionItem から value を取得する */
-export function getOptionValue(item: ListOptionItem): string {
-  return typeof item === 'string' ? item : item.value
-}
-
-/** ListOptionItem から label を取得する */
-export function getOptionLabel(item: ListOptionItem): string {
-  return typeof item === 'string' ? item : item.label
-}
+/** 選択肢の定義。{ value, label } ペア */
+export type ListOptionItem = { readonly value: string; readonly label: string }
 
 /** options 配列から value に対応する label を検索する */
 export function findOptionLabel(options: readonly ListOptionItem[], value: string): string {
   for (const opt of options) {
-    if (typeof opt === 'string') {
-      if (opt === value) return opt
-    } else {
-      if (opt.value === value) return opt.label
-    }
+    if (opt.value === value) return opt.label
   }
   return value
 }
