@@ -56,14 +56,14 @@ test.describe('複数テーブル', () => {
     const demo = getDemoContainer(page)
 
     const wrappers = demo.locator('[class*="wrapper"]')
-    const firstWidth = await wrappers.nth(0).evaluate((el) => el.offsetWidth)
-    const secondWidth = await wrappers.nth(1).evaluate((el) => el.offsetWidth)
+    const firstWidth = await wrappers.nth(0).evaluate((el) => (el as HTMLElement).offsetWidth)
+    const secondWidth = await wrappers.nth(1).evaluate((el) => (el as HTMLElement).offsetWidth)
 
     // カラム数が違うのでテーブル幅も違うはず
     expect(firstWidth).toBeLessThan(secondWidth)
 
     // 親コンテナより小さい (余白がない)
-    const demoWidth = await demo.evaluate((el) => el.offsetWidth)
+    const demoWidth = await demo.evaluate((el) => (el as HTMLElement).offsetWidth)
     expect(firstWidth).toBeLessThan(demoWidth)
   })
 

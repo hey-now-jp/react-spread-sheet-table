@@ -42,7 +42,17 @@ const columns: ReadonlyArray<ColumnDef<FormRow>> = [
   { key: 'score', header: 'Score (0-100)', type: 'number', min: 0, max: 100 },
   { key: 'startDate', header: 'Start Date', type: 'date', minDate: '2024-01-01' },
   { key: 'approved', header: 'Approved', type: 'boolean', width: 100 },
-  { key: 'category', header: 'Category', type: 'list', options: ['A', 'B', 'C', 'D'] },
+  {
+    key: 'category',
+    header: 'Category',
+    type: 'list',
+    options: [
+      { value: 'A', label: 'A' },
+      { value: 'B', label: 'B' },
+      { value: 'C', label: 'C' },
+      { value: 'D', label: 'D' },
+    ],
+  },
 ]
 
 function customValidate(

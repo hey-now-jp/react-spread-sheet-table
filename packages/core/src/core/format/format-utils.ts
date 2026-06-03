@@ -1,4 +1,4 @@
-import type { DataColumnDef } from '../types'
+import type { DataColumnDef, ListOptionItem } from '../types'
 
 export type ParseSuccess = {
   readonly ok: true
@@ -97,26 +97,31 @@ function parseBoolean(raw: string): ParseResult {
   return { ok: false, message: `"${raw}" は有効な真偽値ではありません (true/false)` }
 }
 
-function parseList(raw: string, options: readonly string[] | undefined): ParseResult {
+function parseList(raw: string, options: readonly ListOptionItem[] | undefined): ParseResult {
   if (!options || options.length === 0) {
     return { ok: false, message: 'この列に有効な選択肢が定義されていません' }
   }
-  if (options.includes(raw)) {
+  if (options.some((opt) => opt.value === raw)) {
     return { ok: true, value: raw }
   }
   return { ok: false, message: `"${raw}" は有効な選択肢ではありません` }
 }
 
-function parseMultiList(raw: string, options: readonly string[] | undefined): ParseResult {
+function parseMultiList(raw: string, options: readonly ListOptionItem[] | undefined): ParseResult {
   if (!options || options.length === 0) {
     return { ok: false, message: 'この列に有効な選択肢が定義されていません' }
+  }
+
+  const validValues = new Set<string>()
+  for (const opt of options) {
+    validValues.add(opt.value)
   }
 
   // Try JSON parse first (internal format from editor)
   try {
     const parsed = JSON.parse(raw)
     if (Array.isArray(parsed)) {
-      const invalid = parsed.filter((v: unknown) => typeof v !== 'string' || !options.includes(v))
+      const invalid = parsed.filter((v: unknown) => typeof v !== 'string' || !validValues.has(v))
       if (invalid.length > 0) {
         return { ok: false, message: `"${invalid.join(', ')}" は有効な選択肢ではありません` }
       }
@@ -131,7 +136,7 @@ function parseMultiList(raw: string, options: readonly string[] | undefined): Pa
     .split(',')
     .map((v) => v.trim())
     .filter((v) => v !== '')
-  const invalid = values.filter((v) => !options.includes(v))
+  const invalid = values.filter((v) => !validValues.has(v))
   if (invalid.length > 0) {
     return { ok: false, message: `"${invalid.join(', ')}" は有効な選択肢ではありません` }
   }
