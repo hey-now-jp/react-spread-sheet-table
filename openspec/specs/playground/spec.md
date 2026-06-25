@@ -1,11 +1,11 @@
 ## Purpose
 
-ライブラリの開発・動作確認用Vite Reactアプリを提供する。デモページとPlaywright CLIによるE2Eテスト環境をpnpm workspacesモノレポで構成する。
-開発用Vite Reactアプリとplaywright E2Eテスト環境
+ライブラリのドキュメント・動作確認用Astroアプリを提供する。デモページとPlaywright CLIによるE2Eテスト環境をpnpm workspacesモノレポで構成する。
+ドキュメント & デモアプリとPlaywright E2Eテスト環境
 ## Requirements
-### Requirement: Playground Application
+### Requirement: Docs Application
 
-ライブラリの動作確認・開発用のVite Reactアプリを `apps/docs/` に提供しなければならない（MUST）。
+ライブラリのドキュメント・動作確認用のAstro + Starlightアプリを `apps/docs/` に提供しなければならない（MUST）。
 
 - `packages/core` を workspace 依存として参照する
 - `private: true` として本番配布しない
