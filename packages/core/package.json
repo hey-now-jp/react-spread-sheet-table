@@ -4,7 +4,7 @@
   "description": "A React spreadsheet table component with sorting, filtering, inline editing, and undo/redo support",
   "type": "module",
   "license": "MIT",
-  "author": "hey-now Inc.",
+  "author": "Hey Now Inc.",
   "homepage": "https://github.com/hey-now-jp/react-spread-sheet-table#readme",
   "bugs": {
     "url": "https://github.com/hey-now-jp/react-spread-sheet-table/issues"
