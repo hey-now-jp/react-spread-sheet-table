@@ -1,7 +1,27 @@
 {
   "name": "@hey-now-jp/react-spread-sheet-table",
   "version": "0.1.0",
+  "description": "A React spreadsheet table component with sorting, filtering, inline editing, and undo/redo support",
   "type": "module",
+  "license": "MIT",
+  "author": "hey-now Inc.",
+  "homepage": "https://github.com/hey-now-jp/react-spread-sheet-table#readme",
+  "bugs": {
+    "url": "https://github.com/hey-now-jp/react-spread-sheet-table/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hey-now-jp/react-spread-sheet-table.git",
+    "directory": "packages/core"
+  },
+  "keywords": [
+    "react",
+    "spreadsheet",
+    "table",
+    "editable",
+    "inline-editing",
+    "datagrid"
+  ],
   "main": "./src/index.ts",
   "module": "./src/index.ts",
   "types": "./src/index.ts",
@@ -12,14 +32,8 @@
       "default": "./src/index.ts"
     }
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/hey-now-jp/react-spread-sheet-table.git",
-    "directory": "packages/core"
-  },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com",
-    "access": "restricted",
+    "access": "public",
     "main": "./dist/index.cjs",
     "module": "./dist/index.js",
     "types": "./dist/index.d.ts",
@@ -41,7 +55,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "vitest run && tsc --noEmit && vite build"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",
