@@ -25,7 +25,7 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 
 ```
 packages/core/   - メインライブラリ (@heynow-jp/react-spread-sheet-table)
-apps/playground/ - デモアプリ (Vite + React)
+apps/docs/       - ドキュメント & デモ (Astro + React)
 openspec/        - 仕様駆動の変更管理
 ```
 
