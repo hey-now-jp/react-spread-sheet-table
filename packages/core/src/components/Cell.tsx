@@ -2,7 +2,13 @@ import { memo, useCallback, useMemo, useRef, useState, useSyncExternalStore } fr
 import { parseAndValidateValue } from '../core/format/format-utils'
 import type { TableStore } from '../core/store/create-store'
 import type { CellMeta, CellValidationError, DataColumnDef } from '../core/types'
-import { getRangeEdges, getSelectionEdges, isActiveCell, isInSelection } from '../core/types'
+import {
+  findOptionLabel,
+  getRangeEdges,
+  getSelectionEdges,
+  isActiveCell,
+  isInSelection,
+} from '../core/types'
 import styles from '../styles/cell.module.css'
 import { BooleanEditor } from './editors/BooleanEditor'
 import { DateEditor } from './editors/DateEditor'
@@ -253,7 +259,7 @@ function renderEditor<T>(
       return (
         <ListEditor
           value={editingValue}
-          options={column.options as string[]}
+          options={column.options}
           onChange={onChange}
           onCommit={onCommit}
           onCancel={onCancel}
@@ -263,7 +269,7 @@ function renderEditor<T>(
       return (
         <MultiListEditor
           value={editingValue}
-          options={column.options as string[]}
+          options={column.options}
           onChange={onChange}
           onCommit={onCommit}
           onCancel={onCancel}
@@ -281,8 +287,26 @@ function formatDisplayValue<T>(value: unknown, column: DataColumnDef<T>): string
   if (column.type === 'number' && column.precision !== undefined) {
     return Number(value).toFixed(column.precision)
   }
-  if (column.type === 'multiList' && Array.isArray(value)) {
-    return value.join(', ')
+  if (column.type === 'list') {
+    return findOptionLabel(column.options, String(value))
+  }
+  if (column.type === 'multiList') {
+    let values: readonly unknown[]
+    if (Array.isArray(value)) {
+      values = value
+    } else {
+      const raw = String(value)
+      try {
+        const parsed = JSON.parse(raw)
+        values = Array.isArray(parsed) ? parsed : [raw]
+      } catch {
+        values = raw
+          .split(',')
+          .map((v) => v.trim())
+          .filter((v) => v !== '')
+      }
+    }
+    return values.map((v) => findOptionLabel(column.options, String(v))).join(', ')
   }
   return String(value)
 }

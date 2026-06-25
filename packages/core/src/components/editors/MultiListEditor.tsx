@@ -1,10 +1,11 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import type { ListOptionItem } from '../../core/types'
 import styles from '../../styles/editor.module.css'
 
 type MultiListEditorProps = {
   readonly value: string
-  readonly options: readonly string[]
+  readonly options: readonly ListOptionItem[]
   readonly onChange: (value: string) => void
   readonly onCommit: () => void
   readonly onCancel: () => void
@@ -94,11 +95,11 @@ export const MultiListEditor = memo(function MultiListEditor({
   const selected = parseSelected(value)
 
   const handleToggle = useCallback(
-    (option: string) => {
+    (optionValue: string) => {
       const current = parseSelected(value)
-      const next = current.includes(option)
-        ? current.filter((v) => v !== option)
-        : [...current, option]
+      const next = current.includes(optionValue)
+        ? current.filter((v) => v !== optionValue)
+        : [...current, optionValue]
       onChange(JSON.stringify(next))
     },
     [value, onChange],
@@ -132,8 +133,9 @@ export const MultiListEditor = memo(function MultiListEditor({
         }
         case ' ': {
           e.preventDefault()
-          if (options[focusIndex]) {
-            handleToggle(options[focusIndex])
+          const opt = options[focusIndex]
+          if (opt) {
+            handleToggle(opt.value)
           }
           break
         }
@@ -153,16 +155,16 @@ export const MultiListEditor = memo(function MultiListEditor({
       <div className={styles.multiListOptions}>
         {options.map((opt, i) => (
           <label
-            key={opt}
+            key={opt.value}
             className={`${styles.multiListOption} ${i === focusIndex ? styles.multiListOptionFocused : ''}`}
           >
             <input
               type="checkbox"
-              checked={selected.includes(opt)}
-              onChange={() => handleToggle(opt)}
+              checked={selected.includes(opt.value)}
+              onChange={() => handleToggle(opt.value)}
               tabIndex={-1}
             />
-            <span>{opt}</span>
+            <span>{opt.label}</span>
           </label>
         ))}
       </div>

@@ -1,9 +1,10 @@
 import { memo, useCallback, useEffect, useRef } from 'react'
+import type { ListOptionItem } from '../../core/types'
 import styles from '../../styles/editor.module.css'
 
 type ListEditorProps = {
   readonly value: string
-  readonly options: readonly string[]
+  readonly options: readonly ListOptionItem[]
   readonly onChange: (value: string) => void
   readonly onCommit: () => void
   readonly onCancel: () => void
@@ -63,8 +64,8 @@ export const ListEditor = memo(function ListEditor({
       onBlur={onCommit}
     >
       {options.map((opt) => (
-        <option key={opt} value={opt}>
-          {opt}
+        <option key={opt.value} value={opt.value}>
+          {opt.label}
         </option>
       ))}
     </select>

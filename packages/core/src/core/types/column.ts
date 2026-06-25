@@ -48,14 +48,29 @@ export type BooleanColumnDef<T, K extends keyof T = keyof T> = ColumnDefBase<T, 
   readonly type: 'boolean'
 }
 
+// ---------------------------------------------------------------------------
+// List option item
+// ---------------------------------------------------------------------------
+
+/** 選択肢の定義。{ value, label } ペア */
+export type ListOptionItem = { readonly value: string; readonly label: string }
+
+/** options 配列から value に対応する label を検索する */
+export function findOptionLabel(options: readonly ListOptionItem[], value: string): string {
+  for (const opt of options) {
+    if (opt.value === value) return opt.label
+  }
+  return value
+}
+
 export type ListColumnDef<T, K extends keyof T = keyof T> = ColumnDefBase<T, K> & {
   readonly type: 'list'
-  readonly options: readonly string[]
+  readonly options: readonly ListOptionItem[]
 }
 
 export type MultiListColumnDef<T, K extends keyof T = keyof T> = ColumnDefBase<T, K> & {
   readonly type: 'multiList'
-  readonly options: readonly string[]
+  readonly options: readonly ListOptionItem[]
 }
 
 // ---------------------------------------------------------------------------

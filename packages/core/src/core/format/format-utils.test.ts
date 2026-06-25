@@ -165,7 +165,11 @@ describe('parseAndValidateValue', () => {
       key: 'department',
       header: 'Department',
       type: 'list',
-      options: ['Engineering', 'Sales', 'HR'],
+      options: [
+        { value: 'Engineering', label: 'Engineering' },
+        { value: 'Sales', label: 'Sales' },
+        { value: 'HR', label: 'HR' },
+      ],
     }
 
     it('accepts valid option', () => {
@@ -192,7 +196,11 @@ describe('parseAndValidateValue', () => {
       key: 'skills',
       header: 'Skills',
       type: 'multiList',
-      options: ['React', 'TypeScript', 'Python'],
+      options: [
+        { value: 'React', label: 'React' },
+        { value: 'TypeScript', label: 'TypeScript' },
+        { value: 'Python', label: 'Python' },
+      ],
     }
 
     it('parses JSON array of valid options', () => {

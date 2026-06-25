@@ -19,6 +19,7 @@ export type {
   FilterCondition,
   FilterState,
   ListColumnDef,
+  ListOptionItem,
   MultiListColumnDef,
   NumberColumnDef,
   SelectionRange,
@@ -34,6 +35,7 @@ export type {
 } from './core/types'
 // Type guards & utilities
 export {
+  findOptionLabel,
   isActionColumn,
   isActiveCell,
   isDataColumn,
