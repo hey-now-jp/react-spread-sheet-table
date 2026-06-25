@@ -3,10 +3,10 @@
   "packageManager": "pnpm@10.33.2",
   "scripts": {
     "dev": "pnpm --filter docs dev",
-    "dev:core": "pnpm --filter @hey-now-jp/react-spread-sheet-table dev",
-    "build": "pnpm --filter @hey-now-jp/react-spread-sheet-table build",
+    "dev:core": "pnpm --filter @heynow-jp/react-spread-sheet-table dev",
+    "build": "pnpm --filter @heynow-jp/react-spread-sheet-table build",
     "build:docs": "pnpm --filter docs build",
-    "test": "pnpm --filter @hey-now-jp/react-spread-sheet-table test",
+    "test": "pnpm --filter @heynow-jp/react-spread-sheet-table test",
     "test:e2e": "pnpm --filter docs test:e2e",
     "typecheck": "pnpm -r typecheck",
     "lint": "biome check .",

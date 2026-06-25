@@ -13,7 +13,7 @@
   "dependencies": {
     "@astrojs/react": "^4.4.2",
     "@astrojs/starlight": "^0.35.3",
-    "@hey-now-jp/react-spread-sheet-table": "workspace:*",
+    "@heynow-jp/react-spread-sheet-table": "workspace:*",
     "astro": "^5.18.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

@@ -108,7 +108,7 @@ react-spread-sheet-table/
 ├── pnpm-workspace.yaml
 ├── package.json                # ルート: 共通scripts, 共通devDeps
 ├── packages/
-│   └── core/                   # ライブラリ本体 (@hey-now-jp/react-spread-sheet-table)
+│   └── core/                   # ライブラリ本体 (@heynow-jp/react-spread-sheet-table)
 │       ├── package.json
 │       ├── vite.config.ts      # ライブラリモード
 │       ├── tsconfig.json
@@ -139,7 +139,7 @@ react-spread-sheet-table/
 
 ### Playground
 - ライブラリの動作確認・開発用のVite Reactアプリ
-- `packages/core`をworkspace依存として参照（`"@hey-now-jp/react-spread-sheet-table": "workspace:*"`）
+- `packages/core`をworkspace依存として参照（`"@heynow-jp/react-spread-sheet-table": "workspace:*"`）
 - 各機能のデモページを提供（列型、ソート、フィルタ、コピペ、バリデーション等）
 - E2EテストはPlaywright CLIでplayground上のブラウザ操作をテスト
 - 本番には配布しない（private: true）
@@ -180,7 +180,7 @@ react-spread-sheet-table/
 - **devDependencies**: vite, vitest, @testing-library/react, typescript
 
 ### apps/playground
-- **dependencies**: react, react-dom, `@hey-now-jp/react-spread-sheet-table` (workspace:*)
+- **dependencies**: react, react-dom, `@heynow-jp/react-spread-sheet-table` (workspace:*)
 - **devDependencies**: vite, @playwright/test, typescript
 
 ### ルート

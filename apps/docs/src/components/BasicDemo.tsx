@@ -1,5 +1,5 @@
-import type { ColumnDef } from '@hey-now-jp/react-spread-sheet-table'
-import { SpreadSheetTable, useSpreadSheetTable } from '@hey-now-jp/react-spread-sheet-table'
+import type { ColumnDef } from '@heynow-jp/react-spread-sheet-table'
+import { SpreadSheetTable, useSpreadSheetTable } from '@heynow-jp/react-spread-sheet-table'
 import { useState } from 'react'
 import type { Employee } from './sample-data'
 import { sampleData } from './sample-data'

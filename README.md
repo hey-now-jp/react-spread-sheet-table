@@ -1,4 +1,4 @@
-# @hey-now-jp/react-spread-sheet-table
+# @heynow-jp/react-spread-sheet-table
 
 React 向けのスプレッドシート風テーブルコンポーネントライブラリ。
 
@@ -45,21 +45,21 @@ pnpm format
 
 ```
 packages/
-  core/           @hey-now-jp/react-spread-sheet-table 本体
+  core/           @heynow-jp/react-spread-sheet-table 本体
 apps/
   playground/     デモアプリケーション（GitHub Pages で公開）
 ```
 
 ## インストール
 
-このパッケージは GitHub Packages (`https://npm.pkg.github.com`) で配布されています。`@hey-now-jp` スコープを GitHub Packages に向け、認証トークンを環境変数経由で渡す形で利用します。
+このパッケージは GitHub Packages (`https://npm.pkg.github.com`) で配布されています。`@heynow-jp` スコープを GitHub Packages に向け、認証トークンを環境変数経由で渡す形で利用します。
 
 ### 1. プロジェクトの `.npmrc` を設定
 
 利用側リポジトリのルートに `.npmrc` を作り、以下を追加します。トークン本体は書かず、環境変数参照にしてください。
 
 ```ini
-@hey-now-jp:registry=https://npm.pkg.github.com
+@heynow-jp:registry=https://npm.pkg.github.com
 //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
 ```
 
@@ -72,7 +72,7 @@ apps/
 自分の GitHub アカウントで Classic Personal Access Token を発行し、シェルに export します。
 
 1. https://github.com/settings/tokens/new にアクセス（Classic のページ）
-2. Note: 例) `@hey-now-jp read:packages`
+2. Note: 例) `@heynow-jp read:packages`
 3. Expiration: 90日 〜 1年など任意
 4. Select scopes: **`read:packages`** のみチェック
    - Private パッケージを使うリポジトリからのインストールで 401 が出る場合のみ、`repo` も追加
@@ -102,7 +102,7 @@ jobs:
           node-version: 22
           cache: pnpm
           registry-url: https://npm.pkg.github.com
-          scope: '@hey-now-jp'
+          scope: '@heynow-jp'
       - run: pnpm install --frozen-lockfile
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -118,9 +118,9 @@ jobs:
 ### 3. インストール
 
 ```bash
-pnpm add @hey-now-jp/react-spread-sheet-table
+pnpm add @heynow-jp/react-spread-sheet-table
 # or
-npm install @hey-now-jp/react-spread-sheet-table
+npm install @heynow-jp/react-spread-sheet-table
 ```
 
 ### 4. スタイルの読み込み
@@ -128,7 +128,7 @@ npm install @hey-now-jp/react-spread-sheet-table
 アプリのエントリポイントで CSS を import してください。テーマ変数を含むグローバルな CSS です。
 
 ```ts
-import '@hey-now-jp/react-spread-sheet-table/styles.css'
+import '@heynow-jp/react-spread-sheet-table/styles.css'
 ```
 
 読み込み箇所の例:
@@ -146,7 +146,7 @@ import {
   SpreadSheetTable,
   useSpreadSheetTable,
   type ColumnDef,
-} from '@hey-now-jp/react-spread-sheet-table'
+} from '@heynow-jp/react-spread-sheet-table'
 
 type Row = { id: string; name: string; age: number }
 

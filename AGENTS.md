@@ -19,12 +19,12 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 
 # プロジェクト概要
 
-`@hey-now-jp/react-spread-sheet-table` - React スプレッドシートテーブルコンポーネントライブラリ。
+`@heynow-jp/react-spread-sheet-table` - React スプレッドシートテーブルコンポーネントライブラリ。
 
 ## モノレポ構成
 
 ```
-packages/core/   - メインライブラリ (@hey-now-jp/react-spread-sheet-table)
+packages/core/   - メインライブラリ (@heynow-jp/react-spread-sheet-table)
 apps/playground/ - デモアプリ (Vite + React)
 openspec/        - 仕様駆動の変更管理
 ```
