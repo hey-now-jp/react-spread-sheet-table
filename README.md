@@ -47,7 +47,7 @@ pnpm format
 packages/
   core/           @heynow-jp/react-spread-sheet-table 本体
 apps/
-  playground/     デモアプリケーション（GitHub Pages で公開）
+  docs/           ドキュメント & デモ（GitHub Pages で公開）
 ```
 
 ## インストール
