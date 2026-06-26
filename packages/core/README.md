@@ -1,4 +1,4 @@
-# @hey-now-jp/react-spread-sheet-table
+# @heynow-jp/react-spread-sheet-table
 
 React 向けのスプレッドシート風テーブルコンポーネントライブラリ。
 

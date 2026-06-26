@@ -1,5 +1,5 @@
-import type { CellMeta, ColumnDef, ValidationResult } from '@hey-now-jp/react-spread-sheet-table'
-import { SpreadSheetTable, useSpreadSheetTable } from '@hey-now-jp/react-spread-sheet-table'
+import type { CellMeta, ColumnDef, ValidationResult } from '@heynow-jp/react-spread-sheet-table'
+import { SpreadSheetTable, useSpreadSheetTable } from '@heynow-jp/react-spread-sheet-table'
 import { useCallback } from 'react'
 
 type FormRow = {

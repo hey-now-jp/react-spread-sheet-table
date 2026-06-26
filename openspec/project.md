@@ -4,7 +4,7 @@
 
 React用のスプレッドシート風テーブルコンポーネントライブラリ。
 通常のテーブル操作をスプレッドシートのような直感的なUXで提供する。
-社内用npmパッケージとしてGitHub Packages等で配布する。
+npmパッケージとして公開配布する。
 
 重要な設計指針:
 - **インターフェース設計**: 利用者側が直感的に使えるAPI設計を最優先する
@@ -17,10 +17,10 @@ React用のスプレッドシート風テーブルコンポーネントライブ
 - **Monorepo**: pnpm workspaces によるモノレポ構成
 - **Language**: TypeScript (strict mode)
 - **UI Framework**: React 18+
-- **Build Tool**: Vite (ライブラリモード for core, 通常モード for playground)
+- **Build Tool**: Vite (ライブラリモード for core), Astro (docs)
 - **Test Framework**:
   - Unit / Integration: Vitest + React Testing Library (`packages/core/`)
-  - E2E: Playwright (`apps/playground/e2e/`) - playground上でブラウザ操作をテスト
+  - E2E: Playwright (`apps/docs/e2e/`) - docs上でブラウザ操作をテスト
 - **Styling**: CSS Modules
   - コンポーネント内部はCSS Modulesでスコープ化
   - テーミングはCSS Custom Properties (CSS変数) で提供
@@ -94,7 +94,7 @@ type ColumnDef<T> = DataColumnDef<T> | ActionColumnDef<T>
 - console.log禁止（デバッグ時のみ、コミット前に削除）
 
 ### Architecture Patterns
-- **モノレポ**: pnpm workspacesでライブラリとplaygroundを分離
+- **モノレポ**: pnpm workspacesでライブラリとdocsを分離
 - **ライブラリモード**: Viteのライブラリモードでビルド、ESM + CJS出力
 - **Headless Core + Styled Components**: ロジック層とUI層を分離
   - Core: 状態管理・データ操作・選択・ソート・フィルタのロジック（UIに依存しない）
@@ -108,7 +108,7 @@ react-spread-sheet-table/
 ├── pnpm-workspace.yaml
 ├── package.json                # ルート: 共通scripts, 共通devDeps
 ├── packages/
-│   └── core/                   # ライブラリ本体 (@hey-now-jp/react-spread-sheet-table)
+│   └── core/                   # ライブラリ本体 (@heynow-jp/react-spread-sheet-table)
 │       ├── package.json
 │       ├── vite.config.ts      # ライブラリモード
 │       ├── tsconfig.json
@@ -129,19 +129,19 @@ react-spread-sheet-table/
 │           ├── styles/         # CSS Modules + テーマ変数
 │           └── index.ts        # パブリックAPI (エクスポート)
 ├── apps/
-│   └── playground/             # 開発用アプリ + E2Eテスト対象
+│   └── docs/                   # ドキュメント & デモ + E2Eテスト対象
 │       ├── package.json
-│       ├── vite.config.ts      # 通常のViteアプリ
-│       ├── src/                # デモページ・サンプル
+│       ├── astro.config.ts     # Astro設定
+│       ├── src/                # ドキュメント・デモページ
 │       └── e2e/                # Playwright E2Eテスト
 └── openspec/
 ```
 
-### Playground
-- ライブラリの動作確認・開発用のVite Reactアプリ
-- `packages/core`をworkspace依存として参照（`"@hey-now-jp/react-spread-sheet-table": "workspace:*"`）
+### Docs
+- ライブラリのドキュメント・動作確認用のAstro + Starlightアプリ
+- `packages/core`をworkspace依存として参照（`"@heynow-jp/react-spread-sheet-table": "workspace:*"`）
 - 各機能のデモページを提供（列型、ソート、フィルタ、コピペ、バリデーション等）
-- E2EテストはPlaywright CLIでplayground上のブラウザ操作をテスト
+- E2EテストはPlaywright CLIでdocs上のブラウザ操作をテスト
 - 本番には配布しない（private: true）
 
 ### Testing Strategy
@@ -149,9 +149,9 @@ react-spread-sheet-table/
 - 最低カバレッジ: 80%
 - **Unit** (`packages/core/`): core/のロジック関数、ユーティリティ（Vitest）
 - **Integration** (`packages/core/`): カスタムフック、コンポーネント間の連携（Vitest + React Testing Library）
-- **E2E** (`apps/playground/e2e/`): Playwright CLIでplayground上のブラウザ操作をテスト
+- **E2E** (`apps/docs/e2e/`): Playwright CLIでdocs上のブラウザ操作をテスト
   - キーボードナビゲーション、セル編集、コピペ、範囲選択等の実ブラウザテスト
-  - `pnpm --filter playground exec playwright test` で実行
+  - `pnpm --filter docs exec playwright test` で実行
 
 ### Git Workflow
 - Conventional Commits: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`, `perf:`
@@ -179,9 +179,9 @@ react-spread-sheet-table/
 - **peerDependencies**: react, react-dom
 - **devDependencies**: vite, vitest, @testing-library/react, typescript
 
-### apps/playground
-- **dependencies**: react, react-dom, `@hey-now-jp/react-spread-sheet-table` (workspace:*)
-- **devDependencies**: vite, @playwright/test, typescript
+### apps/docs
+- **dependencies**: react, react-dom, astro, @astrojs/react, @astrojs/starlight, `@heynow-jp/react-spread-sheet-table` (workspace:*)
+- **devDependencies**: @playwright/test, typescript
 
 ### ルート
 - **devDependencies**: typescript (共通設定)

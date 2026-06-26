@@ -36,7 +36,7 @@ jobs:
           node-version-file: '.node-version'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @hey-now-jp/react-spread-sheet-table typecheck
+      - run: pnpm --filter @heynow-jp/react-spread-sheet-table typecheck
 
   unit:
     runs-on: ubuntu-latest

@@ -1,9 +1,9 @@
-import type { ColumnDef } from '@hey-now-jp/react-spread-sheet-table'
+import type { ColumnDef } from '@heynow-jp/react-spread-sheet-table'
 import {
   ReactSpreadSheetTableProvider,
   SpreadSheetTable,
   useSpreadSheetTable,
-} from '@hey-now-jp/react-spread-sheet-table'
+} from '@heynow-jp/react-spread-sheet-table'
 
 const priorityOptions = [
   { value: 'High', label: 'High' },
