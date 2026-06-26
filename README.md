@@ -4,7 +4,9 @@ A spreadsheet-style table component for React with inline editing, sorting, filt
 
 [Live Demo](https://hey-now-jp.github.io/react-spread-sheet-table/)
 
-> **Note:** The demo site and built-in UI labels (column menus, tooltips, etc.) are currently in **Japanese only**. Internationalization support is planned for a future release.
+> **Note:** This library was originally built for internal use at [Hey Now Inc.](https://hey-now.jp/) and may reflect opinionated design choices. We've open-sourced it in case others find it useful, but feature requests outside our use cases may not be prioritized. Contributions and forks are welcome.
+
+> The demo site and built-in UI labels (column menus, tooltips, etc.) are currently in **Japanese only**. Internationalization support is planned for a future release.
 
 ## Install
 
