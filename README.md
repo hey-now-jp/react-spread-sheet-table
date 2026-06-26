@@ -1,80 +1,32 @@
 # @heynow-jp/react-spread-sheet-table
 
-React 向けのスプレッドシート風テーブルコンポーネントライブラリ。
+A spreadsheet-style table component for React with inline editing, sorting, filtering, and more.
 
-[Playground デモ](https://hey-now-jp.github.io/react-spread-sheet-table/)
+[Live Demo](https://hey-now-jp.github.io/react-spread-sheet-table/)
 
-## 特徴
+> **Note:** The demo site and built-in UI labels (column menus, tooltips, etc.) are currently in **Japanese only**. Internationalization support is planned for a future release.
 
-- 6 種類のカラム型（テキスト・数値・日付・時刻・真偽値・リスト）+ カスタムアクションカラム
-- インライン編集、キーボードナビゲーション（矢印キー・Tab・Enter・Escape）
-- セル範囲選択、クリップボード操作（Ctrl+C / Ctrl+V）
-- ソート・フィルター（eq / contains / range / in）
-- 組み込みバリデーション + カスタムバリデーション
-- 仮想スクロール（10,000 行以上対応）
-- CSS カスタムプロパティによるテーマカスタマイズ
-- React 18 / 19 対応
-
-## セットアップ
+## Install
 
 ```bash
-pnpm install
-```
-
-## 開発
-
-```bash
-# Playground 起動（http://localhost:5173）
-pnpm dev
-
-# ライブラリビルド
-pnpm build
-
-# ユニットテスト
-pnpm test
-
-# E2E テスト
-pnpm test:e2e
-
-# Lint & Format
-pnpm lint
-pnpm format
-```
-
-## プロジェクト構成
-
-```
-packages/
-  core/           @heynow-jp/react-spread-sheet-table 本体
-apps/
-  docs/           ドキュメント & デモ（GitHub Pages で公開）
-```
-
-## インストール
-
-```bash
-pnpm add @heynow-jp/react-spread-sheet-table
-# or
 npm install @heynow-jp/react-spread-sheet-table
+# or
+pnpm add @heynow-jp/react-spread-sheet-table
 ```
 
-### スタイルの読み込み
-
-アプリのエントリポイントで CSS を import してください。テーマ変数を含むグローバルな CSS です。
+Import the stylesheet in your app entry point:
 
 ```ts
 import '@heynow-jp/react-spread-sheet-table/styles.css'
 ```
 
-読み込み箇所の例:
-
-| フレームワーク | ファイル |
-|----------------|----------|
-| Next.js (Pages Router) | `src/pages/_app.tsx` |
+| Framework | Where to import |
+|-----------|----------------|
 | Next.js (App Router) | `src/app/layout.tsx` |
-| Vite / CRA | `src/main.tsx` など |
+| Next.js (Pages Router) | `src/pages/_app.tsx` |
+| Vite | `src/main.tsx` |
 
-## クイックスタート
+## Quick Start
 
 ```tsx
 import {
@@ -86,14 +38,14 @@ import {
 type Row = { id: string; name: string; age: number }
 
 const columns: ColumnDef<Row>[] = [
-  { type: 'text', key: 'name', header: '名前', width: 200 },
-  { type: 'number', key: 'age', header: '年齢', width: 100, min: 0, max: 150 },
+  { type: 'text', key: 'name', header: 'Name', width: 200 },
+  { type: 'number', key: 'age', header: 'Age', width: 100, min: 0, max: 150 },
 ]
 
 function App() {
   const table = useSpreadSheetTable({
     columns,
-    initialData: [{ id: '1', name: '太郎', age: 30 }],
+    initialData: [{ id: '1', name: 'Alice', age: 30 }],
     rowKey: 'id',
   })
 
@@ -101,18 +53,98 @@ function App() {
 }
 ```
 
-## 技術スタック
+## Features
 
-| ツール | 用途 |
-|--------|------|
-| React 18+ | UI |
-| TypeScript 5.7+ | 型安全 |
-| Vite 6 | ビルド |
-| Vitest | ユニットテスト |
-| Playwright | E2E テスト |
-| Biome | Lint / Format |
-| pnpm | パッケージ管理 |
+- **Column types** - text, number, date, time, boolean, list, multiList, and custom action columns
+- **Inline editing** - double-click or type to edit; Enter to confirm, Escape to cancel
+- **Keyboard navigation** - arrow keys, Tab, Shift+Tab, Cmd/Ctrl+Arrow for jump
+- **Selection** - click, Shift+click, drag, and Shift+Arrow for range selection
+- **Clipboard** - Ctrl+C / Ctrl+V with multi-cell support
+- **Sorting & filtering** - column menu with ascending/descending sort and multiple filter operators (eq, contains, range, in)
+- **Validation** - built-in constraints (min/max, pattern, required) and custom validation functions
+- **Virtual scroll** - handles 10,000+ rows
+- **Undo / Redo** - Ctrl+Z / Ctrl+Y with operation-based history (up to 25 entries)
+- **Row reordering** - drag-and-drop via row handles
+- **Frozen columns** - pin columns to the left
+- **Theming** - CSS custom properties for full visual customization
+- **React 18 & 19** compatible
 
-## ライセンス
+## Column Types
 
-MIT
+| Type | Value | Editor |
+|------|-------|--------|
+| `text` | `string` | `<input type="text">` |
+| `number` | `number` | `<input type="number">` |
+| `date` | `string` (YYYY-MM-DD) | `<input type="date">` |
+| `time` | `string` (HH:MM) | `<input type="time">` |
+| `boolean` | `boolean` | `<input type="checkbox">` |
+| `list` | `string` | `<select>` |
+| `multiList` | `string[]` | checkbox group |
+| `action` | - | custom render function |
+
+## API
+
+### `useSpreadSheetTable(options)`
+
+Returns a `TableInstance<T>` to pass to `<SpreadSheetTable>`.
+
+```ts
+const table = useSpreadSheetTable<Row>({
+  columns,           // ColumnDef<Row>[] - column definitions
+  initialData,       // Row[] - initial row data
+  rowKey,            // keyof Row - unique identifier field
+  onChange,          // (changes: ChangeInfo<Row>[]) => void
+  onReorder,         // (newData: Row[]) => void
+  validate,          // (row: Row, key: string, value: unknown) => ValidationResult | undefined
+  frozenColumns,     // number - columns to freeze from the left
+  reorderable,       // boolean - enable row drag-and-drop
+})
+```
+
+### `<SpreadSheetTable>`
+
+```tsx
+<SpreadSheetTable
+  table={table}       // TableInstance from useSpreadSheetTable
+  height={500}        // number - container height in px (omit for auto height)
+  autoWidth={false}    // boolean - shrink table width to fit columns
+  cellMeta={cellMeta}  // Record<string, Record<string, CellMeta>> - per-cell metadata
+/>
+```
+
+## Requirements
+
+- React >= 18.0.0
+- React DOM >= 18.0.0
+
+## Contributing
+
+```bash
+git clone https://github.com/hey-now-jp/react-spread-sheet-table.git
+cd react-spread-sheet-table
+pnpm install
+pnpm dev          # start docs dev server
+```
+
+### Project Structure
+
+```
+packages/core/    main library
+apps/docs/        documentation & demo (Astro + Starlight)
+```
+
+### Scripts
+
+```bash
+pnpm dev          # docs dev server
+pnpm build        # build library
+pnpm test         # unit tests (Vitest)
+pnpm test:e2e     # E2E tests (Playwright)
+pnpm typecheck    # TypeScript check
+pnpm lint         # lint (Biome)
+pnpm lint:fix     # lint with auto-fix
+```
+
+## License
+
+[MIT](./LICENSE)
