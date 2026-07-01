@@ -1,4 +1,12 @@
 {
+  "extraKnownMarketplaces": {
+    "agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "hey-now-jp/agent-skills"
+      }
+    }
+  },
   "permissions": {
     "allow": [
       "Bash(git:*)",
