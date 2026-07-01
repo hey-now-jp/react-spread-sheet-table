@@ -1,4 +1,18 @@
 {
+  "enabledPlugins": {
+    "agent-skills@hey-now-jp": true,
+    "code-simplifier@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "hey-now-jp": {
+      "source": {
+        "source": "github",
+        "repo": "hey-now-jp/agent-skills"
+      }
+    }
+  },
+  "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
       "Bash(git:*)",
