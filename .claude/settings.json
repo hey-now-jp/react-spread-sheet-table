@@ -1,6 +1,8 @@
 {
   "enabledPlugins": {
-    "agent-skills@hey-now-jp": true
+    "agent-skills@hey-now-jp": true,
+    "code-simplifier@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "hey-now-jp": {
@@ -10,6 +12,7 @@
       }
     }
   },
+  "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
       "Bash(git:*)",
