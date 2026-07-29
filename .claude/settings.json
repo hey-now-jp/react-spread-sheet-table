@@ -9,7 +9,8 @@
       "source": {
         "source": "github",
         "repo": "hey-now-jp/agent-skills"
-      }
+      },
+      "autoUpdate": true
     }
   },
   "includeCoAuthoredBy": false,
