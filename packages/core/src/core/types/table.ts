@@ -33,6 +33,31 @@ export type RowChangeIssue<T> = {
   readonly result: ValidationResult
 }
 
+export type CommittedRowChange<T> = {
+  readonly rowIndex: number
+  readonly previousRow: T
+  readonly row: T
+  readonly changes: ReadonlyArray<CellChange<T>>
+}
+
+export type RowChangeCommit<T> = {
+  readonly source: RowChangeSource
+  readonly rows: ReadonlyArray<CommittedRowChange<T>>
+}
+
+export type RejectedRowChange<T> = {
+  readonly rowIndex: number
+  readonly previousRow: T
+  readonly candidateRow: T
+  readonly issues: ReadonlyArray<RowChangeIssue<T>>
+}
+
+export type RowChangeRejection<T> = {
+  readonly source: RowChangeSource
+  readonly errors: ReadonlyArray<CellValidationError>
+  readonly rows: ReadonlyArray<RejectedRowChange<T>>
+}
+
 export type ProcessRowChangeResult<T> =
   | { readonly status: 'accepted'; readonly row: T }
   | { readonly status: 'rejected'; readonly issues: ReadonlyArray<RowChangeIssue<T>> }
@@ -54,12 +79,13 @@ export type UseSpreadSheetTableOptions<T> = {
   readonly sortable?: boolean
   readonly filterable?: boolean
   readonly onChange?: (changedRows: ReadonlyArray<ChangeInfo<T>>) => void
+  readonly onRowChangeCommitted?: (commit: RowChangeCommit<T>) => void
   readonly onSort?: (sortState: SortState<T>) => void
   readonly onFilter?: (filterState: FilterState<T>) => void
   readonly onValidationError?: (errors: ReadonlyArray<CellValidationError>) => void
   readonly validate?: (value: unknown, row: T, columnKey: keyof T) => ValidationResult | null
   readonly processRowChange?: ProcessRowChange<T>
-  readonly onRowChangeRejected?: (errors: ReadonlyArray<CellValidationError>) => void
+  readonly onRowChangeRejected?: (rejection: RowChangeRejection<T>) => void
   readonly reorderable?: boolean
   readonly onReorder?: (newData: ReadonlyArray<T>) => void
   readonly resizable?: boolean
