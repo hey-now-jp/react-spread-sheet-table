@@ -20,6 +20,29 @@ export type ChangeInfo<T> = {
   readonly changes: ReadonlyArray<CellChange<T>>
 }
 
+export type RowChangeSource = 'edit' | 'paste'
+
+export type RowChangeContext<T> = {
+  readonly rowIndex: number
+  readonly source: RowChangeSource
+  readonly changes: ReadonlyArray<CellChange<T>>
+}
+
+export type RowChangeIssue<T> = {
+  readonly columnKey: keyof T
+  readonly result: ValidationResult
+}
+
+export type ProcessRowChangeResult<T> =
+  | { readonly status: 'accepted'; readonly row: T }
+  | { readonly status: 'rejected'; readonly issues: ReadonlyArray<RowChangeIssue<T>> }
+
+export type ProcessRowChange<T> = (
+  candidateRow: T,
+  previousRow: T,
+  context: RowChangeContext<T>,
+) => ProcessRowChangeResult<T>
+
 // ---------------------------------------------------------------------------
 // Hook options
 // ---------------------------------------------------------------------------
@@ -35,6 +58,8 @@ export type UseSpreadSheetTableOptions<T> = {
   readonly onFilter?: (filterState: FilterState<T>) => void
   readonly onValidationError?: (errors: ReadonlyArray<CellValidationError>) => void
   readonly validate?: (value: unknown, row: T, columnKey: keyof T) => ValidationResult | null
+  readonly processRowChange?: ProcessRowChange<T>
+  readonly onRowChangeRejected?: (errors: ReadonlyArray<CellValidationError>) => void
   readonly reorderable?: boolean
   readonly onReorder?: (newData: ReadonlyArray<T>) => void
   readonly resizable?: boolean

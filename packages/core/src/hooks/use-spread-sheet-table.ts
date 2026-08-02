@@ -10,6 +10,7 @@ import type {
 } from '../core/types'
 import { isDataColumn } from '../core/types'
 import { type CellUpdate, validateCellUpdates } from '../core/validation/cell-update-validation'
+import { prepareCellUpdates } from '../core/validation/row-change-processing'
 import { runValidation } from '../core/validation/validation-utils'
 
 export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): TableInstance<T> {
@@ -42,39 +43,62 @@ export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): 
     options.onValidationError?.(validationErrors)
   }
 
-  const handleCellChange = useCallback(
-    (rowIndex: number, columnKey: keyof T, value: T[keyof T]) => {
-      store.setCellValue(rowIndex, columnKey, value)
-      if (options.onChange) {
-        const changedRows = store.getChangedRows()
-        options.onChange(changedRows)
-      }
-    },
-    [store, options.onChange],
-  )
-
-  const handleBatchCellChanges = useCallback(
-    (updates: ReadonlyArray<CellUpdate<T>>) => {
-      const errors = validateCellUpdates(
+  const commitCellUpdates = useCallback(
+    (
+      updates: ReadonlyArray<CellUpdate<T>>,
+      source: 'edit' | 'paste',
+      validateBeforeCommit: boolean,
+    ) => {
+      const prepared = prepareCellUpdates(
         store.getRows(),
-        options.columns,
         updates,
-        options.validate,
+        source,
+        options.processRowChange,
       )
+      if (!prepared.accepted) {
+        options.onRowChangeRejected?.(prepared.errors)
+        return { committed: false as const, errors: prepared.errors }
+      }
+
+      const errors = validateBeforeCommit
+        ? validateCellUpdates(store.getRows(), options.columns, prepared.updates, options.validate)
+        : []
       if (errors.some((error) => error.result.level === 'error')) {
         return { committed: false as const, errors }
       }
 
       store.beginBatch()
-      for (const update of updates) {
+      for (const update of prepared.updates) {
         store.setCellValue(update.rowIndex, update.columnKey, update.value)
       }
       store.endBatch()
-      if (updates.length > 0) options.onChange?.(store.getChangedRows())
+      if (prepared.updates.length > 0) options.onChange?.(store.getChangedRows())
 
       return { committed: true as const, errors }
     },
-    [store, options.columns, options.onChange, options.validate],
+    [
+      store,
+      options.columns,
+      options.onChange,
+      options.onRowChangeRejected,
+      options.processRowChange,
+      options.validate,
+    ],
+  )
+
+  const handleCellChange = useCallback(
+    (rowIndex: number, columnKey: keyof T, value: T[keyof T]) => {
+      const result = commitCellUpdates([{ rowIndex, columnKey, value }], 'edit', false)
+      if (!result.committed) {
+        store.showToast(result.errors.map((error) => error.result.message))
+      }
+    },
+    [commitCellUpdates, store],
+  )
+
+  const handleBatchCellChanges = useCallback(
+    (updates: ReadonlyArray<CellUpdate<T>>) => commitCellUpdates(updates, 'paste', true),
+    [commitCellUpdates],
   )
 
   const table: TableInstance<T> = {

@@ -554,6 +554,28 @@ describe('createStore', () => {
       expect(store.getRows().map((row) => row.name)).toEqual(['X', 'Y', 'Charlie'])
     })
 
+    it('keeps nested batches in one notification and undo entry', () => {
+      const store = createTestStore()
+      const listener = vi.fn()
+      store.subscribe(listener)
+
+      store.beginBatch()
+      store.setCellValue(0, 'name', 'X')
+      store.beginBatch()
+      store.setCellValue(1, 'name', 'Y')
+      store.endBatch()
+
+      expect(listener).not.toHaveBeenCalled()
+      expect(store.canUndo()).toBe(false)
+
+      store.endBatch()
+
+      expect(listener).toHaveBeenCalledOnce()
+      expect(store.canUndo()).toBe(true)
+      store.undo()
+      expect(store.getRows().map((row) => row.name)).toEqual(['Alice', 'Bob', 'Charlie'])
+    })
+
     it('endBatch with no changes does not push entry', () => {
       const store = createTestStore()
       store.beginBatch()

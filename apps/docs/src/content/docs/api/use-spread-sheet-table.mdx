@@ -28,6 +28,8 @@ const table = useSpreadSheetTable<Row>({
 | `onReorder` | `(rows: T[]) => void` | - | 行並び替え時のコールバック |
 | `validate` | `(value, row, key) => ValidationResult \| null` | - | カスタムバリデーション |
 | `onValidationError` | `(errors) => void` | - | バリデーションエラーのコールバック |
+| `processRowChange` | `(candidate, previous, context) => ProcessRowChangeResult<T>` | - | 行変更を確定前に補正または拒否 |
+| `onRowChangeRejected` | `(errors) => void` | - | 行変更が拒否されたときのコールバック |
 | `readOnly` | `boolean` | `false` | テーブル全体を読み取り専用に |
 | `sortable` | `boolean` | `true` | ソート有効/無効 |
 | `filterable` | `boolean` | `true` | フィルター有効/無効 |
@@ -52,3 +54,52 @@ const table = useSpreadSheetTable<Row>({
 | `getValidationErrors()` | `() => ValidationError[]` | バリデーションエラー一覧 |
 | `getChangedRows()` | `() => ChangeSet<T>` | 変更された行の差分 |
 | `frozenColumns` | `number` | 固定列数 |
+
+## 行変更を確定前に処理する
+
+`processRowChange`を使うと、単一セル編集とペーストのどちらでも、変更後の行を確定前に補正または拒否できます。
+処理は同期関数として実装します。
+
+```tsx
+const table = useSpreadSheetTable<ShiftRow>({
+  columns,
+  initialData,
+  rowKey: 'id',
+  processRowChange: (candidate, _previous, context) => {
+    const nextRow = context.changes.some((change) => change.key === 'startTime')
+      ? {
+          ...candidate,
+          // 利用側の業務ロジックで終了時刻を補正する
+          endTime: calculateEndTime(candidate.startTime),
+        }
+      : candidate
+
+    if (nextRow.startTime >= nextRow.endTime) {
+      return {
+        status: 'rejected',
+        issues: [
+          {
+            columnKey: 'endTime',
+            result: {
+              level: 'error',
+              message: '終了時刻は開始時刻より後にしてください',
+            },
+          },
+        ],
+      }
+    }
+
+    return {
+      status: 'accepted',
+      row: nextRow,
+    }
+  },
+  onRowChangeRejected: (errors) => {
+    console.log('Rejected row change:', errors)
+  },
+})
+```
+
+`context`には`rowIndex`、操作元を示す`source`（`edit`または`paste`）、確定前の`changes`が含まれます。
+補正した値は元の編集と同じ操作として記録されるため、1回のUndoでまとめて元に戻ります。
+複数行のペーストでは、1行でも拒否されるとペースト全体を反映しません。
