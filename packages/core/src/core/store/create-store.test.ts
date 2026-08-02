@@ -88,6 +88,58 @@ describe('createStore', () => {
       expect(store.getCellValue(0, 'name')).toBe('Alice')
       expect(store.isDirty()).toBe(false)
     })
+
+    it('replaces data and clears editing state', () => {
+      const store = createTestStore()
+      const nextData: ReadonlyArray<TestRow> = [{ id: '4', name: 'Diana', age: 28, active: true }]
+
+      store.setCellValue(0, 'name', 'Alice Updated')
+      store.setCellValue(0, 'age', 31)
+      store.undo()
+      store.setActiveCell({ rowIndex: 0, colIndex: 1 })
+      store.startEditing({ rowIndex: 0, colIndex: 1 }, 'Alice Updated')
+      store.setClipboardRange({
+        start: { rowIndex: 0, colIndex: 0 },
+        end: { rowIndex: 0, colIndex: 1 },
+      })
+
+      store.replaceData(nextData)
+
+      expect(store.getRows()).toEqual(nextData)
+      expect(store.isDirty()).toBe(false)
+      expect(store.getChangedRows()).toEqual([])
+      expect(store.canUndo()).toBe(false)
+      expect(store.canRedo()).toBe(false)
+      expect(store.getSelection()).toEqual({ activeCell: null, range: null })
+      expect(store.getEditingCell()).toBeNull()
+      expect(store.getClipboardRange()).toBeNull()
+    })
+
+    it('uses replaced data as the reset baseline', () => {
+      const store = createTestStore()
+      const nextData: ReadonlyArray<TestRow> = [{ id: '4', name: 'Diana', age: 28, active: true }]
+
+      store.replaceData(nextData)
+      store.setCellValue(0, 'name', 'Diana Updated')
+      store.resetToInitial()
+
+      expect(store.getRows()).toEqual(nextData)
+      expect(store.isDirty()).toBe(false)
+    })
+
+    it('preserves sort and filter state when replacing data', () => {
+      const store = createTestStore()
+      const nextData: ReadonlyArray<TestRow> = [{ id: '4', name: 'Diana', age: 28, active: true }]
+
+      store.setSort('age', 'desc')
+      store.setFilter('active', { type: 'eq', value: true })
+      store.setColumnWidth('name', 240)
+      store.replaceData(nextData)
+
+      expect(store.getSortState()).toEqual({ key: 'age', direction: 'desc' })
+      expect(store.getFilterState()).toEqual(new Map([['active', { type: 'eq', value: true }]]))
+      expect(store.getColumnWidth('name')).toBe(240)
+    })
   })
 
   describe('selection', () => {

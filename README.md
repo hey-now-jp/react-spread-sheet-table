@@ -101,6 +101,9 @@ const table = useSpreadSheetTable<Row>({
   frozenColumns,     // number - columns to freeze from the left
   reorderable,       // boolean - enable row drag-and-drop
 })
+
+// Replace the editing baseline after refetching data.
+table.replaceData(nextRows)
 ```
 
 ### `<SpreadSheetTable>`

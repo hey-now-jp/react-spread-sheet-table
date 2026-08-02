@@ -21,6 +21,7 @@ import {
   getChangedRows as getChangedRowsFromSlice,
   markAsSaved as markDataAsSaved,
   reorderRows as reorderDataRows,
+  replaceData as replaceDataSlice,
   resetToInitial as resetDataToInitial,
   setCellValue as setDataCellValue,
 } from './data-slice'
@@ -69,6 +70,7 @@ export type TableStore<T> = {
   isDirty(): boolean
   markAsSaved(): void
   resetToInitial(): void
+  replaceData(rows: ReadonlyArray<T>): void
 
   reorderRows(fromIndex: number, toIndex: number): void
 
@@ -251,6 +253,20 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
     },
     resetToInitial: () => {
       dataSlice = resetDataToInitial(dataSlice)
+      dataVersion += 1
+      invalidateDerivedCache()
+      notify()
+    },
+    replaceData: (rows) => {
+      dataSlice = replaceDataSlice(rows)
+      selectionSlice = clearSelectionSlice()
+      editSlice = stopEditingSlice()
+      historySlice = createHistorySlice<T>()
+      batchChanges = null
+      clipboardRange = null
+      validationErrors = []
+      toastMessages = []
+      toastVersion += 1
       dataVersion += 1
       invalidateDerivedCache()
       notify()

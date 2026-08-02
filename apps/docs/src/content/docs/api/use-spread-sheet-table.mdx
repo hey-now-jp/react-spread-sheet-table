@@ -46,6 +46,7 @@ const table = useSpreadSheetTable<Row>({
 | `undo()` | `() => void` | 操作を元に戻す |
 | `redo()` | `() => void` | 操作をやり直す |
 | `resetToInitial()` | `() => void` | 初期データにリセット |
+| `replaceData(rows)` | `(rows: T[]) => void` | 新しい行データへ差し替え、変更履歴を初期化 |
 | `markAsSaved()` | `() => void` | 現在のデータを保存済みとしてマーク |
 | `isValid()` | `() => boolean` | バリデーションエラーがないか |
 | `getValidationErrors()` | `() => ValidationError[]` | バリデーションエラー一覧 |
