@@ -96,6 +96,7 @@ const table = useSpreadSheetTable<Row>({
   initialData,       // Row[] - initial row data
   rowKey,            // keyof Row - unique identifier field
   onChange,          // (changes: ChangeInfo<Row>[]) => void
+  onRowChangeCommitted, // (commit: RowChangeCommit<Row>) => void
   onReorder,         // (newData: Row[]) => void
   validate,          // (row: Row, key: string, value: unknown) => ValidationResult | undefined
   frozenColumns,     // number - columns to freeze from the left

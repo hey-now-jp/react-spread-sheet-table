@@ -24,12 +24,13 @@ const table = useSpreadSheetTable<Row>({
 | `columns` | `ColumnDef<T>[]` | (必須) | カラム定義の配列 |
 | `initialData` | `T[]` | (必須) | 初期データ |
 | `rowKey` | `keyof T` | (必須) | 行のユニークキー |
-| `onChange` | `(rows: T[]) => void` | - | データ変更時のコールバック |
+| `onChange` | `(rows: ChangeInfo<T>[]) => void` | - | 編集基準から変更された行を通知 |
+| `onRowChangeCommitted` | `(commit: RowChangeCommit<T>) => void` | - | 今回の操作で確定した変更前後の行を通知 |
 | `onReorder` | `(rows: T[]) => void` | - | 行並び替え時のコールバック |
 | `validate` | `(value, row, key) => ValidationResult \| null` | - | カスタムバリデーション |
 | `onValidationError` | `(errors) => void` | - | バリデーションエラーのコールバック |
 | `processRowChange` | `(candidate, previous, context) => ProcessRowChangeResult<T>` | - | 行変更を確定前に補正または拒否 |
-| `onRowChangeRejected` | `(errors) => void` | - | 行変更が拒否されたときのコールバック |
+| `onRowChangeRejected` | `(rejection: RowChangeRejection<T>) => void` | - | 拒否された操作と行を通知 |
 | `readOnly` | `boolean` | `false` | テーブル全体を読み取り専用に |
 | `sortable` | `boolean` | `true` | ソート有効/無効 |
 | `filterable` | `boolean` | `true` | フィルター有効/無効 |
@@ -94,8 +95,13 @@ const table = useSpreadSheetTable<ShiftRow>({
       row: nextRow,
     }
   },
-  onRowChangeRejected: (errors) => {
-    console.log('Rejected row change:', errors)
+  onRowChangeCommitted: (commit) => {
+    for (const { previousRow, row } of commit.rows) {
+      saveChangedRow(previousRow, row)
+    }
+  },
+  onRowChangeRejected: (rejection) => {
+    console.log('Rejected row change:', rejection.rows)
   },
 })
 ```
@@ -105,3 +111,7 @@ const table = useSpreadSheetTable<ShiftRow>({
 補正した値は元の編集と同じ操作として記録されるため、1回のUndoでまとめて元に戻ります。
 複数行のペーストでは、1行でも拒否されるとペースト全体を反映しません。
 範囲を選択したDeleteとCutも同じ扱いで、1行でも拒否されると範囲全体をクリアしません。
+
+`onChange`は編集基準からの累積変更を通知します。
+今回の操作だけをAPIへ送る場合は、`onRowChangeCommitted`の`previousRow`と`row`を使用してください。
+渡された行はテーブル内のスナップショットとして読み取り専用で扱います。

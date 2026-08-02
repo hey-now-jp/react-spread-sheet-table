@@ -78,6 +78,24 @@ describe('prepareCellUpdates', () => {
           result: { level: 'error', message: 'This shift overlaps another shift' },
         },
       ],
+      rejectedRows: [
+        {
+          rowIndex: 1,
+          previousRow: rows[1],
+          candidateRow: {
+            id: 'shift-2',
+            startTime: '09:15',
+            endTime: '10:30',
+            note: '',
+          },
+          issues: [
+            {
+              columnKey: 'startTime',
+              result: { level: 'error', message: 'This shift overlaps another shift' },
+            },
+          ],
+        },
+      ],
     })
   })
 
@@ -100,5 +118,16 @@ describe('prepareCellUpdates', () => {
       endTime: '14:00',
       note: '',
     })
+  })
+
+  it('rejects the transaction even when the processor returns no issues', () => {
+    const result = prepareCellUpdates(
+      rows,
+      [{ rowIndex: 0, columnKey: 'startTime', value: '09:15' }],
+      'edit',
+      () => ({ status: 'rejected', issues: [] }),
+    )
+
+    expect(result.accepted).toBe(false)
   })
 })

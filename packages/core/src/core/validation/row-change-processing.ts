@@ -1,9 +1,20 @@
-import type { CellChange, CellValidationError, ProcessRowChange, RowChangeSource } from '../types'
+import type {
+  CellChange,
+  CellValidationError,
+  ProcessRowChange,
+  RejectedRowChange,
+  RowChangeCommit,
+  RowChangeSource,
+} from '../types'
 import { applyCellUpdates, type CellUpdate } from './cell-update-validation'
 
 export type PreparedCellUpdates<T> =
   | { readonly accepted: true; readonly updates: ReadonlyArray<CellUpdate<T>> }
-  | { readonly accepted: false; readonly errors: ReadonlyArray<CellValidationError> }
+  | {
+      readonly accepted: false
+      readonly errors: ReadonlyArray<CellValidationError>
+      readonly rejectedRows: ReadonlyArray<RejectedRowChange<T>>
+    }
 
 function getChangedKeys<T>(
   previousRow: T,
@@ -46,6 +57,7 @@ export function prepareCellUpdates<T>(
   const affectedRowIndices = new Set(updates.map((update) => update.rowIndex))
   const processedRows = new Map<number, { row: T; changedKeys: ReadonlyArray<keyof T> }>()
   const errors: CellValidationError[] = []
+  const rejectedRows: RejectedRowChange<T>[] = []
 
   for (const rowIndex of affectedRowIndices) {
     const previousRow = rows[rowIndex]
@@ -63,6 +75,7 @@ export function prepareCellUpdates<T>(
     const result = processRowChange(candidateRow, previousRow, { rowIndex, source, changes })
 
     if (result.status === 'rejected') {
+      rejectedRows.push({ rowIndex, previousRow, candidateRow, issues: result.issues })
       for (const issue of result.issues) {
         errors.push({
           rowIndex,
@@ -76,7 +89,7 @@ export function prepareCellUpdates<T>(
     processedRows.set(rowIndex, { row: result.row, changedKeys })
   }
 
-  if (errors.length > 0) return { accepted: false, errors }
+  if (rejectedRows.length > 0) return { accepted: false, errors, rejectedRows }
 
   const preparedUpdates: CellUpdate<T>[] = []
   for (const [rowIndex, processed] of processedRows) {
@@ -92,4 +105,32 @@ export function prepareCellUpdates<T>(
   }
 
   return { accepted: true, updates: preparedUpdates }
+}
+
+export function createRowChangeCommit<T>(
+  rows: ReadonlyArray<T>,
+  updates: ReadonlyArray<CellUpdate<T>>,
+  source: RowChangeSource,
+): RowChangeCommit<T> {
+  const committedRows = applyCellUpdates(rows, updates)
+  const affectedRowIndices = new Set(updates.map((update) => update.rowIndex))
+
+  return {
+    source,
+    rows: [...affectedRowIndices].flatMap((rowIndex) => {
+      const previousRow = rows[rowIndex]
+      const row = committedRows[rowIndex]
+      if (previousRow == null || row == null) return []
+
+      const changedKeys = getChangedKeys(previousRow, row, updates, rowIndex)
+      if (changedKeys.length === 0) return []
+
+      const changes: ReadonlyArray<CellChange<T>> = changedKeys.map((key) => ({
+        key,
+        previousValue: previousRow[key],
+        newValue: row[key],
+      }))
+      return [{ rowIndex, previousRow, row, changes }]
+    }),
+  }
 }
