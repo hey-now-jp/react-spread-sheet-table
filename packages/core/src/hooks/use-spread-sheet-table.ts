@@ -9,6 +9,7 @@ import type {
   UseSpreadSheetTableOptions,
 } from '../core/types'
 import { isDataColumn } from '../core/types'
+import { type CellUpdate, validateCellUpdates } from '../core/validation/cell-update-validation'
 import { runValidation } from '../core/validation/validation-utils'
 
 export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): TableInstance<T> {
@@ -50,6 +51,30 @@ export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): 
       }
     },
     [store, options.onChange],
+  )
+
+  const handleBatchCellChanges = useCallback(
+    (updates: ReadonlyArray<CellUpdate<T>>) => {
+      const errors = validateCellUpdates(
+        store.getRows(),
+        options.columns,
+        updates,
+        options.validate,
+      )
+      if (errors.some((error) => error.result.level === 'error')) {
+        return { committed: false as const, errors }
+      }
+
+      store.beginBatch()
+      for (const update of updates) {
+        store.setCellValue(update.rowIndex, update.columnKey, update.value)
+      }
+      store.endBatch()
+      if (updates.length > 0) options.onChange?.(store.getChangedRows())
+
+      return { committed: true as const, errors }
+    },
+    [store, options.columns, options.onChange, options.validate],
   )
 
   const table: TableInstance<T> = {
@@ -120,6 +145,11 @@ export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): 
   ;(
     table as TableInstance<T> & { __handleCellChange: typeof handleCellChange }
   ).__handleCellChange = handleCellChange
+  ;(
+    table as TableInstance<T> & {
+      __handleBatchCellChanges: typeof handleBatchCellChanges
+    }
+  ).__handleBatchCellChanges = handleBatchCellChanges
   ;(
     table as TableInstance<T> & {
       __onReorder: UseSpreadSheetTableOptions<T>['onReorder']

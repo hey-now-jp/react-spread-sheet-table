@@ -243,7 +243,7 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
       }
       dataVersion += 1
       invalidateDerivedCache()
-      notify()
+      if (batchChanges === null) notify()
     },
     getChangedRows: () => getChangedRowsFromSlice(dataSlice),
     isDirty: () => dataSlice.dirtyRowIndices.size > 0,
@@ -461,13 +461,15 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
       batchChanges = []
     },
     endBatch: () => {
-      if (batchChanges !== null && batchChanges.length > 0) {
+      const completedChanges = batchChanges
+      batchChanges = null
+      if (completedChanges !== null && completedChanges.length > 0) {
         historySlice = pushHistoryEntry(historySlice, {
           type: 'cellChanges',
-          changes: batchChanges,
+          changes: completedChanges,
         })
+        notify()
       }
-      batchChanges = null
     },
 
     // Column widths

@@ -28,12 +28,14 @@ import {
 import type { TableStore } from '../core/store/create-store'
 import type {
   CellPosition,
+  CellValidationError,
   DataColumnDef,
   SelectionRange,
   TableInstance,
   UseSpreadSheetTableOptions,
 } from '../core/types'
 import { isActionColumn, isDataColumn } from '../core/types'
+import type { CellUpdate } from '../core/validation/cell-update-validation'
 import { useVirtualScroll } from '../hooks/use-virtual-scroll'
 import dragStyles from '../styles/drag.module.css'
 import scrollStyles from '../styles/scroll.module.css'
@@ -198,6 +200,14 @@ function SpreadSheetTableInner<T>({
       __handleCellChange: (rowIndex: number, columnKey: keyof T, value: T[keyof T]) => void
     }
   ).__handleCellChange
+  const handleBatchCellChanges = (
+    table as TableInstance<T> & {
+      __handleBatchCellChanges: (updates: ReadonlyArray<CellUpdate<T>>) => {
+        readonly committed: boolean
+        readonly errors: ReadonlyArray<CellValidationError>
+      }
+    }
+  ).__handleBatchCellChanges
   const onReorder = (
     table as TableInstance<T> & {
       __onReorder: UseSpreadSheetTableOptions<T>['onReorder']
@@ -326,7 +336,7 @@ function SpreadSheetTableInner<T>({
           return
         }
         if (e.key === 'v' || e.key === 'V') {
-          handlePaste(store, columns, readOnly, handleCellChange)
+          handlePaste(store, columns, readOnly, handleBatchCellChanges)
           e.preventDefault()
           return
         }
@@ -546,6 +556,7 @@ function SpreadSheetTableInner<T>({
       sortedFilteredIndices,
       readOnly,
       handleCellChange,
+      handleBatchCellChanges,
       clipboardCtx,
       height,
       virtualScroll.containerRef,
@@ -766,7 +777,10 @@ function handlePaste<T>(
   store: TableStore<T>,
   columns: ReadonlyArray<import('../core/types/column').ColumnDef<T>>,
   readOnlyTable: boolean,
-  onCellChange: (rowIndex: number, columnKey: keyof T, value: T[keyof T]) => void,
+  onBatchCellChanges: (updates: ReadonlyArray<CellUpdate<T>>) => {
+    readonly committed: boolean
+    readonly errors: ReadonlyArray<CellValidationError>
+  },
 ): void {
   if (readOnlyTable) return
 
@@ -804,8 +818,8 @@ function handlePaste<T>(
       let maxPastedRow = startRow
       let maxPastedCol = startCol
       const formatErrors: string[] = []
+      const updates: CellUpdate<T>[] = []
 
-      store.beginBatch()
       for (let r = 0; r < pasteData.length; r++) {
         const dataRowIndex = startRow + r
         if (dataRowIndex >= rows.length) break
@@ -826,7 +840,11 @@ function handlePaste<T>(
             const pastedValue = pasteData[r][c]
             const result = parseAndValidateValue(pastedValue, dataCol)
             if (result.ok) {
-              onCellChange(dataRowIndex, dataCol.key as keyof T, result.value as T[keyof T])
+              updates.push({
+                rowIndex: dataRowIndex,
+                columnKey: dataCol.key as keyof T,
+                value: result.value as T[keyof T],
+              })
             } else {
               formatErrors.push(`Row ${dataRowIndex + 1} "${dataCol.header}": ${result.message}`)
             }
@@ -838,7 +856,21 @@ function handlePaste<T>(
         }
       }
 
-      store.endBatch()
+      if (formatErrors.length === 0) {
+        const result = onBatchCellChanges(updates)
+        if (!result.committed) {
+          for (const error of result.errors) {
+            const column = columns.find(
+              (candidate) => isDataColumn(candidate) && String(candidate.key) === error.columnKey,
+            )
+            formatErrors.push(
+              `Row ${error.rowIndex + 1} "${column?.header ?? error.columnKey}": ${
+                error.result.message
+              }`,
+            )
+          }
+        }
+      }
 
       // Select the pasted range for visual feedback
       store.setActiveCell({ rowIndex: startRow, colIndex: startCol })
