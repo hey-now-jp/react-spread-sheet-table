@@ -23,6 +23,10 @@ type InternalTableInstance<T> = TableInstance<T> & {
     readonly committed: boolean
     readonly errors: ReadonlyArray<CellValidationError>
   }
+  __handleClearCells: (updates: ReadonlyArray<CellUpdate<T>>) => {
+    readonly committed: boolean
+    readonly errors: ReadonlyArray<CellValidationError>
+  }
 }
 
 const columns: ReadonlyArray<ColumnDef<ShiftRow>> = [
@@ -167,6 +171,78 @@ describe('useSpreadSheetTable row processing', () => {
         result: { level: 'error', message: 'This shift overlaps another shift' },
       },
     ])
+
+    act(() => root.unmount())
+  })
+
+  it('rejects a multi-cell clear atomically', () => {
+    const onChange = vi.fn()
+    const onRowChangeRejected = vi.fn()
+    const processRowChange: ProcessRowChange<ShiftRow> = (candidate, _previous, context) => {
+      if (context.rowIndex === 1) {
+        return {
+          status: 'rejected',
+          issues: [
+            {
+              columnKey: 'startTime',
+              result: { level: 'error', message: 'Assigned shifts cannot be cleared' },
+            },
+          ],
+        }
+      }
+      return { status: 'accepted', row: candidate }
+    }
+    const { getTable, root } = renderTableHook({
+      columns,
+      initialData,
+      rowKey: 'id',
+      onChange,
+      onRowChangeRejected,
+      processRowChange,
+    })
+
+    let result: ReturnType<InternalTableInstance<ShiftRow>['__handleClearCells']> | undefined
+    act(() => {
+      result = getTable().__handleClearCells([
+        { rowIndex: 0, columnKey: 'startTime', value: '' },
+        { rowIndex: 1, columnKey: 'startTime', value: '' },
+      ])
+    })
+
+    expect(result?.committed).toBe(false)
+    expect(getTable().getData()).toEqual(initialData)
+    expect(onChange).not.toHaveBeenCalled()
+    expect(onRowChangeRejected).toHaveBeenCalledOnce()
+
+    act(() => root.unmount())
+  })
+
+  it('commits a multi-cell clear as one undoable change', () => {
+    const onChange = vi.fn()
+    const { getTable, root } = renderTableHook({
+      columns,
+      initialData,
+      rowKey: 'id',
+      onChange,
+      processRowChange: (candidate) => ({ status: 'accepted', row: candidate }),
+    })
+
+    act(() => {
+      getTable().__handleClearCells([
+        { rowIndex: 0, columnKey: 'startTime', value: '' },
+        { rowIndex: 1, columnKey: 'startTime', value: '' },
+      ])
+    })
+
+    expect(
+      getTable()
+        .getData()
+        .map((row) => row.startTime),
+    ).toEqual(['', ''])
+    expect(onChange).toHaveBeenCalledOnce()
+
+    act(() => getTable().undo())
+    expect(getTable().getData()).toEqual(initialData)
 
     act(() => root.unmount())
   })

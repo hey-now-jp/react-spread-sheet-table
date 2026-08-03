@@ -21,6 +21,13 @@
 - **AND** `onChange`は通知されない
 - **AND** `onRowChangeRejected`へ拒否理由が通知される
 
+#### Scenario: Process a multi-cell clear as one transaction
+
+- **WHEN** 範囲を選択してDeleteまたはCutでセルをクリアする
+- **THEN** 処理関数は行ごとにクリア後の行を一回受け取る
+- **AND** いずれかの行が拒否された場合はクリア全体が確定されない
+- **AND** 確定された場合はUndo一回で範囲全体が元に戻る
+
 #### Scenario: Process the final paste candidate
 
 - **WHEN** 同じ行の複数セルをペーストする

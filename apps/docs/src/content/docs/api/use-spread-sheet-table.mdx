@@ -57,7 +57,7 @@ const table = useSpreadSheetTable<Row>({
 
 ## 行変更を確定前に処理する
 
-`processRowChange`を使うと、単一セル編集とペーストのどちらでも、変更後の行を確定前に補正または拒否できます。
+`processRowChange`を使うと、単一セル編集、ペースト、範囲のDelete・Cutのいずれでも、変更後の行を確定前に補正または拒否できます。
 処理は同期関数として実装します。
 
 ```tsx
@@ -103,3 +103,4 @@ const table = useSpreadSheetTable<ShiftRow>({
 `context`には`rowIndex`、操作元を示す`source`（`edit`または`paste`）、確定前の`changes`が含まれます。
 補正した値は元の編集と同じ操作として記録されるため、1回のUndoでまとめて元に戻ります。
 複数行のペーストでは、1行でも拒否されるとペースト全体を反映しません。
+範囲を選択したDeleteとCutも同じ扱いで、1行でも拒否されると範囲全体をクリアしません。

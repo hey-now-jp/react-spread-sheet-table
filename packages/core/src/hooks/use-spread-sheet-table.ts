@@ -101,6 +101,19 @@ export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): 
     [commitCellUpdates],
   )
 
+  // Delete / Cut clears a whole selection at once. Committing it as one transaction keeps
+  // processRowChange rejections from leaving part of the selection cleared.
+  const handleClearCells = useCallback(
+    (updates: ReadonlyArray<CellUpdate<T>>) => {
+      const result = commitCellUpdates(updates, 'edit', false)
+      if (!result.committed) {
+        store.showToast(result.errors.map((error) => error.result.message))
+      }
+      return result
+    },
+    [commitCellUpdates, store],
+  )
+
   const table: TableInstance<T> = {
     // Data
     isDirty: store.isDirty(),
@@ -174,6 +187,11 @@ export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): 
       __handleBatchCellChanges: typeof handleBatchCellChanges
     }
   ).__handleBatchCellChanges = handleBatchCellChanges
+  ;(
+    table as TableInstance<T> & {
+      __handleClearCells: typeof handleClearCells
+    }
+  ).__handleClearCells = handleClearCells
   ;(
     table as TableInstance<T> & {
       __onReorder: UseSpreadSheetTableOptions<T>['onReorder']
