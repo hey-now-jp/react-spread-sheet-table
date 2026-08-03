@@ -25,8 +25,8 @@ CSS ModulesとCSS Custom Propertiesによるテーミング
 以下のカテゴリのCSS変数を提供しなければならない（MUST）。
 
 - フォント: `--sst-font-family`, `--sst-font-size`
-- セル: `--sst-cell-height`, `--sst-cell-padding`
-- 色: `--sst-border-color`, `--sst-header-bg`, `--sst-row-bg`, `--sst-row-alt-bg`
+- セル: `--sst-cell-height`, `--sst-cell-padding`, `--sst-row-header-width`
+- 色: `--sst-border-color`, `--sst-header-bg`, `--sst-row-header-bg`, `--sst-row-bg`, `--sst-row-alt-bg`
 - 選択: `--sst-selected-bg`, `--sst-selected-border`
 - バリデーション: `--sst-error-bg`, `--sst-error-border`, `--sst-warn-bg`, `--sst-warn-border`
 
@@ -37,6 +37,10 @@ CSS ModulesとCSS Custom Propertiesによるテーミング
 #### Scenario: Customize selection color
 - **WHEN** `--sst-selected-bg` と `--sst-selected-border` を設定する
 - **THEN** 選択範囲の表示色が変更される
+
+#### Scenario: Customize row header width
+- **WHEN** `--sst-row-header-width` を設定する
+- **THEN** 行番号列と左上の全選択セルが指定した幅で表示される
 
 ### Requirement: CSS Modules Scoping
 
