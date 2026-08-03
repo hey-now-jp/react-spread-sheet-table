@@ -8,6 +8,7 @@
 }
 
 .wrapper {
+  box-sizing: border-box;
   position: relative;
   border: 1px solid var(--sst-border-color);
   border-radius: 4px;
@@ -16,6 +17,7 @@
 
 .wrapper.autoWidth {
   width: fit-content;
+  max-width: 100%;
 }
 
 .wrapper:focus {
