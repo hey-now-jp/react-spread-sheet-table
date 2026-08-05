@@ -6,10 +6,12 @@
   /* Cell */
   --sst-cell-height: 32px;
   --sst-cell-padding: 4px 8px;
+  --sst-row-header-width: 40px;
 
   /* Colors */
   --sst-border-color: #e0e0e0;
   --sst-header-bg: #f5f5f5;
+  --sst-row-header-bg: var(--sst-header-bg);
   --sst-header-color: #333;
   --sst-row-bg: #fff;
   --sst-row-alt-bg: #fafafa;

@@ -83,4 +83,30 @@ test.describe('列固定', () => {
     const rowHeader = page.locator('[class*="rowHeader"]').first()
     await expect(rowHeader).toHaveClass(/frozenRowHeader/)
   })
+
+  test('CSS変数で行番号列の幅を変更できる', async ({ page }) => {
+    const wrapper = getScrollContainer(page).locator('..')
+    const rowHeader = page.locator('[class*="rowHeader"]:not([class*="Placeholder"])').first()
+    const selectAllCell = page.locator('[class*="selectAllCell"]').first()
+
+    await wrapper.evaluate((element) => {
+      element.style.setProperty('--sst-row-header-width', '25px')
+    })
+
+    await expect(rowHeader).toHaveCSS('width', '25px')
+    await expect(selectAllCell).toHaveCSS('width', '25px')
+  })
+
+  test('行番号列の幅を変更しても固定列の left が追従する', async ({ page }) => {
+    const wrapper = getScrollContainer(page).locator('..')
+    const frozenCell = getCell(page, 0, 0)
+
+    await expect(frozenCell).toHaveCSS('left', '40px')
+
+    await wrapper.evaluate((element) => {
+      element.style.setProperty('--sst-row-header-width', '25px')
+    })
+
+    await expect(frozenCell).toHaveCSS('left', '25px')
+  })
 })

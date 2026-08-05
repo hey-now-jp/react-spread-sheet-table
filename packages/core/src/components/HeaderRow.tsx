@@ -12,7 +12,7 @@ type HeaderRowProps<T> = {
   readonly filterable: boolean
   readonly reorderable?: boolean
   readonly resizable: boolean
-  readonly frozenLeftOffsets: ReadonlyArray<number>
+  readonly frozenLeftOffsets: ReadonlyArray<string>
 }
 
 function HeaderRowInner<T>({
