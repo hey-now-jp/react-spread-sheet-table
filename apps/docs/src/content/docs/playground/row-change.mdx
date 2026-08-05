@@ -1,0 +1,17 @@
+---
+title: Row Change Processing
+description: 行変更を確定前に処理するデモ
+---
+
+import { RowChangeDemo } from '../../../components/RowChangeDemo'
+
+`processRowChange` で行変更を確定前に補正・拒否するデモです。
+
+- 開始時刻だけを変更すると、元の所要時間を保って終了時刻が自動補正されます (1回の Undo で両方戻ります)
+- 終了時刻が開始時刻以前になる変更は拒否されます
+- 担当者と開始の列は Delete / Cut でクリアできません (`context.source` が `clear` の場合の分岐)
+- 複数行のペーストは、1行でも拒否されると全体が反映されません
+
+<div class="not-content">
+  <RowChangeDemo client:only="react" />
+</div>

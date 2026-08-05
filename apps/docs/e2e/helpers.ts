@@ -17,6 +17,14 @@ export async function goToEditingDemo(page: Page) {
   await container.click()
 }
 
+/** RowChangeDemo ページに遷移 */
+export async function goToRowChangeDemo(page: Page) {
+  await page.goto('/react-spread-sheet-table/playground/row-change/')
+  const container = page.locator('[class*="scrollContainer"]')
+  await container.waitFor()
+  await container.click()
+}
+
 /** VirtualScrollDemo ページに遷移 */
 export async function goToVirtualScrollDemo(page: Page) {
   await page.goto('/react-spread-sheet-table/playground/virtual-scroll/')
