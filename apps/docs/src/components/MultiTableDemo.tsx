@@ -138,6 +138,7 @@ function TaskTable() {
     rowKey: 'id',
     sortable: true,
     filterable: true,
+    frozenColumns: 2,
   })
 
   return (
