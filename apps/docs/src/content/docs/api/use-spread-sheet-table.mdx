@@ -100,7 +100,8 @@ const table = useSpreadSheetTable<ShiftRow>({
 })
 ```
 
-`context`には`rowIndex`、操作元を示す`source`（`edit`または`paste`）、確定前の`changes`が含まれます。
+`context`には`rowIndex`、操作元を示す`source`、確定前の`changes`が含まれます。
+`source`は単一セル編集が`edit`、ペーストが`paste`、DeleteとCutによるクリアが`clear`です。
 補正した値は元の編集と同じ操作として記録されるため、1回のUndoでまとめて元に戻ります。
 複数行のペーストでは、1行でも拒否されるとペースト全体を反映しません。
 範囲を選択したDeleteとCutも同じ扱いで、1行でも拒否されると範囲全体をクリアしません。

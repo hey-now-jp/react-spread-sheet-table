@@ -3,6 +3,7 @@ import { createStore, type TableStore } from '../core/store/create-store'
 import type {
   DataColumnDef,
   FilterCondition,
+  RowChangeSource,
   SelectionRange,
   SortDirection,
   TableInstance,
@@ -46,7 +47,7 @@ export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): 
   const commitCellUpdates = useCallback(
     (
       updates: ReadonlyArray<CellUpdate<T>>,
-      source: 'edit' | 'paste',
+      source: RowChangeSource,
       validateBeforeCommit: boolean,
     ) => {
       const prepared = prepareCellUpdates(
@@ -105,7 +106,7 @@ export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): 
   // processRowChange rejections from leaving part of the selection cleared.
   const handleClearCells = useCallback(
     (updates: ReadonlyArray<CellUpdate<T>>) => {
-      const result = commitCellUpdates(updates, 'edit', false)
+      const result = commitCellUpdates(updates, 'clear', false)
       if (!result.committed) {
         store.showToast(result.errors.map((error) => error.result.message))
       }

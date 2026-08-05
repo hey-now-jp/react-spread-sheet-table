@@ -20,7 +20,7 @@ export type ChangeInfo<T> = {
   readonly changes: ReadonlyArray<CellChange<T>>
 }
 
-export type RowChangeSource = 'edit' | 'paste'
+export type RowChangeSource = 'edit' | 'paste' | 'clear'
 
 export type RowChangeContext<T> = {
   readonly rowIndex: number

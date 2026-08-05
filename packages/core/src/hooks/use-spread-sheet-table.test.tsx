@@ -217,6 +217,32 @@ describe('useSpreadSheetTable row processing', () => {
     act(() => root.unmount())
   })
 
+  it('passes the operation source to processRowChange', () => {
+    const sources: string[] = []
+    const processRowChange: ProcessRowChange<ShiftRow> = (candidate, _previous, context) => {
+      sources.push(context.source)
+      return { status: 'accepted', row: candidate }
+    }
+    const { getTable, root } = renderTableHook({
+      columns,
+      initialData,
+      rowKey: 'id',
+      processRowChange,
+    })
+
+    act(() => getTable().__handleCellChange(0, 'startTime', '09:30'))
+    act(() => {
+      getTable().__handleBatchCellChanges([{ rowIndex: 0, columnKey: 'startTime', value: '11:00' }])
+    })
+    act(() => {
+      getTable().__handleClearCells([{ rowIndex: 0, columnKey: 'startTime', value: '' }])
+    })
+
+    expect(sources).toEqual(['edit', 'paste', 'clear'])
+
+    act(() => root.unmount())
+  })
+
   it('commits a multi-cell clear as one undoable change', () => {
     const onChange = vi.fn()
     const { getTable, root } = renderTableHook({
