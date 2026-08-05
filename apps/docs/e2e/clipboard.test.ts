@@ -69,6 +69,19 @@ test.describe('クリップボード', () => {
     await expect(getCell(page, 1, 0)).toHaveText('2')
   })
 
+  test('列の範囲外の値を含むペーストは全体を拒否', async ({ page }) => {
+    await goToBasicDemo(page)
+    const mod = modKey(page)
+
+    await page.evaluate(() => navigator.clipboard.writeText('Changed Name\t999'))
+    await clickCell(page, 0, 0)
+    await page.keyboard.press(`${mod}+KeyV`)
+
+    await expect(getCell(page, 0, 0)).toHaveText('Tanaka Taro')
+    await expect(getCell(page, 0, 1)).toHaveText('28')
+    await expect(page.getByText(/最大値は150です/)).toBeVisible()
+  })
+
   test('単一セルコピー → 範囲選択ペースト (全セルを同じ値で埋める)', async ({ page }) => {
     await goToBasicDemo(page)
     const mod = modKey(page)

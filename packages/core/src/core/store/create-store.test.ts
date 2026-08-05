@@ -539,6 +539,21 @@ describe('createStore', () => {
       expect(store.getCellValue(2, 'name')).toBe('Charlie')
     })
 
+    it('notifies subscribers once after an atomic batch', () => {
+      const store = createTestStore()
+      const listener = vi.fn()
+      store.subscribe(listener)
+
+      store.beginBatch()
+      store.setCellValue(0, 'name', 'X')
+      store.setCellValue(1, 'name', 'Y')
+      expect(listener).not.toHaveBeenCalled()
+      store.endBatch()
+
+      expect(listener).toHaveBeenCalledOnce()
+      expect(store.getRows().map((row) => row.name)).toEqual(['X', 'Y', 'Charlie'])
+    })
+
     it('endBatch with no changes does not push entry', () => {
       const store = createTestStore()
       store.beginBatch()
