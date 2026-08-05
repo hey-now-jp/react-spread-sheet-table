@@ -53,6 +53,7 @@ export type TableInstance<T> = {
   readonly getData: () => ReadonlyArray<T>
   readonly markAsSaved: () => void
   readonly resetToInitial: () => void
+  readonly replaceData: (rows: ReadonlyArray<T>) => void
 
   // Selection
   readonly selection: SelectionState

@@ -81,6 +81,10 @@ export function resetToInitial<T>(slice: DataSlice<T>): DataSlice<T> {
   }
 }
 
+export function replaceData<T>(rows: ReadonlyArray<T>): DataSlice<T> {
+  return createDataSlice(rows)
+}
+
 export function reorderRows<T>(
   slice: DataSlice<T>,
   fromIndex: number,

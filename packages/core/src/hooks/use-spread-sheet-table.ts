@@ -59,6 +59,7 @@ export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): 
     getData: store.getRows,
     markAsSaved: store.markAsSaved,
     resetToInitial: store.resetToInitial,
+    replaceData: store.replaceData,
 
     // Selection
     selection: store.getSelection(),
