@@ -14,7 +14,7 @@ type HeaderCellProps<T> = {
   readonly sortable: boolean
   readonly filterable: boolean
   readonly resizable: boolean
-  readonly stickyLeft?: number
+  readonly stickyLeft?: string
   readonly isFrozenLast?: boolean
 }
 

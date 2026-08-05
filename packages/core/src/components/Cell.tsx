@@ -26,7 +26,7 @@ type CellProps<T> = {
   readonly store: TableStore<T>
   readonly readOnly: boolean
   readonly onCellChange: (rowIndex: number, columnKey: keyof T, value: T[keyof T]) => void
-  readonly stickyLeft?: number
+  readonly stickyLeft?: string
   readonly isFrozenLast?: boolean
   readonly cellMeta?: (row: T, columnKey: keyof T, rowIndex: number) => CellMeta | undefined
 }
