@@ -208,6 +208,11 @@ function SpreadSheetTableInner<T>({
       }
     }
   ).__handleBatchCellChanges
+  const handleClearCells = (
+    table as TableInstance<T> & {
+      __handleClearCells: (updates: ReadonlyArray<CellUpdate<T>>) => void
+    }
+  ).__handleClearCells
   const onReorder = (
     table as TableInstance<T> & {
       __onReorder: UseSpreadSheetTableOptions<T>['onReorder']
@@ -341,7 +346,7 @@ function SpreadSheetTableInner<T>({
           return
         }
         if (e.key === 'x' || e.key === 'X') {
-          handleCut(store, columns, readOnly, handleCellChange, clipboardCtx)
+          handleCut(store, columns, readOnly, handleClearCells, clipboardCtx)
           e.preventDefault()
           return
         }
@@ -506,7 +511,7 @@ function SpreadSheetTableInner<T>({
         case 'Delete':
         case 'Backspace': {
           if (!readOnly) {
-            clearSelectedCells(store, columns, handleCellChange)
+            clearSelectedCells(store, columns, handleClearCells)
           }
           e.preventDefault()
           break
@@ -557,6 +562,7 @@ function SpreadSheetTableInner<T>({
       readOnly,
       handleCellChange,
       handleBatchCellChanges,
+      handleClearCells,
       clipboardCtx,
       height,
       virtualScroll.containerRef,
@@ -892,12 +898,12 @@ function handleCut<T>(
   store: TableStore<T>,
   columns: ReadonlyArray<import('../core/types/column').ColumnDef<T>>,
   readOnlyTable: boolean,
-  onCellChange: (rowIndex: number, columnKey: keyof T, value: T[keyof T]) => void,
+  onClearCells: (updates: ReadonlyArray<CellUpdate<T>>) => void,
   ctx: SpreadSheetTableContextValue | null,
 ): void {
   handleCopy(store, ctx)
   if (!readOnlyTable) {
-    clearSelectedCells(store, columns, onCellChange)
+    clearSelectedCells(store, columns, onClearCells)
   }
 }
 
@@ -909,31 +915,33 @@ function getClearValue<T>(col: DataColumnDef<T>): T[keyof T] {
 function clearSelectedCells<T>(
   store: TableStore<T>,
   columns: ReadonlyArray<import('../core/types/column').ColumnDef<T>>,
-  onCellChange: (rowIndex: number, columnKey: keyof T, value: T[keyof T]) => void,
+  onClearCells: (updates: ReadonlyArray<CellUpdate<T>>) => void,
 ): void {
   const selection = store.getSelection()
   if (selection.activeCell === null) return
 
-  store.beginBatch()
+  const updates: CellUpdate<T>[] = []
+  const collect = (rowIndex: number, colIndex: number) => {
+    const col = columns[colIndex]
+    if (col && isDataColumn(col) && !col.readOnly) {
+      const dataCol = col as DataColumnDef<T>
+      updates.push({ rowIndex, columnKey: dataCol.key as keyof T, value: getClearValue(dataCol) })
+    }
+  }
+
   if (selection.range) {
     const { minRow, maxRow, minCol, maxCol } = getNormalizedRange(selection.range)
     for (let r = minRow; r <= maxRow; r++) {
       for (let c = minCol; c <= maxCol; c++) {
-        const col = columns[c]
-        if (col && isDataColumn(col) && !col.readOnly) {
-          const dataCol = col as DataColumnDef<T>
-          onCellChange(r, dataCol.key as keyof T, getClearValue(dataCol))
-        }
+        collect(r, c)
       }
     }
   } else {
-    const col = columns[selection.activeCell.colIndex]
-    if (col && isDataColumn(col) && !col.readOnly) {
-      const dataCol = col as DataColumnDef<T>
-      onCellChange(selection.activeCell.rowIndex, dataCol.key as keyof T, getClearValue(dataCol))
-    }
+    collect(selection.activeCell.rowIndex, selection.activeCell.colIndex)
   }
-  store.endBatch()
+
+  if (updates.length === 0) return
+  onClearCells(updates)
 }
 
 export const SpreadSheetTable = memo(SpreadSheetTableInner) as typeof SpreadSheetTableInner

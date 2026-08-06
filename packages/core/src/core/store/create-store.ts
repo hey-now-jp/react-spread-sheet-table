@@ -160,6 +160,7 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
     previousValue: T[keyof T]
     newValue: T[keyof T]
   }> | null = null
+  let batchDepth = 0
   let clipboardRange: SelectionRange | null = null
   let validationErrors: ReadonlyArray<CellValidationError> = []
   let openFilterKey: string | null = null
@@ -263,6 +264,7 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
       editSlice = stopEditingSlice()
       historySlice = createHistorySlice<T>()
       batchChanges = null
+      batchDepth = 0
       clipboardRange = null
       validationErrors = []
       toastMessages = []
@@ -458,9 +460,14 @@ export function createStore<T>(options: CreateStoreOptions<T>): TableStore<T> {
     canUndo: () => historySlice.undoStack.length > 0,
     canRedo: () => historySlice.redoStack.length > 0,
     beginBatch: () => {
-      batchChanges = []
+      if (batchDepth === 0) batchChanges = []
+      batchDepth += 1
     },
     endBatch: () => {
+      if (batchDepth === 0) return
+      batchDepth -= 1
+      if (batchDepth > 0) return
+
       const completedChanges = batchChanges
       batchChanges = null
       if (completedChanges !== null && completedChanges.length > 0) {
