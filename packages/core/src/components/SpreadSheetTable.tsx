@@ -60,7 +60,6 @@ type SpreadSheetTableComponentProps<T> = {
   readonly autoWidth?: boolean
 }
 const ROW_HEIGHT = 32
-const ROW_HEADER_WIDTH = 40
 
 /**
  * Excel-style Cmd+Arrow jump: find the boundary where cell value
@@ -268,13 +267,17 @@ function SpreadSheetTableInner<T>({
 
   const frozenCount = Math.max(0, Math.min(frozenColumns ?? 0, columns.length))
 
+  // 行番号列の幅は --sst-row-header-width で上書きできるため、
+  // 固定列の left は calc() で CSS 変数を参照する
   // biome-ignore lint/correctness/useExhaustiveDependencies: store.getSnapshot() triggers recalc on column resize
-  const frozenLeftOffsets: ReadonlyArray<number> = useMemo(() => {
+  const frozenLeftOffsets: ReadonlyArray<string> = useMemo(() => {
     if (frozenCount === 0) return []
-    const offsets: number[] = []
-    let acc = ROW_HEADER_WIDTH
+    const offsets: string[] = []
+    let acc = 0
     for (let i = 0; i < frozenCount; i++) {
-      offsets.push(acc)
+      offsets.push(
+        acc === 0 ? 'var(--sst-row-header-width)' : `calc(var(--sst-row-header-width) + ${acc}px)`,
+      )
       const col = columns[i]
       acc += store.getColumnWidth(String(col.key)) ?? col.width ?? 150
     }

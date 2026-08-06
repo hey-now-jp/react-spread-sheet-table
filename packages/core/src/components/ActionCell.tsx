@@ -10,7 +10,7 @@ type ActionCellProps<T> = {
   readonly rowIndex: number
   readonly colIndex: number
   readonly store: TableStore<T>
-  readonly stickyLeft?: number
+  readonly stickyLeft?: string
   readonly isFrozenLast?: boolean
 }
 
