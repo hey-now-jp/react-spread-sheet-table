@@ -95,8 +95,8 @@ export function RowChangeDemo() {
     initialData: shiftData,
     rowKey: 'id',
     processRowChange,
-    onRowChangeRejected: (errors) => {
-      setRejected(errors.map((error) => error.result.message).join(' / '))
+    onRowChangeRejected: (rejection) => {
+      setRejected(rejection.errors.map((error) => error.result.message).join(' / '))
     },
     onChange: () => setRejected(null),
   })
