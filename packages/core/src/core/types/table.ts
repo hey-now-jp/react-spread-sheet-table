@@ -161,4 +161,5 @@ export type SpreadSheetTableProps<T> = {
   readonly readOnly?: boolean
   readonly cellMeta?: (row: T, columnKey: keyof T, rowIndex: number) => CellMeta | undefined
   readonly autoWidth?: boolean
+  readonly showValidationToast?: boolean
 }

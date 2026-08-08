@@ -58,6 +58,7 @@ type SpreadSheetTableComponentProps<T> = {
   readonly height?: number
   readonly cellMeta?: CellMetaFn<T>
   readonly autoWidth?: boolean
+  readonly showValidationToast?: boolean
 }
 const ROW_HEIGHT = 32
 
@@ -192,6 +193,7 @@ function SpreadSheetTableInner<T>({
   height,
   cellMeta,
   autoWidth = false,
+  showValidationToast = true,
 }: SpreadSheetTableComponentProps<T>) {
   const store = (table as TableInstance<T> & { __store: TableStore<T> }).__store
   const handleCellChange = (
@@ -655,7 +657,7 @@ function SpreadSheetTableInner<T>({
       onBlur={handleBlur}
       tabIndex={0}
     >
-      <Toast store={store} />
+      <Toast store={store} visible={showValidationToast} />
       <div
         ref={virtualScroll.containerRef}
         className={scrollStyles.scrollContainer}

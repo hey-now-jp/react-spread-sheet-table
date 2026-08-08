@@ -6,9 +6,10 @@ const AUTO_DISMISS_MS = 5000
 
 type ToastProps<T> = {
   readonly store: TableStore<T>
+  readonly visible?: boolean
 }
 
-function ToastInner<T>({ store }: ToastProps<T>) {
+function ToastInner<T>({ store, visible = true }: ToastProps<T>) {
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
 
   const messages = store.getToastMessages()
@@ -17,18 +18,22 @@ function ToastInner<T>({ store }: ToastProps<T>) {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: toastVersion resets the dismiss timer when a new toast arrives while one is already visible
   useEffect(() => {
+    if (!visible) {
+      if (hasMessages) store.clearToast()
+      return
+    }
     if (!hasMessages) return
     const timer = setTimeout(() => {
       store.clearToast()
     }, AUTO_DISMISS_MS)
     return () => clearTimeout(timer)
-  }, [hasMessages, toastVersion, store])
+  }, [hasMessages, toastVersion, store, visible])
 
   const handleClose = useCallback(() => {
     store.clearToast()
   }, [store])
 
-  if (!hasMessages) return null
+  if (!visible || !hasMessages) return null
 
   return (
     <div className={styles.toastContainer}>
