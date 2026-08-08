@@ -66,11 +66,13 @@ function renderTableHook(options: UseSpreadSheetTableOptions<ShiftRow>): {
 describe('useSpreadSheetTable row processing', () => {
   it('commits a normalized row as one undoable change', () => {
     const onChange = vi.fn()
+    const onRowChangeCommitted = vi.fn()
     const { getTable, root } = renderTableHook({
       columns,
       initialData,
       rowKey: 'id',
       onChange,
+      onRowChangeCommitted,
       processRowChange: (candidate) => ({
         status: 'accepted',
         row: { ...candidate, endTime: '10:00' },
@@ -85,6 +87,25 @@ describe('useSpreadSheetTable row processing', () => {
       endTime: '10:00',
     })
     expect(onChange).toHaveBeenCalledOnce()
+    expect(onChange.mock.calls[0]).toHaveLength(1)
+    expect(onRowChangeCommitted).toHaveBeenCalledWith({
+      source: 'edit',
+      rows: [
+        {
+          rowIndex: 0,
+          previousRow: initialData[0],
+          row: {
+            id: 'shift-1',
+            startTime: '09:30',
+            endTime: '10:00',
+          },
+          changes: [
+            { key: 'startTime', previousValue: '09:00', newValue: '09:30' },
+            { key: 'endTime', previousValue: '09:30', newValue: '10:00' },
+          ],
+        },
+      ],
+    })
 
     act(() => getTable().undo())
     expect(getTable().getData()[0]).toEqual(initialData[0])
@@ -116,13 +137,33 @@ describe('useSpreadSheetTable row processing', () => {
 
     expect(getTable().getData()).toEqual(initialData)
     expect(onChange).not.toHaveBeenCalled()
-    expect(onRowChangeRejected).toHaveBeenCalledWith([
-      {
-        rowIndex: 0,
-        columnKey: 'startTime',
-        result: { level: 'error', message: 'This shift overlaps another shift' },
-      },
-    ])
+    expect(onRowChangeRejected).toHaveBeenCalledWith({
+      source: 'edit',
+      errors: [
+        {
+          rowIndex: 0,
+          columnKey: 'startTime',
+          result: { level: 'error', message: 'This shift overlaps another shift' },
+        },
+      ],
+      rows: [
+        {
+          rowIndex: 0,
+          previousRow: initialData[0],
+          candidateRow: {
+            id: 'shift-1',
+            startTime: '09:30',
+            endTime: '09:30',
+          },
+          issues: [
+            {
+              columnKey: 'startTime',
+              result: { level: 'error', message: 'This shift overlaps another shift' },
+            },
+          ],
+        },
+      ],
+    })
 
     act(() => root.unmount())
   })
@@ -164,13 +205,103 @@ describe('useSpreadSheetTable row processing', () => {
     expect(result?.committed).toBe(false)
     expect(getTable().getData()).toEqual(initialData)
     expect(onChange).not.toHaveBeenCalled()
-    expect(onRowChangeRejected).toHaveBeenCalledWith([
-      {
-        rowIndex: 1,
-        columnKey: 'startTime',
-        result: { level: 'error', message: 'This shift overlaps another shift' },
-      },
-    ])
+    expect(onRowChangeRejected).toHaveBeenCalledWith({
+      source: 'paste',
+      errors: [
+        {
+          rowIndex: 1,
+          columnKey: 'startTime',
+          result: { level: 'error', message: 'This shift overlaps another shift' },
+        },
+      ],
+      rows: [
+        {
+          rowIndex: 1,
+          previousRow: initialData[1],
+          candidateRow: {
+            id: 'shift-2',
+            startTime: '11:30',
+            endTime: '10:30',
+          },
+          issues: [
+            {
+              columnKey: 'startTime',
+              result: { level: 'error', message: 'This shift overlaps another shift' },
+            },
+          ],
+        },
+      ],
+    })
+
+    act(() => root.unmount())
+  })
+
+  it('reports a multi-row paste as one committed operation', () => {
+    const onChange = vi.fn()
+    const onRowChangeCommitted = vi.fn()
+    const { getTable, root } = renderTableHook({
+      columns,
+      initialData,
+      rowKey: 'id',
+      onChange,
+      onRowChangeCommitted,
+    })
+
+    act(() => {
+      getTable().__handleBatchCellChanges([
+        { rowIndex: 0, columnKey: 'startTime', value: '11:00' },
+        { rowIndex: 1, columnKey: 'startTime', value: '11:30' },
+      ])
+    })
+
+    expect(onChange).toHaveBeenCalledOnce()
+    expect(onRowChangeCommitted).toHaveBeenCalledOnce()
+    expect(onRowChangeCommitted).toHaveBeenCalledWith({
+      source: 'paste',
+      rows: [
+        {
+          rowIndex: 0,
+          previousRow: initialData[0],
+          row: { ...initialData[0], startTime: '11:00' },
+          changes: [{ key: 'startTime', previousValue: '09:00', newValue: '11:00' }],
+        },
+        {
+          rowIndex: 1,
+          previousRow: initialData[1],
+          row: { ...initialData[1], startTime: '11:30' },
+          changes: [{ key: 'startTime', previousValue: '10:00', newValue: '11:30' }],
+        },
+      ],
+    })
+
+    act(() => root.unmount())
+  })
+
+  it('reports a clear as a committed operation', () => {
+    const onRowChangeCommitted = vi.fn()
+    const { getTable, root } = renderTableHook({
+      columns,
+      initialData,
+      rowKey: 'id',
+      onRowChangeCommitted,
+    })
+
+    act(() => {
+      getTable().__handleClearCells([{ rowIndex: 0, columnKey: 'startTime', value: '' }])
+    })
+
+    expect(onRowChangeCommitted).toHaveBeenCalledOnce()
+    expect(onRowChangeCommitted).toHaveBeenCalledWith({
+      source: 'clear',
+      rows: [
+        {
+          rowIndex: 0,
+          previousRow: initialData[0],
+          row: { ...initialData[0], startTime: '' },
+          changes: [{ key: 'startTime', previousValue: '09:00', newValue: '' }],
+        },
+      ],
+    })
 
     act(() => root.unmount())
   })
@@ -178,6 +309,7 @@ describe('useSpreadSheetTable row processing', () => {
   it('rejects a multi-cell clear atomically', () => {
     const onChange = vi.fn()
     const onRowChangeRejected = vi.fn()
+    const onRowChangeCommitted = vi.fn()
     const processRowChange: ProcessRowChange<ShiftRow> = (candidate, _previous, context) => {
       if (context.rowIndex === 1) {
         return {
@@ -198,6 +330,7 @@ describe('useSpreadSheetTable row processing', () => {
       rowKey: 'id',
       onChange,
       onRowChangeRejected,
+      onRowChangeCommitted,
       processRowChange,
     })
 
@@ -213,6 +346,7 @@ describe('useSpreadSheetTable row processing', () => {
     expect(getTable().getData()).toEqual(initialData)
     expect(onChange).not.toHaveBeenCalled()
     expect(onRowChangeRejected).toHaveBeenCalledOnce()
+    expect(onRowChangeCommitted).not.toHaveBeenCalled()
 
     act(() => root.unmount())
   })

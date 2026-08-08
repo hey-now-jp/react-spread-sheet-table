@@ -11,7 +11,7 @@ import type {
 } from '../core/types'
 import { isDataColumn } from '../core/types'
 import { type CellUpdate, validateCellUpdates } from '../core/validation/cell-update-validation'
-import { prepareCellUpdates } from '../core/validation/row-change-processing'
+import { createRowChangeCommit, prepareCellUpdates } from '../core/validation/row-change-processing'
 import { runValidation } from '../core/validation/validation-utils'
 
 export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): TableInstance<T> {
@@ -50,14 +50,14 @@ export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): 
       source: RowChangeSource,
       validateBeforeCommit: boolean,
     ) => {
-      const prepared = prepareCellUpdates(
-        store.getRows(),
-        updates,
-        source,
-        options.processRowChange,
-      )
+      const previousRows = store.getRows()
+      const prepared = prepareCellUpdates(previousRows, updates, source, options.processRowChange)
       if (!prepared.accepted) {
-        options.onRowChangeRejected?.(prepared.errors)
+        options.onRowChangeRejected?.({
+          source,
+          errors: prepared.errors,
+          rows: prepared.rejectedRows,
+        })
         return { committed: false as const, errors: prepared.errors }
       }
 
@@ -68,12 +68,14 @@ export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): 
         return { committed: false as const, errors }
       }
 
+      const commit = createRowChangeCommit(previousRows, prepared.updates, source)
       store.beginBatch()
       for (const update of prepared.updates) {
         store.setCellValue(update.rowIndex, update.columnKey, update.value)
       }
       store.endBatch()
       if (prepared.updates.length > 0) options.onChange?.(store.getChangedRows())
+      if (commit.rows.length > 0) options.onRowChangeCommitted?.(commit)
 
       return { committed: true as const, errors }
     },
@@ -81,6 +83,7 @@ export function useSpreadSheetTable<T>(options: UseSpreadSheetTableOptions<T>): 
       store,
       options.columns,
       options.onChange,
+      options.onRowChangeCommitted,
       options.onRowChangeRejected,
       options.processRowChange,
       options.validate,

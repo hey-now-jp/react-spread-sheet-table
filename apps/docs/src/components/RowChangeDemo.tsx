@@ -89,14 +89,27 @@ const processRowChange: ProcessRowChange<Shift> = (candidate, previous, context)
 
 export function RowChangeDemo() {
   const [rejected, setRejected] = useState<string | null>(null)
+  const [committed, setCommitted] = useState<string | null>(null)
+  const [commitCount, setCommitCount] = useState(0)
 
   const table = useSpreadSheetTable<Shift>({
     columns,
     initialData: shiftData,
     rowKey: 'id',
     processRowChange,
-    onRowChangeRejected: (errors) => {
-      setRejected(errors.map((error) => error.result.message).join(' / '))
+    onRowChangeCommitted: (commit) => {
+      const rows = commit.rows.map((row) => {
+        const changes = row.changes
+          .map((change) => `${String(change.key)} ${change.previousValue}→${change.newValue}`)
+          .join(', ')
+        return `#${row.rowIndex} ${changes}`
+      })
+      setCommitted(`${commit.source}: ${rows.join(' / ')}`)
+      setCommitCount((count) => count + 1)
+    },
+    onRowChangeRejected: (rejection) => {
+      setRejected(rejection.errors.map((error) => error.result.message).join(' / '))
+      setCommitted(null)
     },
     onChange: () => setRejected(null),
   })
@@ -109,6 +122,12 @@ export function RowChangeDemo() {
         </button>
         <span className="demo-status" data-testid="rejected-message" style={{ color: '#e53935' }}>
           {rejected ?? ''}
+        </span>
+        <span className="demo-status" data-testid="committed-message">
+          {committed ?? ''}
+        </span>
+        <span className="demo-status" data-testid="commit-count">
+          {commitCount}
         </span>
       </div>
       <SpreadSheetTable table={table} height={240} />
