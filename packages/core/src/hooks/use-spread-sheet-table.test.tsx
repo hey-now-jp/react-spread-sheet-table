@@ -277,9 +277,39 @@ describe('useSpreadSheetTable row processing', () => {
     act(() => root.unmount())
   })
 
+  it('reports a clear as a committed operation', () => {
+    const onRowChangeCommitted = vi.fn()
+    const { getTable, root } = renderTableHook({
+      columns,
+      initialData,
+      rowKey: 'id',
+      onRowChangeCommitted,
+    })
+
+    act(() => {
+      getTable().__handleClearCells([{ rowIndex: 0, columnKey: 'startTime', value: '' }])
+    })
+
+    expect(onRowChangeCommitted).toHaveBeenCalledOnce()
+    expect(onRowChangeCommitted).toHaveBeenCalledWith({
+      source: 'clear',
+      rows: [
+        {
+          rowIndex: 0,
+          previousRow: initialData[0],
+          row: { ...initialData[0], startTime: '' },
+          changes: [{ key: 'startTime', previousValue: '09:00', newValue: '' }],
+        },
+      ],
+    })
+
+    act(() => root.unmount())
+  })
+
   it('rejects a multi-cell clear atomically', () => {
     const onChange = vi.fn()
     const onRowChangeRejected = vi.fn()
+    const onRowChangeCommitted = vi.fn()
     const processRowChange: ProcessRowChange<ShiftRow> = (candidate, _previous, context) => {
       if (context.rowIndex === 1) {
         return {
@@ -300,6 +330,7 @@ describe('useSpreadSheetTable row processing', () => {
       rowKey: 'id',
       onChange,
       onRowChangeRejected,
+      onRowChangeCommitted,
       processRowChange,
     })
 
@@ -315,6 +346,7 @@ describe('useSpreadSheetTable row processing', () => {
     expect(getTable().getData()).toEqual(initialData)
     expect(onChange).not.toHaveBeenCalled()
     expect(onRowChangeRejected).toHaveBeenCalledOnce()
+    expect(onRowChangeCommitted).not.toHaveBeenCalled()
 
     act(() => root.unmount())
   })

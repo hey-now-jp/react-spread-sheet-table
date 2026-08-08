@@ -11,6 +11,7 @@ import { RowChangeDemo } from '../../../components/RowChangeDemo'
 - 終了時刻が開始時刻以前になる変更は拒否されます
 - 担当者と開始の列は Delete / Cut でクリアできません (`context.source` が `clear` の場合の分岐)
 - 複数行のペーストは、1行でも拒否されると全体が反映されません
+- 確定した変更は `onRowChangeCommitted` で操作単位に通知されます (補正後の値を含みます)
 
 <div class="not-content">
   <RowChangeDemo client:only="react" />

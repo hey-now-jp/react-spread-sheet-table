@@ -24,6 +24,41 @@ test.describe('行変更の確定前処理', () => {
     await expect(getCell(page, 0, 2)).toHaveText('10:00')
   })
 
+  test('編集の確定内容が補正後の値を含めて通知される', async ({ page }) => {
+    await goToRowChangeDemo(page)
+    const demo = getDemoContainer(page)
+
+    await getCell(page, 0, 1).dblclick()
+    const input = demo.locator('input[type="time"]').first()
+    await input.fill('10:00')
+    await input.press('Enter')
+
+    await expect(page.getByTestId('committed-message')).toHaveText(
+      'edit: #0 startTime 09:00→10:00, endTime 10:00→11:00',
+    )
+    await expect(page.getByTestId('commit-count')).toHaveText('1')
+  })
+
+  test('ペーストは1操作としてまとめて通知される', async ({ page }) => {
+    await goToRowChangeDemo(page)
+    const mod = modKey(page)
+
+    await page.evaluate(() => navigator.clipboard.writeText('10:00\t11:00\n13:00\t14:00'))
+    await clickCell(page, 0, 1)
+    await page.keyboard.press(`${mod}+KeyV`)
+
+    await expect(page.getByTestId('committed-message')).toHaveText(
+      'paste: #0 startTime 09:00→10:00, endTime 10:00→11:00 / #1 startTime 11:00→13:00, endTime 12:00→14:00',
+    )
+    // 2行分の変更でも通知は1回のみ
+    await expect(page.getByTestId('commit-count')).toHaveText('1')
+
+    await expect(getCell(page, 0, 1)).toHaveText('10:00')
+    await expect(getCell(page, 0, 2)).toHaveText('11:00')
+    await expect(getCell(page, 1, 1)).toHaveText('13:00')
+    await expect(getCell(page, 1, 2)).toHaveText('14:00')
+  })
+
   test('拒否された編集は反映されず、拒否理由が通知される', async ({ page }) => {
     await goToRowChangeDemo(page)
     const demo = getDemoContainer(page)
@@ -36,6 +71,8 @@ test.describe('行変更の確定前処理', () => {
 
     await expect(getCell(page, 0, 2)).toHaveText('10:00')
     await expect(page.getByTestId('rejected-message')).toHaveText('終了は開始より後にしてください')
+    // 拒否された操作は確定通知されない
+    await expect(page.getByTestId('commit-count')).toHaveText('0')
   })
 
   test('クリアはsourceがclearとして拒否される', async ({ page }) => {
