@@ -46,7 +46,13 @@
       "Read(~/.aws/**)",
       "Read(~/.config/gh/**)",
       "Bash(gh auth token)",
-      "Bash(gh auth token *)"
+      "Bash(gh auth token *)",
+      "Bash(gh auth status --show-token)",
+      "Bash(gh auth status --show-token *)",
+      "Bash(gh auth status *--show-token*)",
+      "Bash(gh auth status -t)",
+      "Bash(gh auth status -t *)",
+      "Bash(gh auth status *-t*)"
     ]
   }
 }
