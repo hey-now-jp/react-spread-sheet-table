@@ -41,7 +41,18 @@
       "Bash(npm publish *)",
       "Bash(pnpm publish *)",
       "Bash(yarn publish *)",
-      "Read(.env)"
+      "Read(.env)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.config/gh/**)",
+      "Bash(gh auth token)",
+      "Bash(gh auth token *)",
+      "Bash(gh auth status --show-token)",
+      "Bash(gh auth status --show-token *)",
+      "Bash(gh auth status *--show-token*)",
+      "Bash(gh auth status -t)",
+      "Bash(gh auth status -t *)",
+      "Bash(gh auth status *-t*)"
     ]
   }
 }
