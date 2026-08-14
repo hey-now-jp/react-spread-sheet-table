@@ -44,7 +44,9 @@
       "Read(.env)",
       "Read(~/.ssh/**)",
       "Read(~/.aws/**)",
-      "Read(~/.config/gh/**)"
+      "Read(~/.config/gh/**)",
+      "Bash(gh auth token)",
+      "Bash(gh auth token *)"
     ]
   }
 }
