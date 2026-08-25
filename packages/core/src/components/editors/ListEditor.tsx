@@ -54,6 +54,12 @@ export const ListEditor = memo(function ListEditor({
     [onCommit, onCancel],
   )
 
+  // 選択肢に無い値（未選択の空文字など）を表す option。
+  // これが無いと、value に一致する option を持たない select はブラウザが先頭の
+  // option を表示してしまう。利用者にはその項目が選ばれて見えるため、同じ項目を
+  // 選んでも値が変わらず change が発火せず、確定できない。
+  const hasMatchingOption = options.some((opt) => opt.value === value)
+
   return (
     <select
       ref={selectRef}
@@ -63,6 +69,7 @@ export const ListEditor = memo(function ListEditor({
       onKeyDown={handleKeyDown}
       onBlur={onCommit}
     >
+      {!hasMatchingOption && <option value={value} />}
       {options.map((opt) => (
         <option key={opt.value} value={opt.value}>
           {opt.label}
