@@ -42,11 +42,17 @@ const renderEditor = (value: string) => {
 
 const unmount = (root: Root) => act(() => root.unmount())
 
+const pick = (select: HTMLSelectElement, value: string) =>
+  act(() => {
+    select.value = value
+    select.dispatchEvent(new Event('change', { bubbles: true }))
+  })
+
 describe('ListEditor', () => {
   // A select whose value matches no option falls back to showing the first one.
   // The operator then sees that option as chosen, so picking it changes nothing,
   // fires no change event and the edit can never be committed.
-  it('keeps an unmatched value selected instead of falling back to the first option', () => {
+  it('shows the empty option instead of the first one when the cell is empty', () => {
     const { root, select } = renderEditor('')
 
     expect(select.value).toBe('')
@@ -57,11 +63,12 @@ describe('ListEditor', () => {
     unmount(root)
   })
 
-  it('does not add a placeholder when the value matches an option', () => {
+  it('keeps the empty option available once a value is chosen', () => {
     const { root, select } = renderEditor('21')
 
     expect(select.value).toBe('21')
-    expect(select.options).toHaveLength(options.length)
+    expect(select.options[0]?.value).toBe('')
+    expect(select.options).toHaveLength(options.length + 1)
 
     unmount(root)
   })
@@ -69,12 +76,20 @@ describe('ListEditor', () => {
   it('commits the choice when the operator picks the first option from an empty cell', () => {
     const { onChange, onCommit, root, select } = renderEditor('')
 
-    act(() => {
-      select.value = '11'
-      select.dispatchEvent(new Event('change', { bubbles: true }))
-    })
+    pick(select, '11')
 
     expect(onChange).toHaveBeenCalledWith('11')
+    expect(onCommit).toHaveBeenCalledOnce()
+
+    unmount(root)
+  })
+
+  it('commits an empty value when the operator clears the cell', () => {
+    const { onChange, onCommit, root, select } = renderEditor('21')
+
+    pick(select, '')
+
+    expect(onChange).toHaveBeenCalledWith('')
     expect(onCommit).toHaveBeenCalledOnce()
 
     unmount(root)
