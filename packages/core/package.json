@@ -1,6 +1,6 @@
 {
   "name": "@heynow-jp/react-spread-sheet-table",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A React spreadsheet table component with sorting, filtering, inline editing, and undo/redo support",
   "type": "module",
   "license": "MIT",
