@@ -53,9 +53,10 @@ test.describe('カラム型', () => {
     const select = demo.locator('select').first()
     await expect(select).toBeVisible()
 
-    // オプションが存在する
+    // 未選択を表す空の option に続いて、設定した選択肢が並ぶ
     const options = select.locator('option')
-    await expect(options).toHaveCount(4) // Engineering, Sales, HR, Finance
+    await expect(options).toHaveCount(5) // (空), Engineering, Sales, HR, Finance
+    await expect(options.first()).toHaveAttribute('value', '')
   })
 
   test('multiList は編集モードでチェックボックス一覧表示', async ({ page }) => {

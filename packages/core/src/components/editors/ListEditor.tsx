@@ -63,6 +63,14 @@ export const ListEditor = memo(function ListEditor({
       onKeyDown={handleKeyDown}
       onBlur={onCommit}
     >
+      {/*
+       * 未選択を表す空の option。
+       * これが無いと、value に一致する option を持たない select はブラウザが先頭の
+       * option を表示してしまう。利用者にはその項目が選ばれて見えるため、同じ項目を
+       * 選んでも値が変わらず change が発火せず、確定できない。
+       * 設定済みのセルでも常に置き、選択の解除を同じ操作で行えるようにする。
+       */}
+      <option value="" />
       {options.map((opt) => (
         <option key={opt.value} value={opt.value}>
           {opt.label}
