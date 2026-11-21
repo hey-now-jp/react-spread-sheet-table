@@ -101,3 +101,82 @@ describe('SpreadSheetTable validation toast', () => {
     unmount(root)
   })
 })
+
+describe('SpreadSheetTable wrapper focus', () => {
+  type TextRow = { id: string; name: string }
+
+  const renderTextTable = () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    const Harness = () => {
+      const table = useSpreadSheetTable<TextRow>({
+        columns: [{ type: 'text', key: 'name', header: 'Name' }],
+        initialData: [
+          { id: 'row-1', name: 'Alice' },
+          { id: 'row-2', name: 'Bob' },
+        ],
+        rowKey: 'id',
+      })
+      return <SpreadSheetTable table={table} />
+    }
+
+    act(() => root.render(<Harness />))
+
+    const wrapper = container.querySelector<HTMLElement>('[tabindex="0"]')
+    if (!wrapper) throw new Error('wrapper not found')
+    const getCell = (row: number, col: number) => {
+      const cell = container.querySelector<HTMLElement>(`[data-row="${row}"][data-col="${col}"]`)
+      if (!cell) throw new Error(`cell ${row},${col} not found`)
+      return cell
+    }
+
+    return {
+      root,
+      wrapper,
+      getCell,
+      cleanup: () => {
+        act(() => root.unmount())
+        container.remove()
+      },
+    }
+  }
+
+  it('focuses the wrapper with preventScroll on cell mousedown', () => {
+    const { wrapper, getCell, cleanup } = renderTextTable()
+    const focusSpy = vi.spyOn(wrapper, 'focus')
+
+    act(() => {
+      getCell(1, 0).dispatchEvent(new MouseEvent('mousedown', { bubbles: true, button: 0 }))
+    })
+
+    expect(focusSpy).toHaveBeenCalledOnce()
+    expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true })
+
+    focusSpy.mockRestore()
+    cleanup()
+  })
+
+  it('refocuses the wrapper with preventScroll when editing ends', () => {
+    const { wrapper, getCell, cleanup } = renderTextTable()
+
+    act(() => {
+      getCell(0, 0).dispatchEvent(new MouseEvent('dblclick', { bubbles: true }))
+    })
+    const input = getCell(0, 0).querySelector('input')
+    if (!input) throw new Error('editor input not found')
+
+    const focusSpy = vi.spyOn(wrapper, 'focus')
+    act(() => {
+      input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    })
+
+    expect(getCell(0, 0).querySelector('input')).toBeNull()
+    expect(focusSpy).toHaveBeenCalledOnce()
+    expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true })
+
+    focusSpy.mockRestore()
+    cleanup()
+  })
+})
