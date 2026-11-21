@@ -51,7 +51,8 @@ jobs:
       - run: pnpm test
 
   e2e:
-    runs-on: ubuntu-latest
+    # Playwright の Chromium が ubuntu 26.04 (ubuntu-latest) に未対応のため
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v5
