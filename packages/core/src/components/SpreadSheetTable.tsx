@@ -230,11 +230,13 @@ function SpreadSheetTableInner<T>({
   // Refocus wrapper when editing ends so keyboard navigation keeps working.
   // Portal-based editors (MultiListEditor) leave focus outside the wrapper DOM,
   // so we always refocus unless an unrelated interactive element has focus.
+  // preventScroll: the wrapper can be taller than the viewport when an outer
+  // element scrolls (no `height`), and a plain focus() would scroll it to its top.
   const editingCell = store.getEditingCell()
   const wasEditing = useRef(false)
   useEffect(() => {
     if (wasEditing.current && editingCell === null) {
-      wrapperRef.current?.focus()
+      wrapperRef.current?.focus({ preventScroll: true })
     }
     wasEditing.current = editingCell !== null
   }, [editingCell])
@@ -604,9 +606,12 @@ function SpreadSheetTableInner<T>({
       }
       // Keep focus on wrapper so keyboard navigation works,
       // but not when clicking interactive elements (checkbox, button, etc.)
+      // preventScroll keeps an outer scroll container where it is; the clicked
+      // cell is already visible. Keyboard moves invoke scrollRowIntoView, which
+      // only scrolls when height is set (early return when height is omitted).
       const target = e.target as HTMLElement
       if (!target.closest('input, button, select, textarea, a')) {
-        wrapperRef.current?.focus()
+        wrapperRef.current?.focus({ preventScroll: true })
       }
     },
     [store, findCellPosition],
