@@ -234,7 +234,8 @@ function SpreadSheetTableInner<T>({
   const wasEditing = useRef(false)
   useEffect(() => {
     if (wasEditing.current && editingCell === null) {
-      wrapperRef.current?.focus()
+      // Avoid jumping outer scroll containers.
+      wrapperRef.current?.focus({ preventScroll: true })
     }
     wasEditing.current = editingCell !== null
   }, [editingCell])
@@ -606,7 +607,8 @@ function SpreadSheetTableInner<T>({
       // but not when clicking interactive elements (checkbox, button, etc.)
       const target = e.target as HTMLElement
       if (!target.closest('input, button, select, textarea, a')) {
-        wrapperRef.current?.focus()
+        // Avoid jumping outer scroll containers.
+        wrapperRef.current?.focus({ preventScroll: true })
       }
     },
     [store, findCellPosition],
